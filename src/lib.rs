@@ -113,4 +113,67 @@ struct KeyboardModifiers {
     mods: KeyModifier
 }
 
+type InterfaceHandler = fn(Handle) -> ();
 
+#[repr(C)]
+struct WlcInterface {
+    output: OutputInterface,
+    view: ViewInterface,
+    keyboard: KeyboardInterface,
+    pointer: PointerInterface,
+    touch: TouchInterface,
+    compositor: CompositorInterface,
+    input: InputInterface
+}
+
+struct OutputInterface {
+    created: fn(Handle) -> bool,
+    destroyed: InterfaceHandler,
+    focus: fn(Handle, bool) -> (),
+    resolution: fn(Handle, Size, Size) -> (),
+    render: RenderInterface,
+}
+
+struct RenderInterface {
+    pre: InterfaceHandler,
+    post: InterfaceHandler,
+}
+
+struct ViewInterface {
+    created: fn(Handle) -> bool,
+    destroyed: InterfaceHandler,
+    focus: fn(Handle, bool) -> (),
+    move_to_output: fn(Handle, Handle, Handle) -> (),
+    request: RequestInterface,
+}
+
+struct RequestInterface {
+    geometry: fn(Handle, Geometry) -> (),
+    state: fn(Handle, ViewState, bool) -> (),
+    move_: fn(Handle, Point) -> (),
+    resize: fn(Handle, ResizeEdge, Point) -> (),
+    render: RenderInterface,
+}
+
+struct KeyboardInterface {
+    key: fn(Handle, u32, KeyboardModifiers, u32, KeyState) -> bool,
+}
+
+struct PointerInterface {
+    button: fn(Handle, u32, KeyboardModifiers, u32, ButtonState, Point) -> bool,
+    scroll: fn(Handle, u32, KeyboardModifiers, ScrollAxis, [u64; 2]) -> bool,
+    motion: fn(Handle, u32, Point),
+}
+
+struct TouchInterface {
+    touch: fn(Handle, u32, KeyboardModifiers, TouchType, i32, Point) -> bool,
+}
+
+struct CompositorInterface {
+    ready: fn() -> ()
+}
+
+struct InputInterface {
+    created: fn(LibinputDevice) -> bool,
+    destroyed: fn(LibinputDevice) -> ()
+}
