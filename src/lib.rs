@@ -1,3 +1,8 @@
+#![feature(libc)]
+// This code will be used
+#![allow(dead_code)]
+extern crate libc;
+
 #[test]
 fn it_works() {
 }
@@ -113,7 +118,24 @@ struct KeyboardModifiers {
     mods: KeyModifier
 }
 
+struct Point {
+    x: i32,
+    y: i32
+}
+
+struct WLCSize {
+    w: i32,
+    h: i32
+}
+
+struct Geometry {
+    size: WLCSize,
+    origin: Point
+}
+
 type InterfaceHandler = fn(Handle) -> ();
+
+type Handle = libc::uintptr_t;
 
 #[repr(C)]
 struct WlcInterface {
@@ -130,7 +152,7 @@ struct OutputInterface {
     created: fn(Handle) -> bool,
     destroyed: InterfaceHandler,
     focus: fn(Handle, bool) -> (),
-    resolution: fn(Handle, Size, Size) -> (),
+    resolution: fn(Handle, WLCSize, WLCSize) -> (),
     render: RenderInterface,
 }
 
@@ -177,3 +199,6 @@ struct InputInterface {
     created: fn(LibinputDevice) -> bool,
     destroyed: fn(LibinputDevice) -> ()
 }
+
+/// Not currently supporting libinput
+enum LibinputDevice {}
