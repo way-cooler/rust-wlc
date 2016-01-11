@@ -118,16 +118,19 @@ struct KeyboardModifiers {
     mods: KeyModifier
 }
 
+#[repr(C)]
 struct Point {
     x: i32,
     y: i32
 }
 
+#[repr(C)]
 struct WLCSize {
     w: i32,
     h: i32
 }
 
+#[repr(C)]
 struct Geometry {
     size: WLCSize,
     origin: Point
@@ -148,6 +151,7 @@ struct WlcInterface {
     input: InputInterface
 }
 
+#[repr(C)]
 struct OutputInterface {
     created: fn(WLCHandle) -> bool,
     destroyed: InterfaceHandler,
@@ -156,11 +160,13 @@ struct OutputInterface {
     render: RenderInterface,
 }
 
+#[repr(C)]
 struct RenderInterface {
     pre: InterfaceHandler,
     post: InterfaceHandler,
 }
 
+#[repr(C)]
 struct ViewInterface {
     created: fn(WLCHandle) -> bool,
     destroyed: InterfaceHandler,
@@ -169,6 +175,7 @@ struct ViewInterface {
     request: RequestInterface,
 }
 
+#[repr(C)]
 struct RequestInterface {
     geometry: fn(WLCHandle, Geometry) -> (),
     state: fn(WLCHandle, ViewState, bool) -> (),
@@ -177,30 +184,36 @@ struct RequestInterface {
     render: RenderInterface,
 }
 
+#[repr(C)]
 struct KeyboardInterface {
     key: fn(WLCHandle, u32, KeyboardModifiers, u32, KeyState) -> bool,
 }
 
+#[repr(C)]
 struct PointerInterface {
     button: fn(WLCHandle, u32, KeyboardModifiers, u32, ButtonState, Point) -> bool,
     scroll: fn(WLCHandle, u32, KeyboardModifiers, ScrollAxis, [u64; 2]) -> bool,
     motion: fn(WLCHandle, u32, Point),
 }
 
+#[repr(C)]
 struct TouchInterface {
     touch: fn(WLCHandle, u32, KeyboardModifiers, TouchType, i32, Point) -> bool,
 }
 
+#[repr(C)]
 struct CompositorInterface {
     ready: fn() -> ()
 }
 
+#[repr(C)]
 struct InputInterface {
     created: fn(LibinputDevice) -> bool,
     destroyed: fn(LibinputDevice) -> ()
 }
 
 /// Not currently supporting libinput
+//#[repr(C)]
 enum LibinputDevice {}
 
---fn wlc_set_log_handler()
+//fn wlc_set_log_handler()
