@@ -9,6 +9,7 @@ fn it_works() {
 
 // Types
 
+/// Log level to pass into wlc logging
 enum LogType {
     Info,
     Warn,
@@ -16,12 +17,17 @@ enum LogType {
     Wayland
 }
 
+/// Type of backend that a window is being composited in
 enum BackendType {
+    /// Backend type is unknown
     None,
+    /// Standard wayland client
     DRM,
+    /// wayland-x11 client
     X11
 }
 
+/// Bitflags describing wayland events
 enum EventBit {
     Readable = 1,
     Writeable = 2,
@@ -29,6 +35,7 @@ enum EventBit {
     Error = 8
 }
 
+/// How and window is being viewed
 enum ViewState {
     Maximized = 1,
     Fullscreen = 2,
@@ -37,6 +44,7 @@ enum ViewState {
     Activated = 16
 }
 
+/// Viewtype - like x11 flags
 enum ViewType {
     /// Override redirect (X11)
     OverrideRedirect = 1,
@@ -50,6 +58,8 @@ enum ViewType {
     Popup = 16
 }
 
+// Which edge is being used to resize a window.
+// Works like bitflags but also has all the options in the enum
 enum ResizeEdge {
     None = 0,
     Top = 1,
@@ -84,11 +94,13 @@ enum KeyboardLed {
     ScrollLock = 4
 }
 
+/// Represents a key state in key events
 enum KeyState {
     Released = 0,
     Pressed = 1
 }
 
+/// Represents a button state in button events
 enum ButtonState {
     Released = 0,
     Pressed = 1
@@ -118,28 +130,39 @@ struct KeyboardModifiers {
     mods: KeyModifier
 }
 
+/// Standard x, y i32 point
 #[repr(C)]
 struct Point {
     x: i32,
     y: i32
 }
 
+/// Represents the height and width of a program
 #[repr(C)]
 struct WLCSize {
     w: i32,
     h: i32
 }
 
+/// Represents the location and size of a program
 #[repr(C)]
 struct Geometry {
     size: WLCSize,
     origin: Point
 }
 
+/// Function signature of some standard Wwlc callbacks
 type InterfaceHandler = fn(WLCHandle) -> ();
 
+/// Many of the wlc commands take a wlc_handle as their input for
+/// manipulating clients in the compositor.
+/// This library has turned it into an object which has instance
+/// methods to obtain this data.
 type WLCHandle = libc::uintptr_t;
 
+/// Represents the wlc interface.
+/// wlc initialization involves registering a series of callbacks to the library
+/// using this interface struct.
 #[repr(C)]
 struct WlcInterface {
     output: OutputInterface,
@@ -151,6 +174,7 @@ struct WlcInterface {
     input: InputInterface
 }
 
+/// Represents window callbacks
 #[repr(C)]
 struct OutputInterface {
     created: fn(WLCHandle) -> bool,
@@ -160,12 +184,14 @@ struct OutputInterface {
     render: RenderInterface,
 }
 
+/// Represents global rendering callbacks
 #[repr(C)]
 struct RenderInterface {
     pre: InterfaceHandler,
     post: InterfaceHandler,
 }
 
+/// Represents window viewing callbacks
 #[repr(C)]
 struct ViewInterface {
     created: fn(WLCHandle) -> bool,
@@ -175,6 +201,7 @@ struct ViewInterface {
     request: RequestInterface,
 }
 
+/// Represents window rendering callbacks
 #[repr(C)]
 struct RequestInterface {
     geometry: fn(WLCHandle, Geometry) -> (),
@@ -184,11 +211,13 @@ struct RequestInterface {
     render: RenderInterface,
 }
 
+/// Represents keyboard press callbacks
 #[repr(C)]
 struct KeyboardInterface {
     key: fn(WLCHandle, u32, KeyboardModifiers, u32, KeyState) -> bool,
 }
 
+/// Represents mouse input callbacks
 #[repr(C)]
 struct PointerInterface {
     button: fn(WLCHandle, u32, KeyboardModifiers, u32, ButtonState, Point) -> bool,
@@ -196,16 +225,19 @@ struct PointerInterface {
     motion: fn(WLCHandle, u32, Point),
 }
 
+/// Represents touchscreen callbacks
 #[repr(C)]
 struct TouchInterface {
     touch: fn(WLCHandle, u32, KeyboardModifiers, TouchType, i32, Point) -> bool,
 }
 
+/// Represents a callback for initializing a callback
 #[repr(C)]
 struct CompositorInterface {
     ready: fn() -> ()
 }
 
+/// Represents callbacks for window creation and destruction
 #[repr(C)]
 struct InputInterface {
     created: fn(LibinputDevice) -> bool,
