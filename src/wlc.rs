@@ -40,13 +40,13 @@ pub struct Struct_Unnamed1 {
     pub quot: ::libc::c_long,
     pub rem: ::libc::c_long,
 }
-impl ::std::clone::Clone for Struct_Unnamed1 {
+impl ::std::clone::Clone for QuotientRemainder {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for Struct_Unnamed1 {
+impl ::std::default::Default for QuotientRemainder {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
-pub type imaxdiv_t = Struct_Unnamed1;
+pub type imaxdiv_t = QuotientRemainder;
 pub type wlc_handle = uintptr_t;
 pub type size_t = ::libc::c_ulong;
 pub enum Struct___locale_data { }
@@ -81,21 +81,21 @@ impl ::std::default::Default for Struct_wlc_point {
 }
 #[repr(C)]
 #[derive(Copy)]
-pub struct Struct_wlc_size {
+pub struct Size {
     pub w: uint32_t,
     pub h: uint32_t,
 }
-impl ::std::clone::Clone for Struct_wlc_size {
+impl ::std::clone::Clone for Size {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for Struct_wlc_size {
+impl ::std::default::Default for Size {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 #[repr(C)]
 #[derive(Copy)]
 pub struct Struct_wlc_geometry {
     pub origin: Struct_wlc_point,
-    pub size: Struct_wlc_size,
+    pub size: Size,
 }
 impl ::std::clone::Clone for Struct_wlc_geometry {
     fn clone(&self) -> Self { *self }
@@ -212,9 +212,9 @@ pub struct Struct_Unnamed2 {
     pub resolution: ::std::option::Option<unsafe extern "C" fn(output:
                                                                    wlc_handle,
                                                                from:
-                                                                   *const Struct_wlc_size,
+                                                                   *const Size,
                                                                to:
-                                                                   *const Struct_wlc_size)
+                                                                   *const Size)
                                               -> ()>,
     pub render: Struct_Unnamed3,
 }
@@ -562,16 +562,16 @@ extern "C" {
     pub fn wlc_output_get_sleep(output: wlc_handle) -> u8;
     pub fn wlc_output_set_sleep(output: wlc_handle, sleep: u8) -> ();
     pub fn wlc_output_get_resolution(output: wlc_handle)
-     -> *const Struct_wlc_size;
+     -> *const Size;
     pub fn wlc_output_set_resolution(output: wlc_handle,
-                                     resolution: *const Struct_wlc_size)
+                                     resolution: *const Size)
      -> ();
     pub fn wlc_output_get_mask(output: wlc_handle) -> uint32_t;
     pub fn wlc_output_set_mask(output: wlc_handle, mask: uint32_t) -> ();
     pub fn wlc_output_get_pixels(output: wlc_handle,
                                  pixels:
                                      ::std::option::Option<unsafe extern "C" fn(size:
-                                                                                    *const Struct_wlc_size,
+                                                                                    *const Size,
                                                                                 rgba:
                                                                                     *mut uint8_t,
                                                                                 arg:
