@@ -248,4 +248,21 @@ struct InputInterface {
 //#[repr(C)]
 enum LibinputDevice {}
 
-//fn wlc_set_log_handler()
+// External WLC functions
+extern "C" {
+
+    //fn wlc_log(dpg: LogType, fmt: str, args:);
+
+    /// Intitializes wlc with a callback struct
+    /// and c-specified program arguments.
+    fn wlc_init(interface: &WlcInterface, argc: i32, argv: *mut *mut char) -> bool;
+
+    /// Starts 
+    fn wlc_run();
+
+    fn wlc_get_background_type() -> BackendType;
+
+    fn wlc_terminate();
+
+
+}
