@@ -177,10 +177,10 @@ struct WlcInterface {
 /// Represents window callbacks
 #[repr(C)]
 struct OutputInterface {
-    created: fn(WLCHandle) -> bool,
+    created: fn(handle: WLCHandle) -> bool,
     destroyed: InterfaceHandler,
-    focus: fn(WLCHandle, bool) -> (),
-    resolution: fn(WLCHandle, WLCSize, WLCSize) -> (),
+    focus: fn(handle: WLCHandle, focused: bool) -> (),
+    resolution: fn(handle: WLCHandle, old_size: WLCSize, new_size: WLCSize) -> (),
     render: RenderInterface,
 }
 
@@ -194,35 +194,37 @@ struct RenderInterface {
 /// Represents window viewing callbacks
 #[repr(C)]
 struct ViewInterface {
-    created: fn(WLCHandle) -> bool,
+    created: fn(handle: WLCHandle) -> bool,
     destroyed: InterfaceHandler,
-    focus: fn(WLCHandle, bool) -> (),
-    move_to_output: fn(WLCHandle, WLCHandle, WLCHandle) -> (),
+    focus: fn(handle: WLCHandle, focused: bool) -> (),
+    move_to_output: fn(current: WLCHandle, WLCHandle, WLCHandle) -> (),
     request: RequestInterface,
 }
 
 /// Represents window rendering callbacks
 #[repr(C)]
 struct RequestInterface {
-    geometry: fn(WLCHandle, Geometry) -> (),
-    state: fn(WLCHandle, ViewState, bool) -> (),
-    move_: fn(WLCHandle, Point) -> (),
-    resize: fn(WLCHandle, ResizeEdge, Point) -> (),
+    geometry: fn(handle: WLCHandle, geometry: Geometry) -> (),
+    state: fn(current: WLCHandle, state: ViewState, handled: bool) -> (),
+    move_: fn(handle: WLCHandle, destination: Point) -> (),
+    resize: fn(handle: WLCHandle, edge: ResizeEdge, location: Point) -> (),
     render: RenderInterface,
 }
 
 /// Represents keyboard press callbacks
 #[repr(C)]
 struct KeyboardInterface {
-    key: fn(WLCHandle, u32, KeyboardModifiers, u32, KeyState) -> bool,
+    // WARNING TODO key and time might need to be switched in keyboard example
+    key: fn(handle: WLCHandle, key: u32, mods: KeyboardModifiers, time: u32, state: KeyState) -> bool,
 }
 
 /// Represents mouse input callbacks
 #[repr(C)]
 struct PointerInterface {
-    button: fn(WLCHandle, u32, KeyboardModifiers, u32, ButtonState, Point) -> bool,
-    scroll: fn(WLCHandle, u32, KeyboardModifiers, ScrollAxis, [u64; 2]) -> bool,
-    motion: fn(WLCHandle, u32, Point),
+    button: fn(hande: WLCHandle, button: u32, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool,
+    scroll: fn(handle: WLCHandle, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, heights: [u64; 2]) -> bool,
+    // dist?
+    motion: fn(heights: WLCHandle, dist: u32, point: Point),
 }
 
 /// Represents touchscreen callbacks
@@ -240,8 +242,8 @@ struct CompositorInterface {
 /// Represents callbacks for window creation and destruction
 #[repr(C)]
 struct InputInterface {
-    created: fn(LibinputDevice) -> bool,
-    destroyed: fn(LibinputDevice) -> ()
+    created: fn(device: LibinputDevice) -> bool,
+    destroyed: fn(device: LibinputDevice) -> ()
 }
 
 /// Not currently supporting libinput
