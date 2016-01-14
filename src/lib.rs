@@ -1,11 +1,7 @@
-#![feature(libc)]
+//#![feature(libc)]
 // This code will be used
 #![allow(dead_code)]
 extern crate libc;
-
-#[test]
-fn it_works() {
-}
 
 // Types
 
