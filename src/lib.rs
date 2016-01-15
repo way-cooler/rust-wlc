@@ -1,4 +1,3 @@
-//#![feature(libc)]
 // This code will be used
 #![allow(dead_code)]
 extern crate libc;
@@ -25,18 +24,27 @@ enum BackendType {
 
 /// Bitflags describing wayland events
 enum EventBit {
+    /// Event can be read
     Readable = 1,
+    /// Event can be written
     Writeable = 2,
+    /// Event is hung up (?)
     Hangup = 4,
+    /// Event is in error
     Error = 8
 }
 
 /// How and window is being viewed
 enum ViewState {
+    /// Window maximized
     Maximized = 1,
+    /// Window fullscreen
     Fullscreen = 2,
+    /// Window resizing
     Resizing = 4,
+    /// Window moving
     Moving = 8,
+    /// Window activated
     Activated = 16
 }
 
@@ -255,7 +263,7 @@ extern "C" {
     /// and c-specified program arguments.
     fn wlc_init(interface: &WlcInterface, argc: i32, argv: *mut *mut char) -> bool;
 
-    /// Starts 
+    /// Starts wlc compositor
     fn wlc_run();
 
     fn wlc_get_background_type() -> BackendType;
@@ -263,4 +271,35 @@ extern "C" {
     fn wlc_terminate();
 
 
+}
+
+// From wlc_wayland.h
+
+type WLCResource = libc::uintptr_t;
+
+enum WLDisplay { }
+
+enum WLResource { }
+
+extern "C" {
+    /// Returns Wayland display
+    fn wlc_get_wl_display() -> WLDisplay;
+
+    /// Returns view handle from WLSurface resource
+    fn wlc_handle_from_wl_surface_resource(resource: WLResource) -> WLCHandle;
+
+    /// Returns output handle from WLOutput resource
+    fn wlc_handle_from_wl_output_resource(resource: WLResource) -> WLCHandle;
+
+    /// Returns internal WLC surface from WLSurface resource
+    fn wlc_resource_from_wl_surface_resource(resource: WLResource) -> WLCResource;
+
+    /// Returns internal WLC surface from view handle
+    fn wlc_view_get_surface(handle: WLCHandle) -> WLCResource;
+
+    /// Gets the size of a surface
+    fn wlc_surface_get_size(resource: WLCResource) -> WLCSize;
+
+    /// Renders surfaces inside pre and post render hooks
+    fn wlc_surface_render(surface: WLCResource, geometry: &Geometry) -> ();
 }
