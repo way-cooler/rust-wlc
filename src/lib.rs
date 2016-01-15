@@ -1,4 +1,4 @@
-// This code will be used
+// This code will be used later
 #![allow(dead_code)]
 extern crate libc;
 
@@ -13,6 +13,7 @@ enum LogType {
 }
 
 /// Type of backend that a window is being composited in
+#[repr(C)]
 enum BackendType {
     /// Backend type is unknown
     None,
@@ -78,6 +79,7 @@ enum ResizeEdge {
 
 /// Represents which keyboard meta keys are being pressed.
 enum KeyModifier {
+    /// (assumed)
     None = 0,
     Shift = 1,
     Caps = 2,
@@ -85,6 +87,7 @@ enum KeyModifier {
     Alt = 8,
     Mod2 = 16,
     Mod3 = 32,
+    /// Mod4?
     Logo = 64,
     Mod5 = 128
 }
@@ -164,10 +167,11 @@ type InterfaceHandler = fn(WLCHandle) -> ();
 /// methods to obtain this data.
 type WLCHandle = libc::uintptr_t;
 
-/// Represents the wlc interface.
+/// Represents the wlc callback interface.
 /// wlc initialization involves registering a series of callbacks to the library
 /// using this interface struct.
 #[repr(C)]
+#[no_mangle]
 struct WlcInterface {
     output: OutputInterface,
     view: ViewInterface,
@@ -225,7 +229,7 @@ struct KeyboardInterface {
 /// Represents mouse input callbacks
 #[repr(C)]
 struct PointerInterface {
-    button: fn(hande: WLCHandle, button: u32, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool,
+    button: fn(hande: WLCHandle, button: libc::c_uint, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool,
     scroll: fn(handle: WLCHandle, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, heights: [u64; 2]) -> bool,
     // dist?
     motion: fn(heights: WLCHandle, dist: u32, point: Point),
@@ -234,10 +238,11 @@ struct PointerInterface {
 /// Represents touchscreen callbacks
 #[repr(C)]
 struct TouchInterface {
-    touch: fn(WLCHandle, u32, KeyboardModifiers, TouchType, i32, Point) -> bool,
+    /// NOTE WARNING TODO Not sure if key and touch need to be switched
+    touch: fn(handle: WLCHandle, time: libc::c_uint, mods: KeyboardModifiers, touch: TouchType, key: libc::c_int, point: Point) -> bool,
 }
 
-/// Represents a callback for initializing a callback
+/// Represents a callback for initializing the callback
 #[repr(C)]
 struct CompositorInterface {
     ready: fn() -> ()
@@ -261,7 +266,7 @@ extern "C" {
 
     /// Intitializes wlc with a callback struct
     /// and c-specified program arguments.
-    fn wlc_init(interface: &WlcInterface, argc: i32, argv: *mut *mut char) -> bool;
+    fn wlc_init(interface: WlcInterface, argc: libc::c_int, argv: *mut *mut libc::wchar_t) -> bool;
 
     /// Starts wlc compositor
     fn wlc_run();
@@ -275,10 +280,16 @@ extern "C" {
 
 // From wlc_wayland.h
 
+/// Represents a wlc resource, which represents a wayland surface.
+/// This object can be queried for its size wayland surface properties
+/// and rendered in pre and post render hooks.
 type WLCResource = libc::uintptr_t;
 
+/// Represents a wayland display.
 enum WLDisplay { }
 
+/// Represents a wayland resource.
+/// This object can be rendered in pre and post render hooks.
 enum WLResource { }
 
 extern "C" {
