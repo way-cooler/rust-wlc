@@ -36,20 +36,21 @@ pub type uintmax_t = ::libc::c_ulong;
 pub type __gwchar_t = ::libc::c_int;
 #[repr(C)]
 #[derive(Copy)]
-pub struct Struct_Unnamed1 {
+pub struct QuotRem {
     pub quot: ::libc::c_long,
     pub rem: ::libc::c_long,
 }
-impl ::std::clone::Clone for QuotientRemainder {
+impl ::std::clone::Clone for QuotRem {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for QuotientRemainder {
+impl ::std::default::Default for QuotRem {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
-pub type imaxdiv_t = QuotientRemainder;
+pub type imaxdiv_t = QuotRem;
 pub type wlc_handle = uintptr_t;
 pub type size_t = ::libc::c_ulong;
 pub enum Struct___locale_data { }
+
 #[repr(C)]
 #[derive(Copy)]
 pub struct Struct___locale_struct {
@@ -69,14 +70,14 @@ pub type __locale_t = *mut Struct___locale_struct;
 pub type locale_t = __locale_t;
 #[repr(C)]
 #[derive(Copy)]
-pub struct Struct_wlc_point {
+pub struct Wlc_point {
     pub x: int32_t,
     pub y: int32_t,
 }
-impl ::std::clone::Clone for Struct_wlc_point {
+impl ::std::clone::Clone for Wlc_point {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for Struct_wlc_point {
+impl ::std::default::Default for Wlc_point {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 #[repr(C)]
@@ -93,20 +94,20 @@ impl ::std::default::Default for Size {
 }
 #[repr(C)]
 #[derive(Copy)]
-pub struct Struct_wlc_geometry {
+pub struct Wlc_geometry {
     pub origin: Struct_wlc_point,
     pub size: Size,
 }
-impl ::std::clone::Clone for Struct_wlc_geometry {
+impl ::std::clone::Clone for Wlc_geometry {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for Struct_wlc_geometry {
+impl ::std::default::Default for Wlc_geometry {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
-pub enum Struct_wlc_event_source { }
-pub enum Struct_xkb_state { }
-pub enum Struct_xkb_keymap { }
-pub enum Struct_libinput_device { }
+pub enum Wlc_event_source { }
+pub enum Xkb_state { }
+pub enum Xkb_keymap { }
+pub enum Libinput_device { }
 pub type Enum_wlc_log_type = ::libc::c_uint;
 pub const WLC_LOG_INFO: ::libc::c_uint = 0;
 pub const WLC_LOG_WARN: ::libc::c_uint = 1;
@@ -173,19 +174,19 @@ pub const WLC_TOUCH_FRAME: ::libc::c_uint = 3;
 pub const WLC_TOUCH_CANCEL: ::libc::c_uint = 4;
 #[repr(C)]
 #[derive(Copy)]
-pub struct Struct_wlc_modifiers {
+pub struct Wlc_modifiers {
     pub leds: uint32_t,
     pub mods: uint32_t,
 }
-impl ::std::clone::Clone for Struct_wlc_modifiers {
+impl ::std::clone::Clone for Wlc_modifiers {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for Struct_wlc_modifiers {
+impl ::std::default::Default for Wlc_modifiers {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 #[repr(C)]
 #[derive(Copy)]
-pub struct Struct_wlc_interface {
+pub struct Wlc_interface {
     pub output: Struct_Unnamed2,
     pub view: Struct_Unnamed4,
     pub keyboard: Struct_Unnamed7,
@@ -194,10 +195,10 @@ pub struct Struct_wlc_interface {
     pub compositor: Struct_Unnamed10,
     pub input: Struct_Unnamed11,
 }
-impl ::std::clone::Clone for Struct_wlc_interface {
+impl ::std::clone::Clone for Wlc_interface {
     fn clone(&self) -> Self { *self }
 }
-impl ::std::default::Default for Struct_wlc_interface {
+impl ::std::default::Default for Wlc_interface {
     fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 #[repr(C)]
@@ -304,7 +305,7 @@ pub struct Struct_Unnamed7 {
     pub key: ::std::option::Option<unsafe extern "C" fn(view: wlc_handle,
                                                         time: uint32_t,
                                                         arg1:
-                                                            *const Struct_wlc_modifiers,
+                                                            *const Wlc_modifiers,
                                                         key: uint32_t,
                                                         arg2:
                                                             Enum_wlc_key_state)
@@ -322,17 +323,17 @@ pub struct Struct_Unnamed8 {
     pub button: ::std::option::Option<unsafe extern "C" fn(view: wlc_handle,
                                                            time: uint32_t,
                                                            arg1:
-                                                               *const Struct_wlc_modifiers,
+                                                               *const Wlc_modifiers,
                                                            button: uint32_t,
                                                            arg2:
                                                                Enum_wlc_button_state,
                                                            arg3:
-                                                               *const Struct_wlc_point)
+                                                               *const Wlc_point)
                                           -> u8>,
     pub scroll: ::std::option::Option<unsafe extern "C" fn(view: wlc_handle,
                                                            time: uint32_t,
                                                            arg1:
-                                                               *const Struct_wlc_modifiers,
+                                                               *const Wlc_modifiers,
                                                            axis_bits: uint8_t,
                                                            amount:
                                                                *mut ::libc::c_double)
@@ -340,7 +341,7 @@ pub struct Struct_Unnamed8 {
     pub motion: ::std::option::Option<unsafe extern "C" fn(view: wlc_handle,
                                                            time: uint32_t,
                                                            arg1:
-                                                               *const Struct_wlc_point)
+                                                               *const Wlc_point)
                                           -> u8>,
 }
 impl ::std::clone::Clone for Struct_Unnamed8 {
@@ -355,12 +356,12 @@ pub struct Struct_Unnamed9 {
     pub touch: ::std::option::Option<unsafe extern "C" fn(view: wlc_handle,
                                                           time: uint32_t,
                                                           arg1:
-                                                              *const Struct_wlc_modifiers,
+                                                              *const Wlc_modifiers,
                                                           arg2:
                                                               Enum_wlc_touch_type,
                                                           slot: int32_t,
                                                           arg3:
-                                                              *const Struct_wlc_point)
+                                                              *const Wlc_point)
                                          -> u8>,
 }
 impl ::std::clone::Clone for Struct_Unnamed9 {
@@ -521,7 +522,7 @@ extern "C" {
                                                                               str:
                                                                                   *const ::libc::c_char)
                                                              -> ()>) -> ();
-    pub fn wlc_init(interface: *const Struct_wlc_interface,
+    pub fn wlc_init(interface: *const Wlc_interface,
                     argc: ::libc::c_int, argv: *mut *mut ::libc::c_char)
      -> u8;
     pub fn wlc_terminate() -> ();
@@ -632,7 +633,7 @@ extern "C" {
 }
 
 // Implementation of extern functions
-fn init(interface: Struct_wlc_interface, args: Vec<String>) -> u8 {
+fn init(interface: Wlc_interface, args: Vec<String>) -> u8 {
     unsafe {
         let argc = args.len() as libc::c_int;
         let mut char_array: Vec<*mut libc::c_char> = Vec::new();
