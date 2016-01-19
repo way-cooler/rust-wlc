@@ -145,33 +145,33 @@ pub enum TouchType {
 /// i.e. control key, caps lock on
 #[repr(C)]
 pub struct KeyboardModifiers {
-    leds: KeyboardLed,
-    mods: KeyModifier
+    pub leds: KeyboardLed,
+    pub mods: KeyModifier
 }
 
 /// Standard x, y i32 point
 #[repr(C)]
 pub struct Point {
-    x: i32,
-    y: i32
+    pub x: i32,
+    pub y: i32
 }
 
 /// Represents the height and width of a program
 #[repr(C)]
 pub struct WLCSize {
-    w: i32,
-    h: i32
+    pub w: i32,
+    pub h: i32
 }
 
 /// Represents the location and size of a program
 #[repr(C)]
 pub struct Geometry {
-    size: WLCSize,
-    origin: Point
+    pub size: WLCSize,
+    pub origin: Point
 }
 
 /// Function signature of some standard Wwlc callbacks
-type InterfaceHandler = Option<extern "C" fn(WLCHandle) -> ()>;
+pub type InterfaceHandler = Option<extern "C" fn(WLCHandle) -> ()>;
 
 /// Many of the wlc commands take a wlc_handle as their input for
 /// manipulating clients in the compositor.
@@ -185,91 +185,91 @@ pub type WLCHandle = libc::uintptr_t;
 #[repr(C)]
 #[no_mangle]
 pub struct WlcInterface {
-    output: OutputInterface,
-    view: ViewInterface,
-    keyboard: KeyboardInterface,
-    pointer: PointerInterface,
-    touch: TouchInterface,
-    compositor: CompositorInterface,
-    input: InputInterface
+    pub output: OutputInterface,
+    pub view: ViewInterface,
+    pub keyboard: KeyboardInterface,
+    pub pointer: PointerInterface,
+    pub touch: TouchInterface,
+    pub compositor: CompositorInterface,
+    pub input: InputInterface
 }
 
 /// Represents window callbacks
 #[repr(C)]
-struct OutputInterface {
-    created: Option<extern "C" fn(handle: WLCHandle) -> bool>,
-    destroyed: InterfaceHandler,
-    focus: Option<extern "C" fn(handle: WLCHandle, focused: bool) -> ()>,
-    resolution: Option<extern "C" fn(handle: WLCHandle, old_size: WLCSize, new_size: WLCSize) -> ()>,
-    render: RenderInterface,
+pub struct OutputInterface {
+    pub created: Option<extern "C" fn(handle: WLCHandle) -> bool>,
+    pub destroyed: InterfaceHandler,
+    pub focus: Option<extern "C" fn(handle: WLCHandle, focused: bool) -> ()>,
+    pub resolution: Option<extern "C" fn(handle: WLCHandle, old_size: WLCSize, new_size: WLCSize) -> ()>,
+    pub render: RenderInterface,
 }
 
 /// Represents global rendering callbacks
 #[repr(C)]
-struct RenderInterface {
-    pre: InterfaceHandler,
-    post: InterfaceHandler,
+pub struct RenderInterface {
+    pub pre: InterfaceHandler,
+    pub post: InterfaceHandler,
 }
 
 /// Represents window viewing callbacks
 #[repr(C)]
-struct ViewInterface {
-    created: Option<extern "C" fn(handle: WLCHandle) -> bool>,
-    destroyed: InterfaceHandler,
-    focus: Option<extern "C" fn(handle: WLCHandle, focused: bool) -> ()>,
-    move_to_output: Option<extern "C" fn(current: WLCHandle, WLCHandle, WLCHandle) -> ()>,
-    request: RequestInterface,
+pub struct ViewInterface {
+    pub created: Option<extern "C" fn(handle: WLCHandle) -> bool>,
+    pub destroyed: InterfaceHandler,
+    pub focus: Option<extern "C" fn(handle: WLCHandle, focused: bool) -> ()>,
+    pub move_to_output: Option<extern "C" fn(current: WLCHandle, WLCHandle, WLCHandle) -> ()>,
+    pub request: RequestInterface,
 }
 
 /// Represents window rendering callbacks
 #[repr(C)]
-struct RequestInterface {
-    geometry: Option<extern "C" fn(handle: WLCHandle, geometry: Geometry) -> ()>,
-    state: Option<extern "C" fn(current: WLCHandle, state: ViewState, handled: bool) -> ()>,
-    move_: Option<extern "C" fn(handle: WLCHandle, destination: Point) -> ()>,
-    resize: Option<extern "C" fn(handle: WLCHandle, edge: ResizeEdge, location: Point) -> ()>,
-    render: RenderInterface,
+pub struct RequestInterface {
+    pub geometry: Option<extern "C" fn(handle: WLCHandle, geometry: Geometry) -> ()>,
+    pub state: Option<extern "C" fn(current: WLCHandle, state: ViewState, handled: bool) -> ()>,
+    pub move_: Option<extern "C" fn(handle: WLCHandle, destination: Point) -> ()>,
+    pub resize: Option<extern "C" fn(handle: WLCHandle, edge: ResizeEdge, location: Point) -> ()>,
+    pub render: RenderInterface,
 }
 
 /// Represents keyboard press callbacks
 #[repr(C)]
-struct KeyboardInterface {
+pub struct KeyboardInterface {
     // WARNING TODO key and time might need to be switched in keyboard example
-    key: Option<extern "C" fn(handle: WLCHandle, key: u32, mods: KeyboardModifiers, time: u32, state: KeyState) -> bool>,
+    pub key: Option<extern "C" fn(handle: WLCHandle, key: u32, mods: KeyboardModifiers, time: u32, state: KeyState) -> bool>,
 }
 
 /// Represents mouse input callbacks
 #[repr(C)]
-struct PointerInterface {
-    button: Option<extern "C" fn(hande: WLCHandle, button: libc::c_uint, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool>,
-    scroll: Option<extern "C" fn(handle: WLCHandle, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, heights: [u64; 2]) -> bool>,
+pub struct PointerInterface {
+    pub button: Option<extern "C" fn(hande: WLCHandle, button: libc::c_uint, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool>,
+    pub scroll: Option<extern "C" fn(handle: WLCHandle, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, heights: [u64; 2]) -> bool>,
     // dist?
-    motion: Option<extern "C" fn(heights: WLCHandle, dist: u32, point: Point)>,
+    pub motion: Option<extern "C" fn(heights: WLCHandle, dist: u32, point: Point)>,
 }
 
 /// Represents touchscreen callbacks
 #[repr(C)]
-struct TouchInterface {
+pub struct TouchInterface {
     /// NOTE WARNING TODO Not sure if key and touch need to be switched
-    touch: Option<extern "C" fn(handle: WLCHandle, time: libc::c_uint, mods: KeyboardModifiers, touch: TouchType, key: libc::c_int, point: Point) -> bool>,
+    pub touch: Option<extern "C" fn(handle: WLCHandle, time: libc::c_uint, mods: KeyboardModifiers, touch: TouchType, key: libc::c_int, point: Point) -> bool>,
 }
 
 /// Represents a callback for initializing the callback
 #[repr(C)]
-struct CompositorInterface {
-    ready: Option<extern "C" fn() -> ()>
+pub struct CompositorInterface {
+    pub ready: Option<extern "C" fn() -> ()>
 }
 
 /// Represents callbacks for window creation and destruction
 #[repr(C)]
-struct InputInterface {
-    created: Option<extern "C" fn(device: LibinputDevice) -> bool>,
-    destroyed: Option<extern "C" fn(device: LibinputDevice) -> ()>
+pub struct InputInterface {
+    pub created: Option<extern "C" fn(device: LibinputDevice) -> bool>,
+    pub destroyed: Option<extern "C" fn(device: LibinputDevice) -> ()>
 }
 
 /// Not currently supporting libinput
 //#[repr(C)]
-enum LibinputDevice {}
+pub enum LibinputDevice {}
 
 // External WLC functions
 extern "C" {
