@@ -2,10 +2,13 @@
 #![allow(dead_code)]
 extern crate libc;
 
+use std::option::Option;
+
 // Types
 
 /// Log level to pass into wlc logging
-enum LogType {
+#[repr(C)]
+pub enum LogType {
     Info,
     Warn,
     Error,
@@ -14,7 +17,7 @@ enum LogType {
 
 /// Type of backend that a window is being composited in
 #[repr(C)]
-enum BackendType {
+pub enum BackendType {
     /// Backend type is unknown
     None,
     /// Standard wayland client
@@ -24,7 +27,8 @@ enum BackendType {
 }
 
 /// Bitflags describing wayland events
-enum EventBit {
+#[repr(C)]
+pub enum EventBit {
     /// Event can be read
     Readable = 1,
     /// Event can be written
@@ -36,7 +40,8 @@ enum EventBit {
 }
 
 /// How and window is being viewed
-enum ViewState {
+#[repr(C)]
+pub enum ViewState {
     /// Window maximized
     Maximized = 1,
     /// Window fullscreen
@@ -50,7 +55,7 @@ enum ViewState {
 }
 
 /// Viewtype - like x11 flags
-enum ViewType {
+pub enum ViewType {
     /// Override redirect (X11)
     OverrideRedirect = 1,
     /// Tooltips (X11)
@@ -65,7 +70,8 @@ enum ViewType {
 
 // Which edge is being used to resize a window.
 // Works like bitflags but also has all the options in the enum
-enum ResizeEdge {
+#[repr(C)]
+pub enum ResizeEdge {
     None = 0,
     Top = 1,
     Bottom = 2,
@@ -78,7 +84,8 @@ enum ResizeEdge {
 }
 
 /// Represents which keyboard meta keys are being pressed.
-enum KeyModifier {
+#[repr(C)]
+pub enum KeyModifier {
     /// (assumed)
     None = 0,
     Shift = 1,
@@ -94,7 +101,8 @@ enum KeyModifier {
 
 /// "LEDs" or active key-locks.
 /// i.e. caps lock, scroll lock
-enum KeyboardLed {
+#[repr(C)]
+pub enum KeyboardLed {
     None = 0,
     NumLock = 1,
     CapsLock = 2,
@@ -102,26 +110,30 @@ enum KeyboardLed {
 }
 
 /// Represents a key state in key events
-enum KeyState {
+#[repr(C)]
+pub enum KeyState {
     Released = 0,
     Pressed = 1
 }
 
 /// Represents a button state in button events
-enum ButtonState {
+#[repr(C)]
+pub enum ButtonState {
     Released = 0,
     Pressed = 1
 }
 
 /// Which axis of the scroll wheel is being used
-enum ScrollAxis {
+#[repr(C)]
+pub enum ScrollAxis {
     None = 0,
     Vertical = 1,
     Horizontal = 2
 }
 
 /// Touch type in touch interface handler
-enum TouchType {
+#[repr(C)]
+pub enum TouchType {
     Down,
     Up,
     Motion,
@@ -132,47 +144,47 @@ enum TouchType {
 /// State of keyoard modifiers.
 /// i.e. control key, caps lock on
 #[repr(C)]
-struct KeyboardModifiers {
+pub struct KeyboardModifiers {
     leds: KeyboardLed,
     mods: KeyModifier
 }
 
 /// Standard x, y i32 point
 #[repr(C)]
-struct Point {
+pub struct Point {
     x: i32,
     y: i32
 }
 
 /// Represents the height and width of a program
 #[repr(C)]
-struct WLCSize {
+pub struct WLCSize {
     w: i32,
     h: i32
 }
 
 /// Represents the location and size of a program
 #[repr(C)]
-struct Geometry {
+pub struct Geometry {
     size: WLCSize,
     origin: Point
 }
 
 /// Function signature of some standard Wwlc callbacks
-type InterfaceHandler = fn(WLCHandle) -> ();
+type InterfaceHandler = Option<extern "C" fn(WLCHandle) -> ()>;
 
 /// Many of the wlc commands take a wlc_handle as their input for
 /// manipulating clients in the compositor.
 /// This library has turned it into an object which has instance
 /// methods to obtain this data.
-type WLCHandle = libc::uintptr_t;
+pub type WLCHandle = libc::uintptr_t;
 
 /// Represents the wlc callback interface.
 /// wlc initialization involves registering a series of callbacks to the library
 /// using this interface struct.
 #[repr(C)]
 #[no_mangle]
-struct WlcInterface {
+pub struct WlcInterface {
     output: OutputInterface,
     view: ViewInterface,
     keyboard: KeyboardInterface,
@@ -185,10 +197,10 @@ struct WlcInterface {
 /// Represents window callbacks
 #[repr(C)]
 struct OutputInterface {
-    created: fn(handle: WLCHandle) -> bool,
+    created: Option<extern "C" fn(handle: WLCHandle) -> bool>,
     destroyed: InterfaceHandler,
-    focus: fn(handle: WLCHandle, focused: bool) -> (),
-    resolution: fn(handle: WLCHandle, old_size: WLCSize, new_size: WLCSize) -> (),
+    focus: Option<extern "C" fn(handle: WLCHandle, focused: bool) -> ()>,
+    resolution: Option<extern "C" fn(handle: WLCHandle, old_size: WLCSize, new_size: WLCSize) -> ()>,
     render: RenderInterface,
 }
 
@@ -202,20 +214,20 @@ struct RenderInterface {
 /// Represents window viewing callbacks
 #[repr(C)]
 struct ViewInterface {
-    created: fn(handle: WLCHandle) -> bool,
+    created: Option<extern "C" fn(handle: WLCHandle) -> bool>,
     destroyed: InterfaceHandler,
-    focus: fn(handle: WLCHandle, focused: bool) -> (),
-    move_to_output: fn(current: WLCHandle, WLCHandle, WLCHandle) -> (),
+    focus: Option<extern "C" fn(handle: WLCHandle, focused: bool) -> ()>,
+    move_to_output: Option<extern "C" fn(current: WLCHandle, WLCHandle, WLCHandle) -> ()>,
     request: RequestInterface,
 }
 
 /// Represents window rendering callbacks
 #[repr(C)]
 struct RequestInterface {
-    geometry: fn(handle: WLCHandle, geometry: Geometry) -> (),
-    state: fn(current: WLCHandle, state: ViewState, handled: bool) -> (),
-    move_: fn(handle: WLCHandle, destination: Point) -> (),
-    resize: fn(handle: WLCHandle, edge: ResizeEdge, location: Point) -> (),
+    geometry: Option<extern "C" fn(handle: WLCHandle, geometry: Geometry) -> ()>,
+    state: Option<extern "C" fn(current: WLCHandle, state: ViewState, handled: bool) -> ()>,
+    move_: Option<extern "C" fn(handle: WLCHandle, destination: Point) -> ()>,
+    resize: Option<extern "C" fn(handle: WLCHandle, edge: ResizeEdge, location: Point) -> ()>,
     render: RenderInterface,
 }
 
@@ -223,36 +235,36 @@ struct RequestInterface {
 #[repr(C)]
 struct KeyboardInterface {
     // WARNING TODO key and time might need to be switched in keyboard example
-    key: fn(handle: WLCHandle, key: u32, mods: KeyboardModifiers, time: u32, state: KeyState) -> bool,
+    key: Option<extern "C" fn(handle: WLCHandle, key: u32, mods: KeyboardModifiers, time: u32, state: KeyState) -> bool>,
 }
 
 /// Represents mouse input callbacks
 #[repr(C)]
 struct PointerInterface {
-    button: fn(hande: WLCHandle, button: libc::c_uint, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool,
-    scroll: fn(handle: WLCHandle, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, heights: [u64; 2]) -> bool,
+    button: Option<extern "C" fn(hande: WLCHandle, button: libc::c_uint, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool>,
+    scroll: Option<extern "C" fn(handle: WLCHandle, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, heights: [u64; 2]) -> bool>,
     // dist?
-    motion: fn(heights: WLCHandle, dist: u32, point: Point),
+    motion: Option<extern "C" fn(heights: WLCHandle, dist: u32, point: Point)>,
 }
 
 /// Represents touchscreen callbacks
 #[repr(C)]
 struct TouchInterface {
     /// NOTE WARNING TODO Not sure if key and touch need to be switched
-    touch: fn(handle: WLCHandle, time: libc::c_uint, mods: KeyboardModifiers, touch: TouchType, key: libc::c_int, point: Point) -> bool,
+    touch: Option<extern "C" fn(handle: WLCHandle, time: libc::c_uint, mods: KeyboardModifiers, touch: TouchType, key: libc::c_int, point: Point) -> bool>,
 }
 
 /// Represents a callback for initializing the callback
 #[repr(C)]
 struct CompositorInterface {
-    ready: fn() -> ()
+    ready: Option<extern "C" fn() -> ()>
 }
 
 /// Represents callbacks for window creation and destruction
 #[repr(C)]
 struct InputInterface {
-    created: fn(device: LibinputDevice) -> bool,
-    destroyed: fn(device: LibinputDevice) -> ()
+    created: Option<extern "C" fn(device: LibinputDevice) -> bool>,
+    destroyed: Option<extern "C" fn(device: LibinputDevice) -> ()>
 }
 
 /// Not currently supporting libinput
@@ -266,7 +278,7 @@ extern "C" {
 
     /// Intitializes wlc with a callback struct
     /// and c-specified program arguments.
-    fn wlc_init(interface: WlcInterface, argc: libc::c_int, argv: *mut *mut libc::wchar_t) -> bool;
+    pub fn wlc_init(interface: *const WlcInterface, argc: libc::c_int, argv: *mut *mut libc::c_char) -> bool;
 
     /// Starts wlc compositor
     fn wlc_run();
