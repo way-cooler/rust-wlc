@@ -271,27 +271,6 @@ pub struct InputInterface {
 //#[repr(C)]
 pub enum LibinputDevice {}
 
-// External WLC functions
-extern "C" {
-
-    //fn wlc_log(dpg: LogType, fmt: str, args:);
-
-    /// Intitializes wlc with a callback struct
-    /// and c-specified program arguments.
-    pub fn wlc_init(interface: *const WlcInterface, argc: libc::c_int, argv: *mut *mut libc::c_char) -> bool;
-
-    /// Starts wlc compositor
-    fn wlc_run();
-
-    fn wlc_get_background_type() -> BackendType;
-
-    fn wlc_terminate();
-
-
-}
-
-// From wlc_wayland.h
-
 /// Represents a wlc resource, which represents a wayland surface.
 /// This object can be queried for its size wayland surface properties
 /// and rendered in pre and post render hooks.
@@ -304,8 +283,10 @@ enum WLDisplay { }
 /// This object can be rendered in pre and post render hooks.
 enum WLResource { }
 
+// External WLC functions
+#[link(name = "wlc")]
 extern "C" {
-    /// Returns Wayland display
+
     fn wlc_get_wl_display() -> WLDisplay;
 
     /// Returns view handle from WLSurface resource
@@ -325,4 +306,14 @@ extern "C" {
 
     /// Renders surfaces inside pre and post render hooks
     fn wlc_surface_render(surface: WLCResource, geometry: &Geometry) -> ();
+
+    fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char) -> ();
+
+    fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const char) -> bool;
+}
+
+pub fn init(interface: WlcInterface) {
+    unsafe {
+        //let argc = std::
+    }
 }
