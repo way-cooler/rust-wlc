@@ -1,5 +1,5 @@
 [package]
-name = "wlc"
+name = "rustwlc"
 version = "0.1.0"
 authors = ["Snirk Immington <snirk.immington@gmail.com>"]
 
