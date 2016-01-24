@@ -1,5 +1,6 @@
 // This code will be used later
 #![allow(dead_code)]
+#![feature(libc)]
 extern crate libc;
 
 use std::option::Option;
@@ -27,6 +28,7 @@ pub enum BackendType {
 }
 
 /// Bitflags describing wayland events
+/// Used in wlc_event_loop_add_fd()
 #[repr(C)]
 pub enum EventBit {
     /// Event can be read
@@ -39,7 +41,7 @@ pub enum EventBit {
     Error = 8
 }
 
-/// How and window is being viewed
+/// How a window is being viewed
 #[repr(C)]
 pub enum ViewState {
     /// Window maximized
@@ -68,8 +70,9 @@ pub enum ViewType {
     Popup = 16
 }
 
-// Which edge is being used to resize a window.
-// Works like bitflags but also has all the options in the enum
+/// Which edge is being used to resize a window.
+/// Works like bitflags but also has all the options in the enum.
+/// Edges in interface interface.view.request.resize function
 #[repr(C)]
 pub enum ResizeEdge {
     None = 0,
