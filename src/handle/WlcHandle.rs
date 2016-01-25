@@ -1,16 +1,16 @@
 use std::ffi;
-use std::libc;
+extern crate libc;
+use libc::c_char;
 
 pub type WlcHandle = libc::uintptr_t;
 
 extern "C" {
-    fn wlc_output_get_name(output: WlcHandle) -> ffi::CString;
+    fn wlc_output_get_name(output: WlcHandle) -> *const c_char;
 
     fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
 
-    fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ffi::NulError) -> ();
-
-    fn wlc_output_get_name(output: WlcHandle) -> ffi::CString;
+    // TODO need representation of userdata
+    //fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ffi::NulError) -> ();
 
     fn wlc_output_get_sleep(output: WlcHandle) -> bool;
 
@@ -60,7 +60,7 @@ extern "C" {
 
     fn wlc_view_get_type(view: WlcHandle) -> u32;
 
-    fn wlc_view_set_type(view: WlcHandle, type: ViewType, toggle: bool) -> ();
+    fn wlc_view_set_type(view: WlcHandle, view_type: ViewType, toggle: bool) -> ();
 
     fn wlc_view_get_state(view: WlcHandle) -> u32;
 
@@ -70,9 +70,18 @@ extern "C" {
 
     fn wlc_view_set_parent(view: WlcHandle, parent: WlcHandle) -> ();
 
-    fn wlc_view_get_title(view: WlcHandle) -> ffi::CString;
+    fn wlc_view_get_title(view: WlcHandle) -> *const c_char
 
-    fn wlc_view_get_class(view: WlcHandle) -> ffi::CString;
+    fn wlc_view_get_class(view: WlcHandle) -> *const c_char;
 
-    fn wlc_view_get_app_id(view: WlcHandle) -> ffi::CString;
+    fn wlc_view_get_app_id(view: WlcHandle) -> *const c_char
+}
+
+impl WlcHandle {
+    fn get_name(&self) -> str {
+        unsafe {
+            let name = wlc_output_get_name(self);
+            return name.to_str();
+        }
+    }
 }
