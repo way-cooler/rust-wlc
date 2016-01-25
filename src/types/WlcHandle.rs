@@ -2,6 +2,7 @@ use std::ffi;
 extern crate libc;
 use libc::c_char;
 
+/// Reoresents a handle to a wlc window.
 pub type WlcHandle = libc::uintptr_t;
 
 extern "C" {
