@@ -1,5 +1,6 @@
 // This code will be used later
 #![allow(dead_code)]
+#![feature(libc)]
 extern crate libc;
 
 use std::option::Option;
@@ -288,27 +289,6 @@ enum WLResource { }
 // External WLC functions
 #[link(name = "wlc")]
 extern "C" {
-
-    fn wlc_get_wl_display() -> WLDisplay;
-
-    /// Returns view handle from WLSurface resource
-    fn wlc_handle_from_wl_surface_resource(resource: WLResource) -> WLCHandle;
-
-    /// Returns output handle from WLOutput resource
-    fn wlc_handle_from_wl_output_resource(resource: WLResource) -> WLCHandle;
-
-    /// Returns internal WLC surface from WLSurface resource
-    fn wlc_resource_from_wl_surface_resource(resource: WLResource) -> WLCResource;
-
-    /// Returns internal WLC surface from view handle
-    fn wlc_view_get_surface(handle: WLCHandle) -> WLCResource;
-
-    /// Gets the size of a surface
-    fn wlc_surface_get_size(resource: WLCResource) -> WLCSize;
-
-    /// Renders surfaces inside pre and post render hooks
-    fn wlc_surface_render(surface: WLCResource, geometry: &Geometry) -> ();
-
     fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char) -> ();
 
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const char) -> bool;
@@ -324,10 +304,11 @@ extern "C" {
 /// true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
 pub fn init(interface: WlcInterface) -> bool {
     unsafe {
-        let args = env::args();
-        let argc = args.count();
+        let args: Vec<String> = env::args().collect();
+        let argc = args.len();
 
-        let args_c = 
+        //let args_c =
+        true
     }
 }
 
