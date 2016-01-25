@@ -3,6 +3,8 @@
 extern crate libc;
 
 use std::option::Option;
+use std::env;
+use std::ffi;
 
 // Types
 
@@ -310,10 +312,39 @@ extern "C" {
     fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char) -> ();
 
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const char) -> bool;
+
+    /// Runs WLC run loop;
+    fn wlc_run() -> ();
 }
 
-pub fn init(interface: WlcInterface) {
+/// Initialize wlc with a `WlcInterface`.
+///
+/// Create a WlcInterface with the proper callback methods
+/// and call `rustwlc::init` to initialize wlc. If it returns
+/// true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
+pub fn init(interface: WlcInterface) -> bool {
     unsafe {
-        //let argc = std::
+        let args = env::args();
+        let argc = args.count();
+
+        let args_c = 
     }
+}
+
+/// Runs wlc's event loop.
+///
+/// After initalizing wlc with `rustwlc::init` call this method
+/// to being wlc's main event loop.
+///
+/// # Example
+///
+/// You should call `rustwlc::init` with a `WlcInterface` first.
+///
+/// ```no_run
+/// # let interface: WlcInterface;
+/// rustwlc::init(interface);
+/// rustwlc::run_wlc();
+/// ```
+pub fn run_wlc() {
+    unsafe { wlc_run(); }
 }
