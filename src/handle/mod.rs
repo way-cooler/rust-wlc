@@ -1,3 +1,14 @@
+//! Contains definitions for wlc handle types.
+//! WlcHandle is the main object used in wlc.
+//! wlc provided many functions for manipulating
+//! wayland based on pointers to such handles.
+//! rustwlc provides implp blocks for handles,
+//! allowing the programmer to use "instance methods"
+//! on each handle.
+//!
+//! These handles wrap wayland surfaces and other resources.
+//! Their functionality is ecposed in their available methods.
+
 use std::ffi;
 extern crate libc;
 use libc::c_char;
