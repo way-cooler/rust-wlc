@@ -162,7 +162,7 @@ pub struct Point {
 
 /// Represents the height and width of a program
 #[repr(C)]
-pub struct WLCSize {
+pub struct Size {
     pub w: i32,
     pub h: i32
 }
