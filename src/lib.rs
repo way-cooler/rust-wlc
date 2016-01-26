@@ -3,9 +3,15 @@
 #![feature(libc)]
 extern crate libc;
 
+use std::env;
+use std::ffi;
+use std::ffi::{CString};
+
 pub mod handle;
 pub mod types;
 pub mod wayland;
+
+use types::interface::WlcInterface;
 
 // External WLC functions
 #[link(name = "wlc")]
@@ -25,8 +31,8 @@ extern "C" {
 /// true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
 pub fn init(interface: WlcInterface) -> bool {
     unsafe {
-        let argv: Vec<ffi::CString> = env::args().into_iter()
-            .map(|arg| ffi::CString::new(arg).unwrap() ).collect();
+        let argv: Vec<CString> = env::args().into_iter()
+            .map(|arg| CString::new(arg).unwrap() ).collect();
 
         let args: Vec<*const libc::c_char> = argv.into_iter()
             .map(|arg: ffi::CString| { arg.as_ptr() as *const libc::c_char }).collect();
@@ -51,4 +57,10 @@ pub fn init(interface: WlcInterface) -> bool {
 /// ```
 pub fn run_wlc() {
     unsafe { wlc_run(); }
+}
+
+/// Convert a native string to a Rust string
+fn pointer_to_string(pointer: *const libc::c_char) -> String {
+    let slice = unsafe { ffi::CStr::from_ptr(pointer).to_bytes() };
+    (*String::from_utf8_lossy(slice)).to_string()
 }

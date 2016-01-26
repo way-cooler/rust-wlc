@@ -170,18 +170,9 @@ pub struct Size {
 /// Represents the location and size of a program
 #[repr(C)]
 pub struct Geometry {
-    pub size: WLCSize,
+    pub size: Size,
     pub origin: Point
 }
-
-/// Function signature of some standard Wwlc callbacks
-pub type InterfaceHandler = Option<extern "C" fn(WLCHandle) -> ()>;
-
-/// Many of the wlc commands take a wlc_handle as their input for
-/// manipulating clients in the compositor.
-/// This library has turned it into an object which has instance
-/// methods to obtain this data.
-pub type WLCHandle = libc::uintptr_t;
 
 /// Not currently supporting libinput
 //#[repr(C)]
