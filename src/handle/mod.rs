@@ -5,6 +5,7 @@ use libc::c_char;
 /// Reoresents a handle to a wlc window.
 pub type WlcHandle = libc::uintptr_t;
 
+#[link(name = "wlc")]
 extern "C" {
     fn wlc_output_get_name(output: WlcHandle) -> *const c_char;
 

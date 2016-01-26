@@ -3,6 +3,7 @@
 #![feature(libc)]
 extern crate libc;
 
+pub mod handle;
 pub mod types;
 pub mod wayland;
 
@@ -13,7 +14,7 @@ extern "C" {
 
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const libc::c_char) -> bool;
 
-    /// Runs WLC run loop;
+    /// Runs WLC event loop
     fn wlc_run() -> ();
 }
 
