@@ -6,7 +6,6 @@ use std::env;
 use std::ffi;
 use std::os::unix::prelude;
 
-
 // Types
 
 /// Log level to pass into wlc logging
@@ -143,3 +142,41 @@ pub enum TouchType {
     Frame,
     Cancel
 }
+
+/// State of keyoard modifiers.
+/// i.e. control key, caps lock on
+#[repr(C)]
+pub struct KeyboardModifiers {
+    pub leds: KeyboardLed,
+    pub mods: KeyModifier
+}
+
+/// Standard x, y i32 point
+#[repr(C)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32
+}
+
+/// Represents the height and width of a program
+#[repr(C)]
+pub struct WLCSize {
+    pub w: i32,
+    pub h: i32
+}
+
+/// Represents the location and size of a program
+#[repr(C)]
+pub struct Geometry {
+    pub size: WLCSize,
+    pub origin: Point
+}
+
+/// Function signature of some standard Wwlc callbacks
+pub type InterfaceHandler = Option<extern "C" fn(WLCHandle) -> ()>;
+
+/// Many of the wlc commands take a wlc_handle as their input for
+/// manipulating clients in the compositor.
+/// This library has turned it into an object which has instance
+/// methods to obtain this data.
+pub type WLCHandle = libc::uintptr_t;
