@@ -1,6 +1,8 @@
 //! Contains struct and enum declarations for
 //! structs defined by the wlc protocl.
 
+pub mod interface;
+
 use std::option::Option;
 use std::env;
 use std::ffi;
@@ -180,3 +182,14 @@ pub type InterfaceHandler = Option<extern "C" fn(WLCHandle) -> ()>;
 /// This library has turned it into an object which has instance
 /// methods to obtain this data.
 pub type WLCHandle = libc::uintptr_t;
+
+/// Not currently supporting libinput
+//#[repr(C)]
+pub enum LibinputDevice {}
+
+/// Represents a wayland display.
+enum WLDisplay { }
+
+/// Represents a wayland resource.
+/// This object can be rendered in pre and post render hooks.
+enum WLResource { }
