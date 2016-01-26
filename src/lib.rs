@@ -3,6 +3,9 @@
 #![feature(libc)]
 extern crate libc;
 
+pub mod types;
+pub mod wayland;
+
 use std::option::Option;
 use std::env;
 use std::ffi;
