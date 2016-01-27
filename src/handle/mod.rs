@@ -219,4 +219,57 @@ impl WlcView {
     fn set_mask(&self, mask: u32) {
         unsafe { wlc_view_set_mask(self, mask); }
     }
+
+    fn get_geometry(&self) -> Geometry {
+        unsafe { wlc_view_get_geometry(self) }
+    }
+
+    fn set_geometry(&self, edges: u32, geometry: Geometry) {
+        unsafe { wlc_view_set_geometry(self, edges, geometry); }
+    }
+
+    fn get_type(&self) -> u32 {
+        unsafe { wlc_view_get_type(self) }
+    }
+
+    fn set_type(&self, view_type: ViewType, toggle: bool) {
+        unsafe { wlc_view_set_type(self, view_type, toggle); }
+    }
+
+    fn get_state(&self) -> u32 {
+        unsafe { wlc_view_get_state(self) }
+    }
+
+    fn set_state(&self, state: ViewState, toggle: bool) {
+        unsafe { wlc_view_set_state(self, state, toggle); }
+    }
+
+    fn get_parent(&self) -> WlcView {
+        unsafe { wlc_view_get_parent(self) }
+    }
+
+    fn set_parent(&self, parent: &WlcView) {
+        unsafe { wlc_view_set_parent(self, parent); }
+    }
+
+    fn get_title(&self) -> String {
+        unsafe {
+            let chars = wlc_view_get_title(self);
+            return pointer_to_string(chars);
+        }
+    }
+
+    fn get_class(&self) -> String {
+        unsafe {
+            let chars = wlc_view_get_class(self);
+            return pointer_to_string(chars);
+        }
+    }
+
+    fn get_app_id(&self) -> String {
+        unsafe {
+            let chars = wlc_view_get_app_id(self);
+            return pointer_to_string(chars);
+        }
+    }
 }
