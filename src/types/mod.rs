@@ -6,7 +6,7 @@ pub mod interface;
 use std::option::Option;
 use std::env;
 use std::ffi;
-use std::os::unix::prelude;
+use std::fmt;
 
 // Types
 
@@ -155,9 +155,16 @@ pub struct KeyboardModifiers {
 
 /// Standard x, y i32 point
 #[repr(C)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, format: &mut fmt::Formatter) -> fmt::Result {
+        write!(format, "({}, {})", self.x, self.y)
+    }
 }
 
 /// Represents the height and width of a program
