@@ -22,6 +22,7 @@ use super::types::{Geometry, Size, ViewType, ViewState};
 pub struct WlcView(libc::uintptr_t);
 
 #[repr(C)]
+/// Represents a handle to a wlc output
 pub struct WlcOutput(libc::uintptr_t);
 
 #[link(name = "wlc")]
@@ -35,22 +36,22 @@ extern "C" {
 
     fn wlc_output_get_sleep(output: &WlcOutput) -> bool;
 
-    fn wlc_output_set_sleep(output: &WlcOutput, sleep: bool) -> ();
+    fn wlc_output_set_sleep(output: &WlcOutput, sleep: bool);
 
     fn wlc_output_get_resolution(output: &WlcOutput) -> Size;
 
-    fn wlc_output_set_resolution(output: &WlcOutput, resolution: Size) -> ();
+    fn wlc_output_set_resolution(output: &WlcOutput, resolution: Size);
 
     fn wlc_output_get_mask(output: &WlcOutput) -> u32;
 
-    fn wlc_output_set_mask(output: &WlcOutput, mask: u32) -> ();
+    fn wlc_output_set_mask(output: &WlcOutput, mask: u32);
 
     // TODO tricky definition here
     //fn wlc_output_get_pixels(output: WlcHandle) -> ();
 
     fn wlc_output_get_views(output: &WlcOutput, out_memb: libc::size_t) -> *const WlcView;
 
-    fn  wlc_output_get_mutable_views(output: &WlcOutput, out_memb: libc::size_t) -> *mut WlcOutput;
+    fn  wlc_output_get_mutable_views(output: &WlcOutput, out_memb: libc::size_t) -> *mut WlcView;
 
     fn wlc_output_set_views(output: &WlcOutput, views: *const WlcView, memb: libc::size_t) -> bool;
 
@@ -99,6 +100,15 @@ extern "C" {
 }
 
 impl WlcOutput {
+
+    fn as_view(self) -> WlcView {
+        return WlcView::from_output(self)
+    }
+
+    fn from_view(view: WlcView) -> WlcOutput {
+        WlcOutput(view.0)
+    }
+
     fn get_name(&self) -> String {
         unsafe {
             let name = wlc_output_get_name(self);
@@ -110,5 +120,103 @@ impl WlcOutput {
         unsafe {
             wlc_output_get_sleep(self)
         }
+    }
+
+    fn set_sleep(&self, sleep: bool) {
+        unsafe {
+            wlc_output_set_sleep(self, sleep);
+        }
+    }
+
+    fn get_resolution(&self) -> Size {
+        unsafe {
+            wlc_output_get_resolution(self)
+        }
+    }
+
+    fn set_resolution(&self, size: Size) {
+        unsafe {
+            wlc_output_set_resolution(self, size);
+        }
+    }
+
+    // TODO Borrow checker fight in progress
+    /*
+    fn get_views(&self) -> Vec<WlcView> {
+        unsafe {
+            let mut out_memb: libc::size_t = 0;
+            let mut views = wlc_output_get_views(self, out_memb);
+            return Vec::from_raw_parts(*views, out_memb, out_memb);
+        }
+    }
+
+    fn get_mutable_views(&self) -> Vec<WlcView> {
+        unsafe {
+            let mut out_memb: libc::size_t = 0;
+            let mut views = wlc_output_get_mutable_views(self, out_memb);
+            return Vec::from_raw_parts(views, out_memb, out_memb);
+                //.into_iter().map(|view| )
+        }
+    }
+
+    /// Attempts to set the views of a given output.
+    /// Returns true if the operation succeeded.
+    fn set_views(&self, views: Vec<WlcView>) -> bool {
+        unsafe {
+            let view_len = views.len() as libc::size_t;
+            let const_views = views as *const WlcView;
+            return wlc_output_set_views(self, const_views, view_len);
+        }
+    }*/
+
+    /// Focuses this output
+    fn focus(&self) {
+        unsafe { wlc_output_focus(self); }
+    }
+}
+
+impl WlcView {
+
+    fn as_output(self) -> WlcOutput {
+        WlcOutput::from_view(self)
+    }
+
+    fn from_output(output: WlcOutput) -> WlcView {
+        WlcView(output.0)
+    }
+
+    /// Closes this WlcView
+    fn close(&self) {
+        unsafe { wlc_view_close(self); }
+    }
+
+    /// Gets the WlcOutput this view is currently part of
+    fn get_output(&self) -> WlcOutput {
+        unsafe { wlc_view_get_output(self) }
+    }
+
+    /// Sends the view to the back of the compositor
+    fn send_to_back(&self) {
+        unsafe { wlc_view_send_to_back(self); }
+    }
+
+    fn send_below(&self, other: &WlcView) {
+        unsafe { wlc_view_send_below(self, other); }
+    }
+
+    fn bring_above(&self, other: &WlcView) {
+        unsafe { wlc_view_bring_above(self, other); }
+    }
+
+    fn bring_to_front(&self) {
+        unsafe { wlc_view_bring_to_front(self); }
+    }
+
+    fn get_mask(&self) -> u32 {
+        unsafe { wlc_view_get_mask(self) }
+    }
+
+    fn set_mask(&self, mask: u32) {
+        unsafe { wlc_view_set_mask(self, mask); }
     }
 }
