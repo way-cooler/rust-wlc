@@ -63,6 +63,7 @@ pub enum ViewState {
 }
 
 /// Viewtype - like x11 flags
+#[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ViewType {
     /// Override redirect (X11)
