@@ -12,6 +12,7 @@ use std::fmt;
 
 /// Log level to pass into wlc logging
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LogType {
     Info,
     Warn,
@@ -21,6 +22,7 @@ pub enum LogType {
 
 /// Type of backend that a window is being composited in
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BackendType {
     /// Backend type is unknown
     None,
@@ -32,6 +34,7 @@ pub enum BackendType {
 
 /// Bitflags describing wayland events
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EventBit {
     /// Event can be read
     Readable = 1,
@@ -45,6 +48,7 @@ pub enum EventBit {
 
 /// How and window is being viewed
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ViewState {
     /// Window maximized
     Maximized = 1,
@@ -59,6 +63,7 @@ pub enum ViewState {
 }
 
 /// Viewtype - like x11 flags
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ViewType {
     /// Override redirect (X11)
     OverrideRedirect = 1,
@@ -74,6 +79,7 @@ pub enum ViewType {
 
 // Which edge is being used to resize a window.
 // Works like bitflags but also has all the options in the enum
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub enum ResizeEdge {
     None = 0,
@@ -89,6 +95,7 @@ pub enum ResizeEdge {
 
 /// Represents which keyboard meta keys are being pressed.
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KeyModifier {
     /// (assumed)
     None = 0,
@@ -106,6 +113,7 @@ pub enum KeyModifier {
 /// "LEDs" or active key-locks.
 /// i.e. caps lock, scroll lock
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KeyboardLed {
     None = 0,
     NumLock = 1,
@@ -115,6 +123,7 @@ pub enum KeyboardLed {
 
 /// Represents a key state in key events
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KeyState {
     Released = 0,
     Pressed = 1
@@ -122,6 +131,7 @@ pub enum KeyState {
 
 /// Represents a button state in button events
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ButtonState {
     Released = 0,
     Pressed = 1
@@ -129,6 +139,7 @@ pub enum ButtonState {
 
 /// Which axis of the scroll wheel is being used
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScrollAxis {
     None = 0,
     Vertical = 1,
@@ -137,6 +148,7 @@ pub enum ScrollAxis {
 
 /// Touch type in touch interface handler
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TouchType {
     Down,
     Up,
@@ -148,6 +160,7 @@ pub enum TouchType {
 /// State of keyoard modifiers.
 /// i.e. control key, caps lock on
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyboardModifiers {
     pub leds: KeyboardLed,
     pub mods: KeyModifier
@@ -169,6 +182,7 @@ impl fmt::Display for Point {
 
 /// Represents the height and width of a program
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Size {
     pub w: i32,
     pub h: i32
@@ -176,14 +190,15 @@ pub struct Size {
 
 /// Represents the location and size of a program
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Geometry {
     pub size: Size,
     pub origin: Point
 }
 
 /// Not currently supporting libinput
-//#[repr(C)]
-pub enum LibinputDevice {}
+#[repr(C)]
+pub struct LibinputDevice;
 
 /// Represents a wayland display.
 enum WLDisplay { }
