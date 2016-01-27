@@ -57,6 +57,8 @@ extern "C" {
 
     fn wlc_output_focus(output: &WlcOutput);
 
+    fn wlc_view_focus(view: &WlcView);
+
     fn wlc_view_close(view: &WlcView);
 
     fn wlc_view_get_output(view: &WlcView) -> WlcOutput;
@@ -101,40 +103,40 @@ extern "C" {
 
 impl WlcOutput {
 
-    fn as_view(self) -> WlcView {
+    pub fn as_view(self) -> WlcView {
         return WlcView::from_output(self)
     }
 
-    fn from_view(view: WlcView) -> WlcOutput {
+    pub fn from_view(view: WlcView) -> WlcOutput {
         WlcOutput(view.0)
     }
 
-    fn get_name(&self) -> String {
+    pub fn get_name(&self) -> String {
         unsafe {
             let name = wlc_output_get_name(self);
             pointer_to_string(name)
         }
     }
 
-    fn get_sleep(&self) -> bool {
+    pub fn get_sleep(&self) -> bool {
         unsafe {
             wlc_output_get_sleep(self)
         }
     }
 
-    fn set_sleep(&self, sleep: bool) {
+    pub fn set_sleep(&self, sleep: bool) {
         unsafe {
             wlc_output_set_sleep(self, sleep);
         }
     }
 
-    fn get_resolution(&self) -> Size {
+    pub fn get_resolution(&self) -> Size {
         unsafe {
             wlc_output_get_resolution(self)
         }
     }
 
-    fn set_resolution(&self, size: Size) {
+    pub fn set_resolution(&self, size: Size) {
         unsafe {
             wlc_output_set_resolution(self, size);
         }
@@ -142,7 +144,7 @@ impl WlcOutput {
 
     // TODO Borrow checker fight in progress
     /*
-    fn get_views(&self) -> Vec<WlcView> {
+    pub fn get_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let mut views = wlc_output_get_views(self, out_memb);
@@ -150,7 +152,7 @@ impl WlcOutput {
         }
     }
 
-    fn get_mutable_views(&self) -> Vec<WlcView> {
+    pub fn get_mutable_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let mut views = wlc_output_get_mutable_views(self, out_memb);
@@ -161,7 +163,7 @@ impl WlcOutput {
 
     /// Attempts to set the views of a given output.
     /// Returns true if the operation succeeded.
-    fn set_views(&self, views: Vec<WlcView>) -> bool {
+    pub fn set_views(&self, views: Vec<WlcView>) -> bool {
         unsafe {
             let view_len = views.len() as libc::size_t;
             let const_views = views as *const WlcView;
@@ -170,103 +172,119 @@ impl WlcOutput {
     }*/
 
     /// Focuses this output
-    fn focus(&self) {
+    /// WARNING TODO THIS METHOD MAY NOT EXIST
+    pub fn focus(&self) {
         unsafe { wlc_output_focus(self); }
     }
 }
 
 impl WlcView {
-
-    fn as_output(self) -> WlcOutput {
+    /// wlc internally uses one type, wlc_handle to
+    /// represent views and outputs. It has functions
+    /// with the signature wlc_output_... and wlc_view_...
+    /// which we have mapped to the WlcView and WlcOutput
+    /// structs through impl methods.
+    /// If we got one of these methods wrong, or wlc
+    /// has behavior that requires using a wlc_view_... method
+    /// on something obtained as a wlc_get_output... for example,
+    /// please feel free to use one of these conversion methods
+    /// (WlcView::from_output, WlcOutput::from_view) to convert
+    /// the handle. The only difference between the two is which
+    /// unsafe wlc_{output, view}_... functions we wrap.
+    pub fn as_output(self) -> WlcOutput {
         WlcOutput::from_view(self)
     }
 
-    fn from_output(output: WlcOutput) -> WlcView {
+    pub fn from_output(output: WlcOutput) -> WlcView {
         WlcView(output.0)
     }
 
     /// Closes this WlcView
-    fn close(&self) {
+    pub fn close(&self) {
         unsafe { wlc_view_close(self); }
     }
 
     /// Gets the WlcOutput this view is currently part of
-    fn get_output(&self) -> WlcOutput {
+    pub fn get_output(&self) -> WlcOutput {
         unsafe { wlc_view_get_output(self) }
     }
 
+    pub fn focus(&self) {
+        unsafe { wlc_view_focus(self); }
+    }
+
     /// Sends the view to the back of the compositor
-    fn send_to_back(&self) {
+    pub fn send_to_back(&self) {
         unsafe { wlc_view_send_to_back(self); }
     }
 
-    fn send_below(&self, other: &WlcView) {
+    pub fn send_below(&self, other: &WlcView) {
         unsafe { wlc_view_send_below(self, other); }
     }
 
-    fn bring_above(&self, other: &WlcView) {
+    pub fn bring_above(&self, other: &WlcView) {
         unsafe { wlc_view_bring_above(self, other); }
     }
 
-    fn bring_to_front(&self) {
+    pub fn bring_to_front(&self) {
         unsafe { wlc_view_bring_to_front(self); }
     }
 
-    fn get_mask(&self) -> u32 {
+    pub fn get_mask(&self) -> u32 {
         unsafe { wlc_view_get_mask(self) }
     }
 
-    fn set_mask(&self, mask: u32) {
+    pub fn set_mask(&self, mask: u32) {
         unsafe { wlc_view_set_mask(self, mask); }
     }
 
-    fn get_geometry(&self) -> Geometry {
+    pub fn get_geometry(&self) -> Geometry {
         unsafe { wlc_view_get_geometry(self) }
     }
 
-    fn set_geometry(&self, edges: u32, geometry: Geometry) {
+    pub fn set_geometry(&self, edges: u32, geometry: Geometry) {
         unsafe { wlc_view_set_geometry(self, edges, geometry); }
     }
 
-    fn get_type(&self) -> u32 {
+    pub fn get_type(&self) -> u32 {
         unsafe { wlc_view_get_type(self) }
     }
 
-    fn set_type(&self, view_type: ViewType, toggle: bool) {
+    pub fn set_type(&self, view_type: ViewType, toggle: bool) {
         unsafe { wlc_view_set_type(self, view_type, toggle); }
     }
 
-    fn get_state(&self) -> u32 {
+    pub fn get_state(&self) -> u32 {
         unsafe { wlc_view_get_state(self) }
     }
 
-    fn set_state(&self, state: ViewState, toggle: bool) {
+    pub fn set_state(&self, state: ViewState, toggle: bool) {
         unsafe { wlc_view_set_state(self, state, toggle); }
     }
 
-    fn get_parent(&self) -> WlcView {
+    pub fn get_parent(&self) -> WlcView {
         unsafe { wlc_view_get_parent(self) }
     }
 
-    fn set_parent(&self, parent: &WlcView) {
+    pub fn set_parent(&self, parent: &WlcView) {
         unsafe { wlc_view_set_parent(self, parent); }
     }
 
-    fn get_title(&self) -> String {
+    pub fn get_title(&self) -> String {
         unsafe {
             let chars = wlc_view_get_title(self);
             return pointer_to_string(chars);
         }
     }
 
-    fn get_class(&self) -> String {
+    pub fn get_class(&self) -> String {
         unsafe {
             let chars = wlc_view_get_class(self);
             return pointer_to_string(chars);
         }
     }
 
-    fn get_app_id(&self) -> String {
+    pub fn get_app_id(&self) -> String {
         unsafe {
             let chars = wlc_view_get_app_id(self);
             return pointer_to_string(chars);
