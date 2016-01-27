@@ -30,7 +30,7 @@ extern "C" {
     // TODO need representation of userdata
     //fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ?????) -> ();
 
-    fn wlc_output_get_sleep(output: WlcHandle) -> bool;
+    fn wlc_output_get_sleep(output: &WlcHandle) -> bool;
 
     fn wlc_output_set_sleep(output: WlcHandle, sleep: bool) -> ();
 
@@ -103,10 +103,10 @@ impl WlcHandle {
         }
     }
 
-    /*
+    
     fn get_sleep(&self) -> bool {
         unsafe {
-            wlc_output_get_sleep(*self)
+            wlc_output_get_sleep(self)
         }
-    }*/
+    }
 }
