@@ -51,7 +51,7 @@ extern "C" {
     // TODO tricky definition here
     //fn wlc_output_get_pixels(output: WlcHandle) -> ();
 
-    fn wlc_output_get_views(output: &WlcOutput, out_memb: libc::size_t) -> *const WlcView;
+    fn wlc_output_get_views(output: &WlcOutput, out_memb: *mut libc::size_t) -> *const WlcView;
 
     fn  wlc_output_get_mutable_views(output: &WlcOutput, out_memb: *mut libc::size_t) -> *mut WlcView;
 
@@ -155,18 +155,19 @@ impl WlcOutput {
 
     // TODO Borrow checker fight in progress
 
-    /*
+    
     /// Get views in stack order. Returned array is a direct reference,
     /// careful when moving and destroying handles.
-    pub fn get_views(&self) -> &[WlcView] {
+    pub fn get_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
-            let views = wlc_output_get_views(self, out_memb);
+            let views = wlc_output_get_views(self, &mut out_memb);
 
             let vec = Vec::from(views as &[WlcView]);
+            vec
             //return Vec::from_raw_parts(views, out_memb, out_memb);
         }
-    }*/
+    } 
 
     // compiles
     /// Get mutable views in creation order. Returned array is a direct reference,
