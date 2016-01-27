@@ -153,21 +153,22 @@ impl WlcOutput {
         }
     }
 
-    // TODO Borrow checker fight in progress
 
-    
     /// Get views in stack order. Returned array is a direct reference,
     /// careful when moving and destroying handles.
-    pub fn get_views(&self) -> Vec<WlcView> {
+    pub fn get_views(&self) -> Vec<&WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self, &mut out_memb);
-
-            let vec = Vec::from(views as &[WlcView]);
-            vec
-            //return Vec::from_raw_parts(views, out_memb, out_memb);
+            let mut result = Vec::with_capacity(out_memb);
+            for index in 0..out_memb {
+                unsafe {
+                    result.push(&*(views.offset(index as isize)));
+                }
+            };
+            return result;
         }
-    } 
+    }
 
     // compiles
     /// Get mutable views in creation order. Returned array is a direct reference,
