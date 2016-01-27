@@ -18,10 +18,12 @@ use super::pointer_to_string;
 use super::types::{Geometry, Size, ViewType, ViewState};
 
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 /// Represents a handle to a wlc view.
 pub struct WlcView(libc::uintptr_t);
 
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 /// Represents a handle to a wlc output
 pub struct WlcOutput(libc::uintptr_t);
 
