@@ -9,6 +9,7 @@ use std::ffi::{CString};
 
 pub mod handle;
 pub mod types;
+pub mod input;
 pub mod wayland;
 
 use types::interface::WlcInterface;
