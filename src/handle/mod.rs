@@ -53,7 +53,7 @@ extern "C" {
 
     fn wlc_output_get_views(output: &WlcOutput, out_memb: libc::size_t) -> *const WlcView;
 
-    fn  wlc_output_get_mutable_views(output: &WlcOutput, out_memb: libc::size_t) -> *mut WlcView;
+    fn  wlc_output_get_mutable_views(output: &WlcOutput, out_memb: *mut libc::size_t) -> *mut WlcView;
 
     fn wlc_output_set_views(output: &WlcOutput, views: *const WlcView, memb: libc::size_t) -> bool;
 
@@ -113,6 +113,14 @@ impl WlcOutput {
         WlcOutput(view.0)
     }
 
+    /// Specifies whether this output is "null".
+    /// Some wlc functions will return 0 for an output
+    /// or view that is not found/does not exist.
+    /// This method will determine if that is the case.
+    pub fn is_empty(&self) -> bool {
+        self.0 == 0
+    }
+
     pub fn get_name(&self) -> String {
         unsafe {
             let name = wlc_output_get_name(self);
@@ -138,6 +146,7 @@ impl WlcOutput {
         }
     }
 
+    /// Sets the resolution of the WlcOutput
     pub fn set_resolution(&self, size: Size) {
         unsafe {
             wlc_output_set_resolution(self, size);
@@ -145,33 +154,45 @@ impl WlcOutput {
     }
 
     // TODO Borrow checker fight in progress
+
     /*
-    pub fn get_views(&self) -> Vec<WlcView> {
+    /// Get views in stack order. Returned array is a direct reference,
+    /// careful when moving and destroying handles.
+    pub fn get_views(&self) -> &[WlcView] {
         unsafe {
             let mut out_memb: libc::size_t = 0;
-            let mut views = wlc_output_get_views(self, out_memb);
-            return Vec::from_raw_parts(*views, out_memb, out_memb);
-        }
-    }
+            let views = wlc_output_get_views(self, out_memb);
 
+            let vec = Vec::from(views as &[WlcView]);
+            //return Vec::from_raw_parts(views, out_memb, out_memb);
+        }
+    }*/
+
+    // compiles
+    /// Get mutable views in creation order. Returned array is a direct reference,
+    /// careful when moving and destroying handles.
+    /// This is mainly useful for wm's who need another view stack for inplace sorting.
+    /// For example tiling wms, may want to use this to keep their tiling order separated
+    /// from floating order.
     pub fn get_mutable_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
-            let mut views = wlc_output_get_mutable_views(self, out_memb);
+            let mut views = wlc_output_get_mutable_views(self, &mut out_memb);
             return Vec::from_raw_parts(views, out_memb, out_memb);
                 //.into_iter().map(|view| )
         }
     }
 
+    // compiles
     /// Attempts to set the views of a given output.
     /// Returns true if the operation succeeded.
-    pub fn set_views(&self, views: Vec<WlcView>) -> bool {
+    pub fn set_views(&self, views: &mut Vec<WlcView>) -> bool {
         unsafe {
             let view_len = views.len() as libc::size_t;
-            let const_views = views as *const WlcView;
+            let mut const_views = views.as_mut_ptr() as *const WlcView;
             return wlc_output_set_views(self, const_views, view_len);
         }
-    }*/
+    }
 
     /// Focuses this output
     /// WARNING TODO THIS METHOD MAY NOT EXIST
