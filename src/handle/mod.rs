@@ -161,11 +161,8 @@ impl WlcOutput {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self, &mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
-            for index in 0..out_memb {
-                unsafe {
-                    result.push(&*(views.offset(index as isize)));
-                }
-            };
+            (0isize .. out_memb as isize).map(|index|
+                     result.push(&*(views.offset(index))));
             return result;
         }
     }
@@ -188,7 +185,7 @@ impl WlcOutput {
     // compiles
     /// Attempts to set the views of a given output.
     /// Returns true if the operation succeeded.
-    pub fn set_views(&self, views: &mut Vec<WlcView>) -> bool {
+    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> bool {
         unsafe {
             let view_len = views.len() as libc::size_t;
             let mut const_views = views.as_mut_ptr() as *const WlcView;
