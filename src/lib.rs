@@ -5,13 +5,14 @@ extern crate libc;
 
 use std::env;
 use std::ffi;
-use std::ffi::{CString};
+use std::ffi::{CString, CStr};
 
 pub mod handle;
 pub mod types;
 pub mod input;
 pub mod wayland;
 
+use types::LogType;
 use types::interface::WlcInterface;
 
 // External WLC functions
@@ -22,6 +23,10 @@ extern "C" {
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const libc::c_char) -> bool;
 
     fn wlc_run();
+
+    fn wlc_terminate();
+
+    fn wlc_log_set_handler(callback: extern fn(log_type: LogType, text: CStr));
 }
 
 /// Initialize wlc with a `WlcInterface`.
@@ -59,6 +64,8 @@ pub fn run_wlc() {
     unsafe { wlc_run(); }
 }
 
+/// Executes a program in wayland.
+/// Is passed the program and all arguments (the first should be the program)
 pub fn exec(bin: String, args: Vec<String>) {
     unsafe {
         let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
@@ -71,6 +78,10 @@ pub fn exec(bin: String, args: Vec<String>) {
 
         wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
     }
+}
+
+pub fn log_set_handler(handler: extern fn(type_: LogType, text: CStr)) {
+    unsafe { wlc_log_set_handler(handler); }
 }
 
 /// Convert a native string to a Rust string
