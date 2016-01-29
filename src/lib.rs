@@ -85,7 +85,7 @@ pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_c
 }
 
 /// Convert a native string to a Rust string
-fn pointer_to_string(pointer: *const libc::c_char) -> String {
+pub fn pointer_to_string(pointer: *const libc::c_char) -> String {
     let slice = unsafe { ffi::CStr::from_ptr(pointer).to_bytes() };
     (*String::from_utf8_lossy(slice)).to_string()
 }
