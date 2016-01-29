@@ -185,8 +185,8 @@ impl fmt::Display for Point {
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Size {
-    pub w: i32,
-    pub h: i32
+    pub w: u32,
+    pub h: u32
 }
 
 /// Represents the location and size of a program
