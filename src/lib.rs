@@ -17,12 +17,11 @@ use types::interface::WlcInterface;
 // External WLC functions
 #[link(name = "wlc")]
 extern "C" {
-    fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char) -> ();
+    fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
 
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const libc::c_char) -> bool;
 
-    /// Runs WLC event loop
-    fn wlc_run() -> ();
+    fn wlc_run();
 }
 
 /// Initialize wlc with a `WlcInterface`.
@@ -58,6 +57,20 @@ pub fn init(interface: WlcInterface) -> bool {
 /// ```
 pub fn run_wlc() {
     unsafe { wlc_run(); }
+}
+
+pub fn exec(bin: String, args: Vec<String>) {
+    unsafe {
+        let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
+
+        let argv: Vec<CString> = args.into_iter()
+            .map(|arg| CString::new(arg).unwrap() ).collect();
+
+        let args: Vec<*const libc::c_char> = argv.into_iter()
+            .map(|arg: CString| { arg.as_ptr() as *const libc::c_char }).collect();
+
+        wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
+    }
 }
 
 /// Convert a native string to a Rust string
