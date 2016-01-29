@@ -57,9 +57,9 @@ extern "C" {
 
     fn wlc_output_set_views(output: &WlcOutput, views: *const WlcView, memb: libc::size_t) -> bool;
 
-    fn wlc_output_focus(output: &Option<WlcOutput>);
+    fn wlc_output_focus(output: Option<&WlcOutput>);
 
-    fn wlc_view_focus(view: &Option<WlcView>);
+    fn wlc_view_focus(view: Option<&WlcView>);
 
     fn wlc_view_close(view: &WlcView);
 
@@ -210,7 +210,7 @@ impl WlcOutput {
     /// Focuses this output on a specific view.
     /// Can also use view.focus().
     /// Pass in Option::None for no focus.
-    pub fn focus(view: &Option<WlcOutput>) {
+    pub fn focus(view: Option<&WlcOutput>) {
         unsafe { wlc_output_focus(view); }
     }
 }
@@ -262,8 +262,14 @@ impl WlcView {
     /// Brings this view to focus.
     /// Pass in Option::None for no focus.
     /// Can also use WlcOutput::focus()
-    pub fn focus(view: &Option<WlcView>) {
+    pub fn focus_on(view: Option<&WlcView>) {
         unsafe { wlc_view_focus(view); }
+    }
+
+    /// Brings this view to focus.
+    /// To un-set focus to nothing, call WlcView::focus_on(None)
+    pub fn focus(&self) {
+        WlcView::focus_on(Some(self));
     }
 
     /// Sends the view to the back of the compositor
