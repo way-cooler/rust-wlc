@@ -26,7 +26,7 @@ extern "C" {
 
     fn wlc_terminate();
 
-    fn wlc_log_set_handler(callback: extern fn(log_type: LogType, text: CStr));
+    fn wlc_log_set_handler(callback: extern fn(log_type: LogType, text: *const libc::c_char));
 }
 
 /// Initialize wlc with a `WlcInterface`.
@@ -80,7 +80,7 @@ pub fn exec(bin: String, args: Vec<String>) {
     }
 }
 
-pub fn log_set_handler(handler: extern fn(type_: LogType, text: CStr)) {
+pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_char)) {
     unsafe { wlc_log_set_handler(handler); }
 }
 
