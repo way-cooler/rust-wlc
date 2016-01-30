@@ -173,14 +173,21 @@ impl WlcOutput {
     /// Get views in stack order. Returned array is a direct reference,
     /// careful when moving and destroying handles.
     pub fn get_views(&self) -> Vec<&WlcView> {
+        println!("Getting views");
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self, &mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
+            println!("Result vector of size {}: {:?}", out_memb, result);
             (0isize .. out_memb as isize).map(|index|
-                     result.push(&*(views.offset(index))));
+                  result.push(&*(views.offset(index))));
+            println!("Returning vector: {:?}", result);
             return result;
         }
+    }
+
+    pub fn get_mask(&self) -> u32 {
+        unsafe { wlc_output_get_mask(self) }
     }
 
     /// Get mutable views in creation order. Returned array is a direct reference,
