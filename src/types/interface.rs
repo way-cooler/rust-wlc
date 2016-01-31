@@ -1,4 +1,4 @@
-://! types/interface
+//! types/interface
 //! Contains all structs used for initializing wlc.
 //! You will only need this module for invoking
 //! `rustwlc::init`.
