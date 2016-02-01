@@ -24,7 +24,7 @@ pub struct WlcView(libc::uintptr_t);
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
-/// Represents a handle to a wlc output
+/// Represents a handle to a wlc output.
 pub struct WlcOutput(libc::uintptr_t);
 
 #[link(name = "wlc")]
@@ -141,6 +141,9 @@ impl WlcOutput {
         WlcOutput(view.0)
     }
 
+    /// Gets the name of the WlcOutput.
+    /// Names are usually assigned in the format WLC-n,
+    /// where the first output is WLC-1.
     pub fn get_name(&self) -> String {
         unsafe {
             let name = wlc_output_get_name(self.0);
@@ -148,48 +151,38 @@ impl WlcOutput {
         }
     }
 
+    /// Gets the sleep status of the output.
     pub fn get_sleep(&self) -> bool {
-        unsafe {
-            wlc_output_get_sleep(self.0)
-        }
+        unsafe { wlc_output_get_sleep(self.0) }
     }
 
+    /// Sets the sleep status of the output.
     pub fn set_sleep(&self, sleep: bool) {
-        unsafe {
-            wlc_output_set_sleep(self.0, sleep);
-        }
+        unsafe { wlc_output_set_sleep(self.0, sleep); }
     }
 
     /// Gets the output resolution.
     /// This is not measured in pixels.
     pub fn get_resolution(&self) -> &Size {
-        unsafe {
-            let mut raw = wlc_output_get_resolution(self.0);
-            return &*raw;
-        }
+        unsafe { &*wlc_output_get_resolution(self.0) }
     }
 
     /// Sets the resolution of the WlcOutput
     pub fn set_resolution(&self, size: Size) {
-        unsafe {
-            //let mut set_size = &mut size;
-            wlc_output_set_resolution(self.0, &size);
-        }
+        unsafe { wlc_output_set_resolution(self.0, &size); }
     }
 
     /// Get views in stack order. Returned array is a direct reference,
     /// careful when moving and destroying handles.
     pub fn get_views(&self) -> Vec<WlcView> {
-        //println!("Getting views");
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self.0, &mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
-            //println!("Result vector of size {}: {:?}", out_memb, result);
+
             for index in (0 as isize) .. (out_memb as isize) {
                   result.push(WlcView(*(views.offset(index))));
             }
-            println!("WlcView::get_views: Returning vector: {:?}", result);
             return result;
         }
     }
@@ -387,7 +380,6 @@ impl WlcView {
     pub fn get_title(&self) -> String {
         unsafe {
             let chars = wlc_view_get_title(self.0);
-            //println!("get_title: Attempting to parse {:?}", chars);
             return pointer_to_string(chars);
         }
     }
@@ -396,7 +388,6 @@ impl WlcView {
     pub fn get_class(&self) -> String {
         unsafe {
             let chars = wlc_view_get_class(self.0);
-            println!("get_class: attempting to parse {:?}", chars);
             return pointer_to_string(chars);
         }
     }
@@ -405,7 +396,6 @@ impl WlcView {
     pub fn get_app_id(&self) -> String {
         unsafe {
             let chars = wlc_view_get_app_id(self.0);
-            println!("get_app_id: attempting to parse {:?}", chars);
             return pointer_to_string(chars);
         }
     }
