@@ -37,7 +37,7 @@ pub struct OutputInterface {
     pub destroyed: Option<extern "C" fn(handle: WlcOutput)>,
     pub focus: Option<extern "C" fn(handle: WlcOutput, focused: bool)>,
     /// Output resolution changed
-    pub resolution: Option<extern "C" fn(handle: WlcOutput, old_size: Size, new_size: Size)>,
+    pub resolution: Option<extern "C" fn(handle: WlcOutput, old_size: *const Size, new_size: *const Size)>,
     pub render: OutputRenderInterface,
 }
 
@@ -75,10 +75,10 @@ pub struct RequestInterface {
     /// Apply using wlc_view_set_state to agree.
     pub state: Option<extern "C" fn(current: WlcView, state: ViewState, handled: bool)>,
     /// View requests to move itself. Start an interactive move to agree.
-    pub move_: Option<extern "C" fn(handle: WlcView, destination: Point)>,
+    pub move_: Option<extern "C" fn(handle: WlcView, destination: *const Point)>,
     /// Request to resize itself with the given edges.
     /// Start and interactive move to agree
-    pub resize: Option<extern "C" fn(handle: WlcView, edge: ResizeEdge, location: Point)>,
+    pub resize: Option<extern "C" fn(handle: WlcView, edge: ResizeEdge, location: *const Point)>,
 
     /// View rendering hooks
     pub render: ViewRenderInterface,
@@ -96,7 +96,7 @@ pub struct ViewRenderInterface {
 pub struct KeyboardInterface {
     /// Key event was triggered, view.0 will be zero if there was no focus
     /// Return true to prevent sending the event to clients.
-    pub key: Option<extern "C" fn(view: WlcView, time: u32, mods: KeyboardModifiers, key: u32, state: KeyState) -> bool>,
+    pub key: Option<extern "C" fn(view: WlcView, time: u32, mods: *const KeyboardModifiers, key: u32, state: KeyState) -> bool>,
 }
 
 /// Represents mouse input callbacks
@@ -104,14 +104,15 @@ pub struct KeyboardInterface {
 pub struct PointerInterface {
     /// Button event was triggered, handle.0 will be zero if there was no
     /// focus. Return true to prevent sending the event to clients.
-    pub button: Option<extern "C" fn(hande: WlcView, button: libc::c_uint, mods: KeyboardModifiers, time: u32, state: ButtonState, point: Point) -> bool>,
+    pub button: Option<extern "C" fn(hande: WlcView, time: u32, mods: *const KeyboardModifiers, button: u32, state: ButtonState, point: *const Point) -> bool>,
+
     /// Scroll event was triggered, view handle will be zero if there was
     /// no focus. Return true to prevent sending the event to clients.
-    pub scroll: Option<extern "C" fn(handle: WlcView, button: u32, mods: KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool>,
+    pub scroll: Option<extern "C" fn(handle: WlcView, time: u32, mods: *const KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool>,
     /// Mouse was moved, handle.0 will be zero if there was no focus.
     /// Use wlc_pointer_set_position to agree. Return true to prevent
     /// sending event to clients.
-    pub motion: Option<extern "C" fn(heights: WlcView, dist: u32, point: Point)>,
+    pub motion: Option<extern "C" fn(heights: WlcView, time: u32, point: *const Point)>,
 }
 
 /// Represents touchscreen callbacks
@@ -119,7 +120,7 @@ pub struct PointerInterface {
 pub struct TouchInterface {
     /// Screen was touched, handle.0 will be zero if there was no focus.
     /// Return true to prevent sending the event to clients.
-    pub touch: Option<extern "C" fn(handle: WlcView, time: libc::c_uint, mods: KeyboardModifiers, touch: TouchType, key: libc::c_int, point: Point) -> bool>,
+    pub touch: Option<extern "C" fn(handle: WlcView, time: u32, mods: *const KeyboardModifiers, touch: TouchType, slot: i32, point: *const Point) -> bool>,
 }
 
 /// Represents a callback for initializing the callback
@@ -132,6 +133,6 @@ pub struct CompositorInterface {
 /// Represents experimencallbacks for libinput events
 #[repr(C)]
 pub struct InputInterface {
-    pub created: Option<extern "C" fn(device: LibinputDevice) -> bool>,
-    pub destroyed: Option<extern "C" fn(device: LibinputDevice)>
+    pub created: Option<extern "C" fn(device: *const LibinputDevice) -> bool>,
+    pub destroyed: Option<extern "C" fn(device: *const LibinputDevice)>
 }
