@@ -15,7 +15,7 @@ extern "C" {
     // Pointer functions
     fn wlc_pointer_get_position(out_position: *mut Point);
 
-    fn wlc_pointer_set_position(position: Point);
+    fn wlc_pointer_set_position(position: &Point);
 }
 
 pub mod pointer {
@@ -31,7 +31,7 @@ pub mod pointer {
     }
 
     // Sets the current mouse position. Required on mouse move callback.
-    pub fn set_position(point: Point) {
+    pub fn set_position(point: &Point) {
         unsafe { super::wlc_pointer_set_position(point); }
     }
 }
