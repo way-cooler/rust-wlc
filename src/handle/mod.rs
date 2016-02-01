@@ -40,9 +40,9 @@ extern "C" {
 
     fn wlc_output_set_sleep(output: &WlcOutput, sleep: bool);
 
-    fn wlc_output_get_resolution(output: &WlcOutput) -> Size;
+    fn wlc_output_get_resolution(output: libc::uintptr_t) -> *const Size;
 
-    fn wlc_output_set_resolution(output: &WlcOutput, resolution: Size);
+    fn wlc_output_set_resolution(output: libc::uintptr_t, resolution: *const Size);
 
     fn wlc_output_get_mask(output: &WlcOutput) -> u32;
 
@@ -82,7 +82,7 @@ extern "C" {
 
     fn wlc_view_get_geometry(view: &WlcView) -> Geometry;
 
-    fn wlc_view_set_geometry(view: &WlcView, edges: u32, geo: &mut Geometry);
+    fn wlc_view_set_geometry(view: libc::uintptr_t, edges: u32, geo: *const Geometry);
 
     fn wlc_view_get_type(view: &WlcView) -> u32;
 
@@ -96,9 +96,9 @@ extern "C" {
 
     fn wlc_view_set_parent(view: &WlcView, parent: &WlcView);
 
-    fn wlc_view_get_title(view: &WlcView) -> *const c_char;
+    fn wlc_view_get_title(view: libc::uintptr_t) -> *const c_char;
 
-    fn wlc_view_get_class(view: &WlcView) -> *const c_char;
+    fn wlc_view_get_class(view: libc::uintptr_t) -> *const c_char;
 
     fn wlc_view_get_app_id(view: &WlcView) -> *const c_char;
 }
@@ -157,16 +157,18 @@ impl WlcOutput {
 
     /// Gets the output resolution.
     /// This is not measured in pixels.
-    pub fn get_resolution(&self) -> Size {
+    pub fn get_resolution(&self) -> &Size {
         unsafe {
-            wlc_output_get_resolution(self)
+            let mut raw = wlc_output_get_resolution(self.0 + 1);
+            return &*raw;
         }
     }
 
     /// Sets the resolution of the WlcOutput
     pub fn set_resolution(&self, size: Size) {
         unsafe {
-            wlc_output_set_resolution(self, size);
+            //let mut set_size = &mut size;
+            wlc_output_set_resolution(self.0 + 1, &size);
         }
     }
 
@@ -319,8 +321,8 @@ impl WlcView {
     }
 
     /// Sets geometry. Set edges if geometry is caused by interactive resize.
-    pub fn set_geometry(&self, edges: u32, mut geometry: Geometry) {
-        unsafe { wlc_view_set_geometry(self, edges, &mut geometry); }
+    pub fn set_geometry(&self, edges: u32, geometry: *const Geometry) {
+        unsafe { wlc_view_set_geometry(self.0 + 1, edges, geometry); }
     }
 
     // TODO Return ViewType enum value.
@@ -358,7 +360,8 @@ impl WlcView {
     /// Get the title of the view
     pub fn get_title(&self) -> String {
         unsafe {
-            let chars = wlc_view_get_title(self);
+            let chars = wlc_view_get_title(self.0);
+            println!("get_title: Attempting to parse {:?}", chars);
             return pointer_to_string(chars);
         }
     }
@@ -366,7 +369,8 @@ impl WlcView {
     /// Get class (shell surface only).
     pub fn get_class(&self) -> String {
         unsafe {
-            let chars = wlc_view_get_class(self);
+            let chars = wlc_view_get_class(self.0);
+            println!("get_class: attempting to parse {:?}", chars);
             return pointer_to_string(chars);
         }
     }

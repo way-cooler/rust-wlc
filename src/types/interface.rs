@@ -70,7 +70,7 @@ pub struct ViewInterface {
 pub struct RequestInterface {
     /// Request to set given geometry to view. Apply using
     /// wlc_view_set_geometry (handle.set_geometry) to agree.
-    pub geometry: Option<extern "C" fn(handle: WlcView, geometry: Geometry)>,
+    pub geometry: Option<extern "C" fn(handle: WlcView, geometry: *const Geometry)>,
     /// Request to disable or enable the given state for a view.
     /// Apply using wlc_view_set_state to agree.
     pub state: Option<extern "C" fn(current: WlcView, state: ViewState, handled: bool)>,
