@@ -1,8 +1,6 @@
 //! Contains struct and enum declarations for
 //! structs defined by the wlc protocl.
 
-pub mod interface;
-
 use std::option::Option;
 use std::env;
 use std::ffi;

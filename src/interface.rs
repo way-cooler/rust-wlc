@@ -11,7 +11,8 @@ use std::option::Option;
 use std::ffi::{CString};
 
 use super::*;
-use super::super::handle::{WlcOutput, WlcView};
+use super::types::*;
+use super::handle::{WlcOutput, WlcView};
 
 /// Represents the wlc callback interface.
 /// wlc initialization involves registering

@@ -8,12 +8,13 @@ use std::ffi;
 use std::ffi::{CString, CStr};
 
 pub mod handle;
+pub mod interface;
 pub mod types;
 pub mod input;
 pub mod wayland;
 
 use types::LogType;
-use types::interface::WlcInterface;
+use interface::WlcInterface;
 
 // External WLC functions
 #[link(name = "wlc")]
