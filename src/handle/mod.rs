@@ -29,7 +29,7 @@ pub struct WlcOutput(libc::uintptr_t);
 
 #[link(name = "wlc")]
 extern "C" {
-    fn wlc_output_get_name(output: &WlcOutput) -> *const c_char;
+    fn wlc_output_get_name(output: libc::uintptr_t) -> *const c_char;
 
     //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
 
@@ -51,7 +51,7 @@ extern "C" {
     // TODO tricky definition here
     //fn wlc_output_get_pixels(output: WlcHandle) -> ();
 
-    fn wlc_output_get_views(output: &WlcOutput, out_memb: *mut libc::size_t) -> *const WlcView;
+    fn wlc_output_get_views(output: usize, out_memb: *mut libc::size_t) -> *const WlcView;
 
     fn  wlc_output_get_mutable_views(output: &WlcOutput, out_memb: *mut libc::size_t) -> *mut WlcView;
 
@@ -82,7 +82,7 @@ extern "C" {
 
     fn wlc_view_get_geometry(view: &WlcView) -> Geometry;
 
-    fn wlc_view_set_geometry(view: &WlcView, edges: u32, geo: Geometry);
+    fn wlc_view_set_geometry(view: &WlcView, edges: u32, geo: &mut Geometry);
 
     fn wlc_view_get_type(view: &WlcView) -> u32;
 
@@ -138,7 +138,7 @@ impl WlcOutput {
 
     pub fn get_name(&self) -> String {
         unsafe {
-            let name = wlc_output_get_name(self);
+            let name = wlc_output_get_name(self.0 + 1);
             pointer_to_string(name)
         }
     }
@@ -176,11 +176,12 @@ impl WlcOutput {
         println!("Getting views");
         unsafe {
             let mut out_memb: libc::size_t = 0;
-            let views = wlc_output_get_views(self, &mut out_memb);
+            let views = wlc_output_get_views(self.0 + 1, &mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
             println!("Result vector of size {}: {:?}", out_memb, result);
-            (0isize .. out_memb as isize).map(|index|
-                  result.push(&*(views.offset(index))));
+            for index in (0 as isize).. (out_memb as isize) {
+                  result.push(&*(views.offset(index)));
+            }
             println!("Returning vector: {:?}", result);
             return result;
         }
@@ -318,8 +319,8 @@ impl WlcView {
     }
 
     /// Sets geometry. Set edges if geometry is caused by interactive resize.
-    pub fn set_geometry(&self, edges: u32, geometry: Geometry) {
-        unsafe { wlc_view_set_geometry(self, edges, geometry); }
+    pub fn set_geometry(&self, edges: u32, mut geometry: Geometry) {
+        unsafe { wlc_view_set_geometry(self, edges, &mut geometry); }
     }
 
     // TODO Return ViewType enum value.
