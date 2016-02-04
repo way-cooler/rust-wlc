@@ -14,7 +14,6 @@ extern crate libc;
 use libc::{uintptr_t, c_char};
 
 use super::pointer_to_string;
-
 use super::types::{Geometry, Size, ViewType, ViewState};
 
 #[repr(C)]
@@ -145,10 +144,11 @@ impl WlcOutput {
     /// Names are usually assigned in the format WLC-n,
     /// where the first output is WLC-1.
     pub fn get_name(&self) -> String {
+        let name: *const i8;
         unsafe {
-            let name = wlc_output_get_name(self.0);
-            pointer_to_string(name)
+            name = wlc_output_get_name(self.0);
         }
+        pointer_to_string(name)
     }
 
     /// Gets the sleep status of the output.
@@ -330,8 +330,8 @@ impl WlcView {
     }
 
     /// Sets geometry. Set edges if geometry is caused by interactive resize.
-    pub fn set_geometry(&self, edges: u32, geometry: *const Geometry) {
-        unsafe { wlc_view_set_geometry(self.0, edges, geometry); }
+    pub fn set_geometry(&self, edges: u32, geometry: &Geometry) {
+        unsafe { wlc_view_set_geometry(self.0, edges, geometry as *const Geometry); }
     }
 
     // TODO Return ViewType enum value.
@@ -378,25 +378,28 @@ impl WlcView {
 
     /// Get the title of the view
     pub fn get_title(&self) -> String {
+        let chars: *const i8;
         unsafe {
-            let chars = wlc_view_get_title(self.0);
-            return pointer_to_string(chars);
+            chars = wlc_view_get_title(self.0);
         }
+        pointer_to_string(chars)
     }
 
     /// Get class (shell surface only).
     pub fn get_class(&self) -> String {
+        let chars: *const i8;
         unsafe {
-            let chars = wlc_view_get_class(self.0);
-            return pointer_to_string(chars);
+            chars = wlc_view_get_class(self.0);
         }
+        pointer_to_string(chars)
     }
 
     /// Get app id (xdg-surface only)
     pub fn get_app_id(&self) -> String {
+        let chars: *const i8;
         unsafe {
-            let chars = wlc_view_get_app_id(self.0);
-            return pointer_to_string(chars);
+            chars = wlc_view_get_app_id(self.0);
         }
+        pointer_to_string(chars)
     }
 }
