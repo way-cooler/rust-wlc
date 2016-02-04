@@ -36,6 +36,7 @@ extern "C" {
 /// and call `rustwlc::init` to initialize wlc. If it returns
 /// true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
 pub fn init(interface: WlcInterface) -> bool {
+    log_set_handler(default_log_callback);
     unsafe {
         let argv: Vec<CString> = env::args().into_iter()
             .map(|arg| CString::new(arg).unwrap() ).collect();
@@ -84,6 +85,13 @@ pub fn exec(bin: String, args: Vec<String>) {
 pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_char)) {
     unsafe { wlc_log_set_handler(handler); }
 }
+
+extern fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
+	let string_text = pointer_to_string(text);
+	// Add fancier logging, with debug levels and all that. Find a nice library
+	println!("wlc log: {:?}: {}", log_type, string_text);
+}
+
 
 pub fn pointer_to_string(pointer: *const libc::c_char) -> String {
     let slice = unsafe { ffi::CStr::from_ptr(pointer) };
