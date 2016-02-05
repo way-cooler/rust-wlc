@@ -70,6 +70,9 @@ pub fn run_wlc() {
 /// Is passed the program and all arguments (the first should be the program)
 pub fn exec(bin: String, args: Vec<String>) {
     unsafe {
+
+        //let bin_c = CString::new(bin).unwrap().into_raw();
+
         let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
 
         let argv: Vec<CString> = args.into_iter()
@@ -80,6 +83,11 @@ pub fn exec(bin: String, args: Vec<String>) {
 
         wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
     }
+}
+
+/// Halts execution of wlc.
+pub fn terminate() {
+    unsafe { wlc_terminate(); }
 }
 
 pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_char)) {
