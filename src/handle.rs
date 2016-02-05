@@ -382,6 +382,9 @@ impl WlcView {
         unsafe {
             chars = wlc_view_get_title(self.0);
         }
+        if chars == 0 as *const i8 {
+            String::new()
+        }
         pointer_to_string(chars)
     }
 
@@ -391,6 +394,9 @@ impl WlcView {
         unsafe {
             chars = wlc_view_get_class(self.0);
         }
+        if chars == 0 as *const i8 {
+            String::new()
+        }
         pointer_to_string(chars)
     }
 
@@ -399,6 +405,9 @@ impl WlcView {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_app_id(self.0);
+        }
+        if chars == 0 as *const i8 {
+            String::new()
         }
         pointer_to_string(chars)
     }
