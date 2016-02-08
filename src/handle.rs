@@ -384,8 +384,9 @@ impl WlcView {
         }
         if chars == 0 as *const i8 {
             String::new()
+        } else {
+            pointer_to_string(chars)
         }
-        pointer_to_string(chars)
     }
 
     /// Get class (shell surface only).
@@ -396,8 +397,9 @@ impl WlcView {
         }
         if chars == 0 as *const i8 {
             String::new()
+        } else {
+            pointer_to_string(chars)
         }
-        pointer_to_string(chars)
     }
 
     /// Get app id (xdg-surface only)
@@ -408,7 +410,8 @@ impl WlcView {
         }
         if chars == 0 as *const i8 {
             String::new()
+        } else {
+            pointer_to_string(chars)
         }
-        pointer_to_string(chars)
     }
 }
