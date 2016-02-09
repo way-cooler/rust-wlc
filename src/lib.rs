@@ -38,11 +38,8 @@ extern "C" {
 pub fn init(interface: WlcInterface) -> bool {
     log_set_handler(default_log_callback);
     unsafe {
-        let argv: Vec<CString> = env::args().into_iter()
-            .map(|arg| CString::new(arg).unwrap() ).collect();
-
-        let args: Vec<*const libc::c_char> = argv.into_iter()
-            .map(|arg: ffi::CString| { arg.as_ptr() as *const libc::c_char }).collect();
+        let args: Vec<*const libc::c_char> = env::args().into_iter()
+            .map(|arg| arg.as_ptr() as *const libc::c_char ).collect();
 
         wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char)
     }
