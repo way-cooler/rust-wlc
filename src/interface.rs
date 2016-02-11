@@ -3,12 +3,9 @@
 //! You will only need this module for invoking
 //! `rustwlc::init`.
 
-#![feature(libc)]
 extern crate libc;
 
-use std::ffi;
 use std::option::Option;
-use std::ffi::{CString};
 
 use super::types::*;
 use super::handle::{WlcOutput, WlcView};

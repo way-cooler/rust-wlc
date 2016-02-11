@@ -9,7 +9,6 @@
 //! These handles wrap wayland surfaces and other resources.
 //! Their functionality is ecposed in their available methods.
 
-use std::ffi;
 extern crate libc;
 use libc::{uintptr_t, c_char};
 
@@ -199,9 +198,12 @@ impl WlcOutput {
     pub fn get_mutable_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
-            let mut views = wlc_output_get_mutable_views(self.0, &mut out_memb);
-            return Vec::from_raw_parts(views, out_memb, out_memb)
-                .into_iter().map(|view| WlcView(view) ).collect();
+            let views = wlc_output_get_mutable_views(self.0, &mut out_memb);
+            let mut result = Vec::with_capacity(out_memb);
+            for index in (0 as isize) .. (out_memb as isize) {
+                result.push(WlcView(*(views.offset(index))));
+            }
+            result
         }
     }
 
@@ -210,8 +212,8 @@ impl WlcOutput {
     pub fn set_views(&self, views: &mut Vec<&WlcView>) -> bool {
         unsafe {
             let view_len = views.len() as libc::size_t;
-            let mut view_vals: Vec<uintptr_t> = views.into_iter().map(|v| v.0).collect();
-            let mut const_views = view_vals.as_mut_ptr() as *const uintptr_t;
+            let view_vals: Vec<uintptr_t> = views.into_iter().map(|v| v.0).collect();
+            let const_views = view_vals.as_ptr();
             return wlc_output_set_views(self.0, const_views, view_len);
         }
     }

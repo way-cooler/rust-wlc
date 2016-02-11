@@ -1,11 +1,10 @@
 // This code will be used later
 #![allow(dead_code)]
-#![feature(libc)]
 extern crate libc;
 
 use std::env;
 use std::ffi;
-use std::ffi::{CString, CStr};
+use std::ffi::{CString};
 
 pub mod handle;
 pub mod interface;
