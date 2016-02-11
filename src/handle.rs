@@ -325,8 +325,15 @@ impl WlcView {
     }
 
     /// Gets the geometry of the current view
-    pub fn get_geometry(&self) -> &Geometry {
-        unsafe { &*wlc_view_get_geometry(self.0) }
+    pub fn get_geometry(&self) -> Option<&Geometry> {
+        unsafe { 
+            let geometry = wlc_view_get_geometry(self.0);
+            if geometry.is_null() {
+                None
+            } else {
+                Some(&*geometry)
+            }
+        }
     }
 
     /// Sets geometry. Set edges if geometry is caused by interactive resize.
