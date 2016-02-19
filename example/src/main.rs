@@ -21,15 +21,35 @@ lazy_static! {
 }
 
 extern fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
-    true
+    { // read compositor
+        let comp = COMPOSITOR.read().unwrap();
+
+        if comp.view != None {
+            return false;
+        }
+    } // drop read
+    { // write compositor
+        let mut comp = COMPOSITOR.write().unwrap();
+
+        comp.grab = origin.clone();
+        comp.view = Some(view.clone());
+    } // drop write
+    view.bring_to_front();
+    return true;
 }
 
 extern fn start_interactive_move(view: &WlcView, origin: &Point) {
-    
+    start_interactive_action(view, origin);
 }
 
 extern fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
-    
+    let geometry = view.get_geometry();
+
+    if !start_interactive_action(view, origin) {
+        return;
+    }
+
+
 }
 
 extern fn stop_interactive_action() {
