@@ -6,7 +6,6 @@ extern crate lazy_static;
 extern crate rustwlc;
 
 use rustwlc::interface::*;
-use rustwlc::{init, run_wlc};
 use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
 
@@ -119,5 +118,11 @@ fn main() {
 
         input: InputInterface { created: None, destroyed: None }
     };
+
+    if !(rustwlc::init(interface)) {
+        panic!("Unable to initialize!");
+    }
+
+    rustwlc::run_wlc();
 }
 
