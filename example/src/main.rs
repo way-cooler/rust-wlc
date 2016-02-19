@@ -11,10 +11,14 @@ use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
 
 struct Compositor {
-    action: bool,
-    view: &'static WlcView,
-    grab: &'static Point,
-    edges: u32
+    pub view: Option<WlcView>,
+    pub grab: Point,
+    pub edges: u32
+}
+
+lazy_static! {
+    static ref COMPOSITOR: RwLock<Compositor> =
+        RwLock::new(Compositor { view: None, grab: Point { x: 0, y: 0 }, edges: 0 });
 }
 
 extern fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
