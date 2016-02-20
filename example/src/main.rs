@@ -137,13 +137,15 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
     start_interactive_resize(&view, edges as u32, origin);
 }
 
-extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
+extern fn on_keyboard_key(view: Option<WlcView>, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
     if state == KeyState::Pressed {
         if mods.mods == KeyModifier::Ctrl {
             if key == 67 {
                 println!("Handling kill window");
-                view.close(); // Will break things if you don't pass Option<WlcView>...
+                if view.is_some() {
+                    view.unwrap().close();
+                }
                 return true;
             }
             else if key == 66 { // Execute order 66
@@ -157,19 +159,20 @@ extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, ke
     return true;
 }
 
-extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
+extern fn on_pointer_button(view: Option<WlcView>, time: u32, mods: &KeyboardModifiers,
                             button: u32, state: ButtonState, point: &Point) -> bool {
     println!("pointer_button: pressed {} at {} with view {:?}", button, point, view);
-    if state == ButtonState::Pressed {
-        view.focus(); // Again may cause problems with no Some<View>
+    if state == ButtonState::Pressed && view.is_some() {
+        let v = view.unwrap();
+        v.focus(); // Again may cause problems with no Some<View>
         if true { //view.0 != 0 {
             if mods.mods == KeyModifier::Ctrl {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
-                    start_interactive_move(&view, point);
+                    start_interactive_move(&v, point);
                 }
                 if button == 0x111 {
-                    start_interactive_resize(&view, 0u32, point);
+                    start_interactive_resize(&v, 0u32, point);
                 }
             }
         }
@@ -185,55 +188,62 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
 
 }
 
-extern fn on_pointer_motion(view: WlcView, time: u32, point: &Point) -> bool {
+extern fn on_pointer_motion(view: Option<WlcView>, time: u32, point: &Point) -> bool {
     rustwlc::input::pointer::set_position(point);
-
     {
         let comp = COMPOSITOR.read().unwrap();
 
-        if comp.view.is_some() {
-            let dx = point.x - comp.grab.x;
-            let dy = point.y - comp.grab.y;
-            let mut geo = comp.view.unwrap().get_geometry().unwrap();
+        match comp.view {
+            None => {},
+            Some(ref view) => {
+                //let view = &comp.view.unwrap();
 
-            if comp.edges != 0 {
-                let min = Size { w: 80, h: 40};
-                let mut new_geo = geo.clone();
-                if comp.edges & ResizeEdge::Left as u32 != 0 {
-                    new_geo.size.w -= dx;
-                    new_geo.origin.x += dx;
-                }
-                else if comp.edges & ResizeEdge::Right as u32 != 0 {
-                    new_geo.size.w += dx;
-                }
+                let dx = point.x - comp.grab.x;
+                let dy = point.y - comp.grab.y;
+                let (dxu, dyu) = (dx as u32, dy as u32);
+                let mut geo = view.get_geometry().unwrap().clone();
 
-                if comp.edges & ResizeEdge::Top as u32 != 0 {
-                    new_geo.size.h -= dy;
-                    new_geo.origin.y += dy;
-                }
-                else if comp.edges & ResizeEdge::Bottom != 0 {
-                    new_geo.size.h += dy;
-                }
+                if comp.edges != 0 {
+                    let min = Size { w: 80, h: 40};
+                    let mut new_geo = geo.clone();
 
-                if new_geo.size.w >= min.w {
-                    geo.origin.x = new_geo.origin.x;
-                    geo.size.w = new_geo.size.w;
-                }
+                    if comp.edges & ResizeEdge::Left as u32 != 0 {
+                        new_geo.size.w -= dxu;
+                        new_geo.origin.x += dx;
+                    }
+                    else if comp.edges & ResizeEdge::Right as u32 != 0 {
+                        new_geo.size.w += dxu;
+                    }
 
-                if new_geo.size.h >= min.h {
-                    geo.origin.y = new_geo.origin.y;
-                    geo.size.h = new_geo.size.h;
-                }
+                    if comp.edges & ResizeEdge::Top as u32 != 0 {
+                        new_geo.size.h -= dyu;
+                        new_geo.origin.y += dy;
+                    }
+                    else if comp.edges & ResizeEdge::Bottom as u32 != 0 {
+                        new_geo.size.h += dyu;
+                    }
 
-                comp.view.unwrap().set_geometry(comp.view, comp.edges, &geo);
-            }
-            else {
-                geo.origin.x += dx;
-                geo.origin.y += dy;
-                comp.view.unwrap().set_geometry(0, &geo);
+                    if new_geo.size.w >= min.w {
+                        geo.origin.x = new_geo.origin.x;
+                        geo.size.w = new_geo.size.w;
+                    }
+
+                    if new_geo.size.h >= min.h {
+                        geo.origin.y = new_geo.origin.y;
+                        geo.size.h = new_geo.size.h;
+                    }
+
+                    view.set_geometry(comp.edges, &geo);
+                }
+                else {
+                    geo.origin.x += dx;
+                    geo.origin.y += dy;
+                    view.set_geometry(0, &geo);
+                }
             }
         }
     }
+
     {
         let mut comp = COMPOSITOR.write().unwrap();
         comp.grab = point.clone();
