@@ -98,14 +98,20 @@ fn render_output(output: &WlcOutput) {
     let views = output.get_views();
     if views.is_empty() { return; }
 
-    for view in &views {
+    println!("{} is preparing to render {} views", output.get_name(), views.len());
+
+    for view in views {
+        println!("\tView \"{}\"", view.get_title());
+        println!("\tGeometry: {:?}", view.get_geometry());
+        println!("\tIt's state: {}", view.get_state());
         view.set_geometry(0, &Geometry {
             size: Size { w: 0u32, h: 0u32 },
-            origin: Point { x: resolution.w as i32, y: resolution.h as i32 }
+            origin: Point { x: 0, y: 0 }
         });
+        println!("\tAtempted geometry, got {:?}", view.get_geometry());
     }
 
-    println!("Rendered {} views for output {}", views.len(), output.get_name());
+    //println!("Rendered {} views for output {}", views.len(), output.get_name());
 }
 
 // Handles
@@ -116,17 +122,22 @@ extern fn on_output_resolution(output: WlcOutput, from: &Size, to: &Size) {
 
 extern fn on_view_created(view: WlcView) -> bool {
     println!("View created: {:?}: {}", &view, view.get_class());
-    render_output(&view.get_output());
+    view.set_mask(view.get_output().get_mask());
+    view.bring_to_front();
+    view.focus();
+    render_output(&(view).get_output());
     true
 }
 
 extern fn on_view_destroyed(view: WlcView) {
     println!("View destroyed: {:?}: {}", &view, view.get_class());
-    render_output(&view.get_output());
+    render_output(&(view).get_output());
 }
 
 extern fn on_view_focus(view: WlcView, focused: bool) {
+    println!("View {} focused: {}. Setting state...", view.get_title(), focused);
     view.set_state(ViewState::Activated, focused);
+    println!("View state: {}", view.get_state());
 }
 
 extern fn on_view_request_move(view: WlcView, origin: &Point) {
