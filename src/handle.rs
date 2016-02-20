@@ -13,7 +13,7 @@ extern crate libc;
 use libc::{uintptr_t, c_char};
 
 use super::pointer_to_string;
-use super::types::{Geometry, Size, ViewType, ViewState};
+use super::types::{Geometry, ResizeEdge, Size, ViewType, ViewState};
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -266,7 +266,7 @@ impl WlcView {
     }
 
     pub fn is_some(&self) -> bool {
-        self.0 != 0  
+        self.0 != 0
     }
 
     /// Closes this WlcView
@@ -332,14 +332,14 @@ impl WlcView {
 
     /// Gets the geometry of the current view
     pub fn get_geometry(&self) -> &Geometry {
-        unsafe { 
+        unsafe {
             &*wlc_view_get_geometry(self.0)
         }
     }
 
     /// Sets geometry. Set edges if geometry is caused by interactive resize.
-    pub fn set_geometry(&self, edges: u32, geometry: &Geometry) {
-        unsafe { wlc_view_set_geometry(self.0, edges, geometry as *const Geometry); }
+    pub fn set_geometry(&self, edges: ResizeEdge, geometry: &Geometry) {
+        unsafe { wlc_view_set_geometry(self.0, edges.bits(), geometry as *const Geometry); }
     }
 
     // TODO Return ViewType enum value.

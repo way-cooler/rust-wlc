@@ -52,27 +52,27 @@ fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
     {
         let mut comp = COMPOSITOR.write().unwrap();
         comp.edges = edges.clone();
-        if comp.edges.bits == 0 {
-            let x = if origin.x < halfw {
-                ResizeEdge::Left as u32
+        if comp.edges.bits() == 0 {
+            let flag_x = if origin.x < halfw {
+                RESIZE_LEFT
             } else if origin.x > halfw {
-                ResizeEdge::Right as u32
+                RESIZE_RIGHT
             } else {
-                ResizeEdge::None as u32
+                ResizeEdge::empty()
             };
 
-            let y = if origin.y < halfh {
-                ResizeEdge::Top as u32
+            let flag_y = if origin.y < halfh {
+                RESIZE_TOP
             } else if origin.y > halfh {
-                ResizeEdge::Bottom as u32
+                RESIZE_BOTTOM
             } else {
-                ResizeEdge::None as u32
+                ResizeEdge::empty()
             };
 
-            comp.edges = x | y;
+            comp.edges = flag_x | flag_y;
         }
     }
-    view.set_state(ViewState::Resizing, true);
+    view.set_state(VIEW_RESIZING, true);
 }
 
 fn stop_interactive_action() {
@@ -81,7 +81,7 @@ fn stop_interactive_action() {
     match comp.view {
         None => return,
         Some(ref view) =>
-            view.set_state(ViewState::Resizing, false)
+            view.set_state(VIEW_RESIZING, false)
     }
 
     (*comp).view = None;
@@ -106,7 +106,7 @@ fn render_output(output: &WlcOutput) {
         println!("\tView \"{}\"", view.get_title());
         println!("\tGeometry: {:?}", view.get_geometry());
         println!("\tIt's state: {}", view.get_state());
-        view.set_geometry(0, &Geometry {
+        view.set_geometry(ResizeEdge::empty(), &Geometry {
             size: Size { w: 0u32, h: 0u32 },
             origin: Point { x: 0, y: 0 }
         });
@@ -138,7 +138,7 @@ extern fn on_view_destroyed(view: WlcView) {
 
 extern fn on_view_focus(view: WlcView, focused: bool) {
     println!("View {} focused: {}. Setting state...", view.get_title(), focused);
-    view.set_state(ViewState::Activated, focused);
+    view.set_state(VIEW_ACTIVATED, focused);
     println!("View state: {}", view.get_state());
 }
 
@@ -147,14 +147,14 @@ extern fn on_view_request_move(view: WlcView, origin: &Point) {
 }
 
 extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Point) {
-    start_interactive_resize(&view, edges as u32, origin);
+    start_interactive_resize(&view, edges, origin);
 }
 
 extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
     println!("Keyboard press on {:?}, with mods {:?} and key {} {:?}", view, mods, key, state);
     if state == KeyState::Pressed {
-        if mods.mods == KeyMod::CTRL {
+        if mods.mods == MOD_CTRL {
             println!("Checking for keys...");
             if key == 67 {
                 println!("Handling kill window");
@@ -180,13 +180,15 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
     if state == ButtonState::Pressed && view.is_some() {
         view.focus(); // Again may cause problems with no Some<View>
         if true { //view.0 != 0 {
-            if mods.mods.contains(KeyMod::CTRL) {
+            if mods.mods.contains(MOD_CTRL) {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
+                    println!("Preparing interative move...");
                     start_interactive_move(&view, point);
                 }
                 if button == 0x111 {
-                    start_interactive_resize(&view, 0u32, point);
+                    println!("Preparing interactive resize...");
+                    start_interactive_resize(&view, ResizeEdge::empty(), point);
                 }
             }
         }
@@ -194,17 +196,17 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
             stop_interactive_action();
         }
     }
+    else { return true; }
 
     {
         let comp = COMPOSITOR.read().unwrap();
         return comp.view.is_some();
     }
-
 }
 
 extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool {
     rustwlc::input::pointer::set_position(point);
-    if (time % 2 == 0) { return true; }
+    if time % 2 == 0 { return true; }
     {
         let comp = COMPOSITOR.read().unwrap();
 
@@ -219,27 +221,27 @@ extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool 
                 let mut geo = view.get_geometry().clone();
                 //geo.size = Size { w: 200, h: 200 };
                 println!("\tView's current geometry: {:?}", geo);
-                if comp.edges != 0 {
+                if comp.edges.bits() != 0 {
                     let min = Size { w: 80u32, h: 40u32};
                     let mut new_geo = geo.clone();
                     println!("\tCloned geometry: {:?}", new_geo);
 
-                    if comp.edges & ResizeEdge::Left as u32 != 0 {
+                    if comp.edges.contains(RESIZE_LEFT) {
                         println!("ResizeEdge::Left detected");
                         new_geo.size.w -= dx as u32;
                         new_geo.origin.x += dx;
                     }
-                    else if comp.edges & ResizeEdge::Right as u32 != 0 {
+                    else if comp.edges.contains(RESIZE_RIGHT) {
                         println!("ResizeEdge::Right detected");
                         new_geo.size.w += dx as u32;
                     }
 
-                    if comp.edges & ResizeEdge::Top as u32 != 0 {
+                    if comp.edges.contains(RESIZE_TOP) {
                         new_geo.size.h -= dy as u32;
                         new_geo.origin.y += dy;
                     }
-                    else if comp.edges & ResizeEdge::Bottom as u32 != 0 {
-                        new_geo.size.h += dy as u32;
+                    else if comp.edges.contains(RESIZE_BOTTOM) {
+                        new_geo.size.h += dy as u32; // Here
                     }
 
                     if new_geo.size.w >= min.w {
@@ -257,7 +259,7 @@ extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool 
                 else {
                     geo.origin.x += dx;
                     geo.origin.y += dy;
-                    view.set_geometry(0, &geo);
+                    view.set_geometry(ResizeEdge::empty(), &geo);
                 }
             }
         }

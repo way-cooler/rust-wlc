@@ -32,13 +32,13 @@ pub enum BackendType {
 bitflags! {
     flags EventBit: u32 {
         /// Event can be read
-        const Readable = 1,
+        const EVENT_READABLE = 1,
         /// Event can be written
-        const Writeable = 2,
+        const EVENT_WRITEABLE = 2,
         /// Event is hung up (?)
-        const Hangup = 4,
+        const EVENT_HANGUP = 4,
         /// Event is in error
-        const Error = 8
+        const EVENT_ERROR = 8
     }
 }
 
@@ -47,15 +47,15 @@ bitflags! {
 bitflags! {
     flags ViewState: u32 {
         /// Window maximized
-        const Maximized = 1,
+        const VIEW_MAXIMIZED = 1,
         /// Window fullscreen
-        const Fullscreen = 2,
+        const VIEW_FULLSCREEN = 2,
         /// Window resizing
-        const Resizing = 4,
+        const VIEW_RESIZING = 4,
         /// Window moving
-        const Moving = 8,
+        const VIEW_MOVING = 8,
         /// Window activated
-        const Activated = 16
+        const VIEW_ACTIVATED = 16
     }
 }
 
@@ -79,15 +79,14 @@ pub enum ViewType {
 //#[repr(C)]
 bitflags! {
     flags ResizeEdge: u32 {
-        const TOP = 1,
-        const BOTTOM = 2,
-        const LEFT = 4,
-
-        const TOPLEFT = TOP.bits & LEFT.bits,
-        const BOTTOMLEFT = BOTTOM.bits & LEFT.bits,
-        const RIGHT = 8,
-        const TOPRIGHT = RIGHT.bits & TOP.bits,
-        const BOTTOMRIGHT = RIGHT.bits & BOTTOM.bits
+        const RESIZE_TOP = 1,
+        const RESIZE_BOTTOM = 2,
+        const RESIZE_LEFT = 4,
+        const RESIZE_TOPLEFT = 5,
+        const RESIZE_BOTTOMLEFT = 6,
+        const RESIZE_RIGHT = 8,
+        const RESIZE_TOPRIGHT = 9,
+        const RESIZE_BOTTOMRIGHT = 10
     }
 }
 
@@ -95,15 +94,15 @@ bitflags! {
 //#[repr(C)]
 bitflags! {
     flags KeyMod: u32 {
-        const SHIFT = 1,
-        const CAPS = 2,
-        const CTRL = 4,
-        const ALT= 8,
-        const MOD2 = 16,
-        const MOD3 = 32,
+        const MOD_SHIFT = 1,
+        const MOD_CAPS = 2,
+        const MOD_CTRL = 4,
+        const MOD_ALT= 8,
+        const MOD_MOD2 = 16,
+        const MOD_MOD3 = 32,
         /// Mod4?
-        const MOD4 = 64,
-        const MOD5 = 128
+        const MOD_MOD4 = 64,
+        const MOD_MOD5 = 128
     }
 }
 
