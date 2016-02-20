@@ -94,40 +94,95 @@ fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
 }
 
 fn render_output(output: &WlcOutput) {
+    let resolution = output.get_resolution();
     let views = output.get_views();
     if views.is_empty() { return; }
 
+    for view in &views {
+        view.set_geometry(0, &Geometry {
+            size: Size { w: 0u32, h: 0u32 },
+            origin: Point { x: resolution.w as i32, y: resolution.h as i32 }
+        });
+    }
 
+    println!("Rendered {} views for output {}", views.len(), output.get_name());
 }
 
 // Handles
 
 extern fn on_output_resolution(output: WlcOutput, from: &Size, to: &Size) {
-    
+    render_output(&output);
 }
 
 extern fn on_view_created(view: WlcView) -> bool {
+    println!("View created: {:?}: {}", &view, view.get_class());
+    render_output(&view.get_output());
     true
 }
 
 extern fn on_view_destroyed(view: WlcView) {
-    
+    println!("View destroyed: {:?}: {}", &view, view.get_class());
+    render_output(&view.get_output());
 }
 
 extern fn on_view_focus(view: WlcView, focused: bool) {
-    
+    view.set_state(ViewState::Activated, focused);
 }
 
 extern fn on_view_request_move(view: WlcView, origin: &Point) {
-    
+    start_interactive_move(&view, origin);
 }
 
 extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Point) {
-    
+    start_interactive_resize(&view, edges as u32, origin);
 }
 
 extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
-    true
+    use std::process::Command;
+    if state == KeyState::Pressed {
+        if mods.mods == KeyModifier::Ctrl {
+            if key == 67 {
+                println!("Handling kill window");
+                view.close(); // Will break things if you don't pass Option<WlcView>...
+                return true;
+            }
+            else if key == 66 { // Execute order 66
+                // TODO I will make a dezombifying thread
+                let child = Command::new("/bin/weston-terminal").spawn()
+                    .unwrap_or_else(|e| { println!("Error spawning child: {}", e); panic!("spawning child")});
+                return true;
+            }
+        }
+    }
+    return true;
+}
+
+extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
+                            button: u32, state: ButtonState, point: &Point) -> bool {
+    println!("pointer_button: pressed {} at {} with view {:?}", button, point, view);
+    if state == ButtonState::Pressed {
+        view.focus(); // Again may cause problems with no Some<View>
+        if true { //view.0 != 0 {
+            if mods.mods == KeyModifier::Ctrl {
+                // Button left, we need to include linux/input.h somehow
+                if button == 0x110 {
+                    start_interactive_move(&view, point);
+                }
+                if button == 0x111 {
+                    start_interactive_resize(&view, 0u32, point);
+                }
+            }
+        }
+        else {
+            stop_interactive_action();
+        }
+    }
+
+    {
+        let comp = COMPOSITOR.read().unwrap();
+        return comp.view.is_some();
+    }
+
 }
 
 extern fn on_pointer_motion(view: WlcView, time: u32, point: &Point) {
