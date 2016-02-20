@@ -39,7 +39,7 @@ fn start_interactive_move(view: &WlcView, origin: &Point) {
 }
 
 fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
-    let geometry = view.get_geometry().unwrap();
+    let geometry = view.get_geometry();
 
     if !start_interactive_action(view, origin) {
         return;
@@ -202,6 +202,7 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
 
 extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool {
     rustwlc::input::pointer::set_position(point);
+    if (time % 2 == 0) { return true; }
     {
         let comp = COMPOSITOR.read().unwrap();
 
@@ -209,30 +210,34 @@ extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool 
             None => {},
             Some(ref view) => {
                 //let view = &comp.view.unwrap();
-
+                println!("Pointer motion for moving view!");
                 let dx = point.x - comp.grab.x;
                 let dy = point.y - comp.grab.y;
-                let (dxu, dyu) = (dx as u32, dy as u32);
-                let mut geo = view.get_geometry().unwrap().clone();
-
+                //let (dxu, dyu) = (dx as u32, dy as u32);
+                let mut geo = view.get_geometry().clone();
+                //geo.size = Size { w: 200, h: 200 };
+                println!("\tView's current geometry: {:?}", geo);
                 if comp.edges != 0 {
-                    let min = Size { w: 80, h: 40};
+                    let min = Size { w: 80u32, h: 40u32};
                     let mut new_geo = geo.clone();
+                    println!("\tCloned geometry: {:?}", new_geo);
 
                     if comp.edges & ResizeEdge::Left as u32 != 0 {
-                        new_geo.size.w -= dxu;
+                        println!("ResizeEdge::Left detected");
+                        new_geo.size.w -= dx as u32;
                         new_geo.origin.x += dx;
                     }
                     else if comp.edges & ResizeEdge::Right as u32 != 0 {
-                        new_geo.size.w += dxu;
+                        println!("ResizeEdge::Right detected");
+                        new_geo.size.w += dx as u32;
                     }
 
                     if comp.edges & ResizeEdge::Top as u32 != 0 {
-                        new_geo.size.h -= dyu;
+                        new_geo.size.h -= dy as u32;
                         new_geo.origin.y += dy;
                     }
                     else if comp.edges & ResizeEdge::Bottom as u32 != 0 {
-                        new_geo.size.h += dyu;
+                        new_geo.size.h += dy as u32;
                     }
 
                     if new_geo.size.w >= min.w {
