@@ -20,7 +20,7 @@ lazy_static! {
         RwLock::new(Compositor { view: None, grab: Point { x: 0, y: 0 }, edges: 0 });
 }
 
-extern fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
+fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
     {
         let mut comp = COMPOSITOR.write().unwrap();
         if comp.view != None {
@@ -34,11 +34,11 @@ extern fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
     return true;
 }
 
-extern fn start_interactive_move(view: &WlcView, origin: &Point) {
+fn start_interactive_move(view: &WlcView, origin: &Point) {
     start_interactive_action(view, origin);
 }
 
-extern fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
+fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
     let geometry = view.get_geometry().unwrap();
 
     if !start_interactive_action(view, origin) {
@@ -73,7 +73,7 @@ extern fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
     view.set_state(ViewState::Resizing, true);
 }
 
-extern fn stop_interactive_action() {
+fn stop_interactive_action() {
     let mut comp = COMPOSITOR.write().unwrap();
 
     match comp.view {
@@ -85,7 +85,7 @@ extern fn stop_interactive_action() {
     (*comp).view = None;
 }
 
-extern fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
+fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
     let views = output.get_views();
     if views.is_empty() { None }
     else {
@@ -93,8 +93,11 @@ extern fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView>
     }
 }
 
-extern fn render_output(output: &WlcOutput) {
-    
+fn render_output(output: &WlcOutput) {
+    let views = output.get_views();
+    if views.is_empty() { return; }
+
+
 }
 
 // Handles
