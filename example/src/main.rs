@@ -185,7 +185,60 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
 
 }
 
-extern fn on_pointer_motion(view: WlcView, time: u32, point: &Point) {
+extern fn on_pointer_motion(view: WlcView, time: u32, point: &Point) -> bool {
+    rustwlc::input::pointer::set_position(point);
+
+    {
+        let comp = COMPOSITOR.read().unwrap();
+
+        if comp.view.is_some() {
+            let dx = point.x - comp.grab.x;
+            let dy = point.y - comp.grab.y;
+            let mut geo = comp.view.unwrap().get_geometry().unwrap();
+
+            if comp.edges != 0 {
+                let min = Size { w: 80, h: 40};
+                let mut new_geo = geo.clone();
+                if comp.edges & ResizeEdge::Left as u32 != 0 {
+                    new_geo.size.w -= dx;
+                    new_geo.origin.x += dx;
+                }
+                else if comp.edges & ResizeEdge::Right as u32 != 0 {
+                    new_geo.size.w += dx;
+                }
+
+                if comp.edges & ResizeEdge::Top as u32 != 0 {
+                    new_geo.size.h -= dy;
+                    new_geo.origin.y += dy;
+                }
+                else if comp.edges & ResizeEdge::Bottom != 0 {
+                    new_geo.size.h += dy;
+                }
+
+                if new_geo.size.w >= min.w {
+                    geo.origin.x = new_geo.origin.x;
+                    geo.size.w = new_geo.size.w;
+                }
+
+                if new_geo.size.h >= min.h {
+                    geo.origin.y = new_geo.origin.y;
+                    geo.size.h = new_geo.size.h;
+                }
+
+                comp.view.unwrap().set_geometry(comp.view, comp.edges, &geo);
+            }
+            else {
+                geo.origin.x += dx;
+                geo.origin.y += dy;
+                comp.view.unwrap().set_geometry(0, &geo);
+            }
+        }
+    }
+    {
+        let mut comp = COMPOSITOR.write().unwrap();
+        comp.grab = point.clone();
+        return comp.view.is_some();
+    }
 }
 
 fn main() {
@@ -219,7 +272,8 @@ fn main() {
         keyboard: KeyboardInterface { key: Some(on_keyboard_key) },
 
         pointer: PointerInterface {
-            button: None, scroll: None,
+            button: Some(on_pointer_button),
+            scroll: None,
             motion: Some(on_pointer_motion)
         },
 
