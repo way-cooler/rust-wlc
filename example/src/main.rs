@@ -177,9 +177,9 @@ extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, ke
 extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
                             button: u32, state: ButtonState, point: &Point) -> bool {
     println!("pointer_button: pressed {} at {} with view {:?}", button, point, view);
-    if state == ButtonState::Pressed && view.is_some() {
-        view.focus(); // Again may cause problems with no Some<View>
-        if true { //view.0 != 0 {
+    if state == ButtonState::Pressed {
+        if view.is_some() { //view.0 != 0 {
+            view.focus(); // Again may cause problems with no Some<View>
             if mods.mods.contains(MOD_CTRL) {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
