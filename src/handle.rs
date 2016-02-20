@@ -331,14 +331,9 @@ impl WlcView {
     }
 
     /// Gets the geometry of the current view
-    pub fn get_geometry(&self) -> Option<&Geometry> {
+    pub fn get_geometry(&self) -> &Geometry {
         unsafe { 
-            let geometry = wlc_view_get_geometry(self.0);
-            if geometry.is_null() {
-                None
-            } else {
-                Some(&*geometry)
-            }
+            &*wlc_view_get_geometry(self.0)
         }
     }
 
