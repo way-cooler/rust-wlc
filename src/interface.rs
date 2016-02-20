@@ -93,7 +93,7 @@ pub struct ViewRenderInterface {
 pub struct KeyboardInterface {
     /// Key event was triggered, handle will be None if there was no focus
     /// Return true to prevent sending the event to clients.
-    pub key: Option<extern "C" fn(view: Option<WlcView>, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool>,
+    pub key: Option<extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool>,
 }
 
 /// Represents mouse input callbacks
@@ -101,15 +101,15 @@ pub struct KeyboardInterface {
 pub struct PointerInterface {
     /// Button event was triggered, view will be None if there was no
     /// focus. Return true to prevent sending the event to clients.
-    pub button: Option<extern "C" fn(hande: Option<WlcView>, time: u32, mods: &KeyboardModifiers, button: u32, state: ButtonState, point: &Point) -> bool>,
+    pub button: Option<extern "C" fn(hande: WlcView, time: u32, mods: &KeyboardModifiers, button: u32, state: ButtonState, point: &Point) -> bool>,
 
     /// Scroll event was triggered, view handle will be None if there was
     /// no focus. Return true to prevent sending the event to clients.
-    pub scroll: Option<extern "C" fn(handle: Option<WlcView>, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool>,
+    pub scroll: Option<extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool>,
     /// Mouse was moved, view will be none if there was no focus.
     /// Use wlc_pointer_set_position to agree. Return true to prevent
     /// sending event to clients.
-    pub motion: Option<extern "C" fn(heights: Option<WlcView>, time: u32, point: &Point) -> bool>,
+    pub motion: Option<extern "C" fn(heights: WlcView, time: u32, point: &Point) -> bool>,
 }
 
 /// Represents touchscreen callbacks
@@ -117,7 +117,7 @@ pub struct PointerInterface {
 pub struct TouchInterface {
     /// Screen was touched, handle will be None if there was no focus.
     /// Return true to prevent sending the event to clients.
-    pub touch: Option<extern "C" fn(handle: Option<WlcView>, time: u32, mods: &KeyboardModifiers, touch: TouchType, slot: i32, point: &Point) -> bool>,
+    pub touch: Option<extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers, touch: TouchType, slot: i32, point: &Point) -> bool>,
 }
 
 /// Represents a callback for initializing the callback

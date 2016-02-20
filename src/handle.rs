@@ -265,6 +265,10 @@ impl WlcView {
         WlcView(output.0)
     }
 
+    pub fn is_some(&self) -> bool {
+        self.0 != 0  
+    }
+
     /// Closes this WlcView
     pub fn close(&self) {
         unsafe { wlc_view_close(self.0); }

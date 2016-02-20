@@ -137,14 +137,16 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
     start_interactive_resize(&view, edges as u32, origin);
 }
 
-extern fn on_keyboard_key(view: Option<WlcView>, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
+extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
+    println!("Keyboard press on {:?}, with mods {:?} and key {} {:?}", view, mods, key, state);
     if state == KeyState::Pressed {
         if mods.mods == KeyModifier::Ctrl {
+            println!("Checking for keys...");
             if key == 67 {
                 println!("Handling kill window");
                 if view.is_some() {
-                    view.unwrap().close();
+                    view.close();
                 }
                 return true;
             }
@@ -156,23 +158,22 @@ extern fn on_keyboard_key(view: Option<WlcView>, time: u32, mods: &KeyboardModif
             }
         }
     }
-    return true;
+    return false;
 }
 
-extern fn on_pointer_button(view: Option<WlcView>, time: u32, mods: &KeyboardModifiers,
+extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
                             button: u32, state: ButtonState, point: &Point) -> bool {
     println!("pointer_button: pressed {} at {} with view {:?}", button, point, view);
     if state == ButtonState::Pressed && view.is_some() {
-        let v = view.unwrap();
-        v.focus(); // Again may cause problems with no Some<View>
+        view.focus(); // Again may cause problems with no Some<View>
         if true { //view.0 != 0 {
             if mods.mods == KeyModifier::Ctrl {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
-                    start_interactive_move(&v, point);
+                    start_interactive_move(&view, point);
                 }
                 if button == 0x111 {
-                    start_interactive_resize(&v, 0u32, point);
+                    start_interactive_resize(&view, 0u32, point);
                 }
             }
         }
@@ -188,7 +189,7 @@ extern fn on_pointer_button(view: Option<WlcView>, time: u32, mods: &KeyboardMod
 
 }
 
-extern fn on_pointer_motion(view: Option<WlcView>, time: u32, point: &Point) -> bool {
+extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool {
     rustwlc::input::pointer::set_position(point);
     {
         let comp = COMPOSITOR.read().unwrap();
