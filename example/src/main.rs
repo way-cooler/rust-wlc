@@ -12,12 +12,14 @@ use rustwlc::types::*;
 struct Compositor {
     pub view: Option<WlcView>,
     pub grab: Point,
-    pub edges: u32
+    pub edges: ResizeEdge
 }
 
 lazy_static! {
     static ref COMPOSITOR: RwLock<Compositor> =
-        RwLock::new(Compositor { view: None, grab: Point { x: 0, y: 0 }, edges: 0 });
+        RwLock::new(Compositor { view: None,
+                                 grab: Point { x: 0, y: 0 },
+                                 edges: ResizeEdge::empty() });
 }
 
 fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
@@ -38,7 +40,7 @@ fn start_interactive_move(view: &WlcView, origin: &Point) {
     start_interactive_action(view, origin);
 }
 
-fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
+fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
     let geometry = view.get_geometry();
 
     if !start_interactive_action(view, origin) {
@@ -50,7 +52,7 @@ fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
     {
         let mut comp = COMPOSITOR.write().unwrap();
         comp.edges = edges.clone();
-        if comp.edges == 0 {
+        if comp.edges.bits == 0 {
             let x = if origin.x < halfw {
                 ResizeEdge::Left as u32
             } else if origin.x > halfw {
@@ -152,7 +154,7 @@ extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, ke
     use std::process::Command;
     println!("Keyboard press on {:?}, with mods {:?} and key {} {:?}", view, mods, key, state);
     if state == KeyState::Pressed {
-        if mods.mods == KeyModifier::Ctrl {
+        if mods.mods == KeyMod::CTRL {
             println!("Checking for keys...");
             if key == 67 {
                 println!("Handling kill window");
@@ -178,7 +180,7 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
     if state == ButtonState::Pressed && view.is_some() {
         view.focus(); // Again may cause problems with no Some<View>
         if true { //view.0 != 0 {
-            if mods.mods == KeyModifier::Ctrl {
+            if mods.mods.contains(KeyMod::CTRL) {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
                     start_interactive_move(&view, point);
