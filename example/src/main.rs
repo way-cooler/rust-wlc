@@ -21,19 +21,15 @@ lazy_static! {
 }
 
 extern fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
-    { // read compositor
-        let comp = COMPOSITOR.read().unwrap();
-
+    {
+        let mut comp = COMPOSITOR.write().unwrap();
         if comp.view != None {
             return false;
         }
-    } // drop read
-    { // write compositor
-        let mut comp = COMPOSITOR.write().unwrap();
-
         comp.grab = origin.clone();
         comp.view = Some(view.clone());
-    } // drop write
+    }
+
     view.bring_to_front();
     return true;
 }
@@ -43,21 +39,58 @@ extern fn start_interactive_move(view: &WlcView, origin: &Point) {
 }
 
 extern fn start_interactive_resize(view: &WlcView, edges: u32, origin: &Point) {
-    let geometry = view.get_geometry();
+    let geometry = view.get_geometry().unwrap();
 
     if !start_interactive_action(view, origin) {
         return;
     }
+    let halfw = geometry.origin.x + geometry.size.w as i32 / 2;
+    let halfh = geometry.origin.y + geometry.size.h as i32 / 2;
 
+    {
+        let mut comp = COMPOSITOR.write().unwrap();
+        comp.edges = edges.clone();
+        if comp.edges == 0 {
+            let x = if origin.x < halfw {
+                ResizeEdge::Left as u32
+            } else if origin.x > halfw {
+                ResizeEdge::Right as u32
+            } else {
+                ResizeEdge::None as u32
+            };
 
+            let y = if origin.y < halfh {
+                ResizeEdge::Top as u32
+            } else if origin.y > halfh {
+                ResizeEdge::Bottom as u32
+            } else {
+                ResizeEdge::None as u32
+            };
+
+            comp.edges = x | y;
+        }
+    }
+    view.set_state(ViewState::Resizing, true);
 }
 
 extern fn stop_interactive_action() {
-    
+    let mut comp = COMPOSITOR.write().unwrap();
+
+    match comp.view {
+        None => return,
+        Some(ref view) =>
+            view.set_state(ViewState::Resizing, false)
+    }
+
+    (*comp).view = None;
 }
 
 extern fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
-    None
+    let views = output.get_views();
+    if views.is_empty() { None }
+    else {
+        Some(views[(views.len() - 1 + offset) % views.len()].clone())
+    }
 }
 
 extern fn render_output(output: &WlcOutput) {
