@@ -1,11 +1,10 @@
 // This code will be used later
 #![allow(dead_code)]
-#![feature(libc)]
 extern crate libc;
 
 use std::env;
 use std::ffi;
-use std::ffi::{CString, CStr};
+use std::ffi::{CString};
 
 pub mod handle;
 pub mod interface;
@@ -38,11 +37,8 @@ extern "C" {
 pub fn init(interface: WlcInterface) -> bool {
     log_set_handler(default_log_callback);
     unsafe {
-        let argv: Vec<CString> = env::args().into_iter()
-            .map(|arg| CString::new(arg).unwrap() ).collect();
-
-        let args: Vec<*const libc::c_char> = argv.into_iter()
-            .map(|arg: ffi::CString| { arg.as_ptr() as *const libc::c_char }).collect();
+        let args: Vec<*const libc::c_char> = env::args().into_iter()
+            .map(|arg| arg.as_ptr() as *const libc::c_char ).collect();
 
         wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char)
     }
@@ -70,6 +66,9 @@ pub fn run_wlc() {
 /// Is passed the program and all arguments (the first should be the program)
 pub fn exec(bin: String, args: Vec<String>) {
     unsafe {
+
+        //let bin_c = CString::new(bin).unwrap().into_raw();
+
         let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
 
         let argv: Vec<CString> = args.into_iter()
@@ -80,6 +79,11 @@ pub fn exec(bin: String, args: Vec<String>) {
 
         wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
     }
+}
+
+/// Halts execution of wlc.
+pub fn terminate() {
+    unsafe { wlc_terminate(); }
 }
 
 pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_char)) {

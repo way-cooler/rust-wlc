@@ -1,9 +1,6 @@
 //! Contains struct and enum declarations for
 //! structs defined by the wlc protocl.
 
-use std::option::Option;
-use std::env;
-use std::ffi;
 use std::fmt;
 
 // Types
