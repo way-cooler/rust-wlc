@@ -1,6 +1,7 @@
 #![warn(missing_docs)]
 
 //! Module defining main wlc functions.
+#![allow(improper_ctypes)] // We get warnings on WlcInterface
 
 extern crate libc;
 
