@@ -119,7 +119,7 @@ fn render_output(output: &WlcOutput) {
 
 // Handles
 
-extern fn on_output_resolution(output: WlcOutput, from: &Size, to: &Size) {
+extern fn on_output_resolution(output: WlcOutput, _from: &Size, _to: &Size) {
     render_output(&output);
 }
 
@@ -151,7 +151,7 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
     start_interactive_resize(&view, edges, origin);
 }
 
-extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
+extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
     println!("Keyboard press on {:?}, with mods {:?} and key {} {:?}", view, mods, key, state);
     if state == KeyState::Pressed {
@@ -175,7 +175,7 @@ extern fn on_keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers, ke
     return false;
 }
 
-extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
+extern fn on_pointer_button(view: WlcView, _time: u32, mods: &KeyboardModifiers,
                             button: u32, state: ButtonState, point: &Point) -> bool {
     println!("pointer_button: pressed {} at {} with view {:?}", button, point, view);
     if state == ButtonState::Pressed {
@@ -204,8 +204,7 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
         return comp.view.is_some();
     }
 }
-
-extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool {
+extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> bool {
     rustwlc::input::pointer::set_position(point);
     {
         let comp = COMPOSITOR.read().unwrap();
