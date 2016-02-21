@@ -1,5 +1,8 @@
 //! Contains definitions for wlc handle types.
 
+// We get warnings for the bitflags, which are described in the crate as C-safe...
+#![allow(improper_ctypes)]
+
 extern crate libc;
 use libc::{uintptr_t, c_char};
 
@@ -170,8 +173,14 @@ impl WlcOutput {
         }
     }
 
+    /// Gets the mask of this output
     pub fn get_mask(&self) -> u32 {
         unsafe { wlc_output_get_mask(self.0) }
+    }
+
+    /// Sets the mask for this output 
+    pub fn set_mask(&self, mask: u32) {
+        unsafe { wlc_output_set_mask(self.0, mask) }
     }
 
     /// Get mutable views in creation order.
@@ -268,6 +277,13 @@ impl WlcView {
     /// Gets the WlcOutput this view is currently part of.
     pub fn get_output(&self) -> WlcOutput {
         unsafe { WlcOutput(wlc_view_get_output(self.0)) }
+    }
+
+    /// Sets the output that the view renders on.
+    ///
+    /// This may not be supported by wlc at this time.
+    pub fn set_output(&self, output: &WlcOutput) {
+        unsafe { wlc_view_set_output(self.0, output.0) }
     }
 
     /// Brings this view to focus.
