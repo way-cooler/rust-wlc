@@ -133,3 +133,54 @@ pub struct InputInterface {
     pub created: Option<extern "C" fn(device: &LibinputDevice) -> bool>,
     pub destroyed: Option<extern "C" fn(device: &LibinputDevice)>
 }
+
+impl WlcInterface {
+    fn new() -> WlcInterface {
+        WlcInterface {
+            output: OutputInterface {
+                created: None, destroyed: None, focus: None, resolution: None,
+                render: OutputRenderInterface { pre: None, post: None }
+            },
+            view: ViewInterface {
+                created: None, destroyed: None, focus: None, move_to_output: None,
+                request: RequestInterface {
+                    geometry: None, state: None, move_: None, resize: None,
+                    render: ViewRenderInterface { pre: None, post: None }
+                }
+            },
+            keyboard: KeyboardInterface { key: None },
+            pointer: PointerInterface { button: None, scroll: None, motion: None },
+            touch: TouchInterface { touch: None },
+            compositor: CompositorInterface { ready: None },
+            input: InputInterface { created: None, destroyed: None }
+        }
+    }
+
+    fn output_created(mut self, func: extern "C" fn(handle: WlcOutput) -> bool) -> WlcInterface {
+        self.output.created = Some(func); self
+    }
+
+    fn output_destroted(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
+        self.output.destroyed = Some(func); self
+    }
+
+    fn output_focus(mut self, func: extern "C" fn(handle: WlcOutput, focused: bool)) -> WlcInterface {
+        self.output.focus = Some(func); self
+    }
+
+    fn output_resolution(mut self, func: extern "C" fn(handle: WlcOutput, old_size: &Size, new_size: &Size)) -> WlcInterface {
+        self.output.resolution = Some(func); self
+    }
+
+    fn output_render_pre(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
+        self.output.render.pre = Some(func); self
+    }
+
+    fn output_render_post(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
+        self.output.render.post = Some(func); self
+    }
+
+    fn view_created(mut self, func: extern "C" fn(handle: WlcView) -> bool) -> WlcInterface {
+        self.view.created = Some(func); self
+    }
+}
