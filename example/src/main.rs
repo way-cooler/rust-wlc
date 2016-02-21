@@ -134,7 +134,11 @@ extern fn on_view_created(view: WlcView) -> bool {
 
 extern fn on_view_destroyed(view: WlcView) {
     println!("View destroyed: {:?}: {}", &view, view.get_class());
-    render_output(&(view).get_output());
+    // Focus on the top view
+    if let Some(top_view) = get_topmost_view(&view.get_output(), 0) {
+        top_view.focus();
+    }
+    render_output(&view.get_output());
 }
 
 extern fn on_view_focus(view: WlcView, focused: bool) {
