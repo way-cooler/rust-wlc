@@ -58,7 +58,7 @@ pub struct ViewInterface {
     /// View lost or got focus
     pub focus: Option<extern "C" fn(handle: WlcView, focused: bool)>,
     /// View was moved to to output
-    pub move_to_output: Option<extern "C" fn(current: WlcView, from_output: WlcView, to_output: WlcView)>,
+    pub move_to_output: Option<extern "C" fn(current: WlcView, from_output: WlcOutput, to_output: WlcOutput)>,
     pub request: RequestInterface,
 }
 
@@ -164,23 +164,81 @@ impl WlcInterface {
         self.output.destroyed = Some(func); self
     }
 
-    fn output_focus(mut self, func: extern "C" fn(handle: WlcOutput, focused: bool)) -> WlcInterface {
+    fn output_focus(mut self, func: extern "C" fn(output: WlcOutput, focused: bool)) -> WlcInterface {
         self.output.focus = Some(func); self
     }
 
-    fn output_resolution(mut self, func: extern "C" fn(handle: WlcOutput, old_size: &Size, new_size: &Size)) -> WlcInterface {
+    fn output_resolution(mut self, func: extern "C" fn(output: WlcOutput, old_size: &Size, new_size: &Size)) -> WlcInterface {
         self.output.resolution = Some(func); self
     }
 
-    fn output_render_pre(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
+    fn output_render_pre(mut self, func: extern "C" fn(output: WlcOutput)) -> WlcInterface {
         self.output.render.pre = Some(func); self
     }
 
-    fn output_render_post(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
+    fn output_render_post(mut self, func: extern "C" fn(output: WlcOutput)) -> WlcInterface {
         self.output.render.post = Some(func); self
     }
 
-    fn view_created(mut self, func: extern "C" fn(handle: WlcView) -> bool) -> WlcInterface {
+    fn view_created(mut self, func: extern "C" fn(view: WlcView) -> bool) -> WlcInterface {
         self.view.created = Some(func); self
     }
+
+    fn view_destroyed(mut self, func: extern "C" fn(view: WlcView)) -> WlcInterface {
+        self.view.destroyed = Some(func); self
+    }
+
+    fn view_focus(mut self, func: extern "C" fn(handle: WlcView, focused: bool)) -> WlcInterface {
+        self.view.focus = Some(func); self
+    }
+
+    fn view_move_to_output(mut self, func: extern "C" fn(view: WlcVie, old_output: WlcOutput, new_output: WlcOutput)) -> WlcInterface {
+        self.view.move_to_output = Some(func); self
+    }
+
+    fn view_request_geometry(mut self, func: extern "C" fn(handle: WlcView, geometry: &Geometry)) -> WlcInterface {
+        self.view.request.geometry = Some(func); self
+    }
+
+    fn view_request_state(mut self, func: extern "C" fn(current: WlcView, state: ViewState, handled: bool)) -> WlcInterface {
+        self.view.request.state = Some(func); self
+    }
+
+    fn view_request_move(mut self, func: extern "C" fn(handle: WlcView, destination: &Point)) -> WlcInterface {
+        self.view.request.move_ = Some(func)
+    }
+
+    fn view_request_resize(mut self, func: extern "C" fn(handle: WlcView, edge: ResizeEdge, location: &Point)) -> WlcInterface {
+        self.view.request.resize = Some(func); self
+    }
+
+    fn view_request_render_pre(mut self, func: extern "C" fn(view: WlcView)) -> WlcInterface {
+        self.view.request.render.pre = Some(func); self
+    }
+
+    fn view_request_render_post(mut self, func: extern "C" fn(view: WlcView)) -> WlcInterface {
+        self.view.request.render.post = Some(func); self
+    }
+
+    fn pointer_button(mut self, func: extern "C" fn(hande: WlcView, time: u32, mods: &KeyboardModifiers, button: u32, state: ButtonState, point: &Point) -> bool) -> WlcInterface {
+        self.pointer.button = Some(func); self
+    }
+
+    fn pointer_scroll(mut self, func: extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool) -> WlcInterface {
+        self.pointer.scroll = Some(func); self
+    }
+
+    fn pointer_motion(mut self, func: extern "C" fn(heights: WlcView, time: u32, point: &Point) -> bool) -> WlcInterface {
+        self.pointer.motion = Some(func); self
+    }
+
+    fn touch_touch(mut self, func: extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers, touch: TouchType, slot: i32, point: &Point) -> bool) -> WlcInterface {
+        self.touch.touch = Some(func); self
+    }
+
+    fn compositor_ready(mut self, func: extern "C" fn()) -> WlcInterface {
+        self.compositor.ready = Some(func); self
+    }
+
+    // Not supporting input and output through the builder...
 }
