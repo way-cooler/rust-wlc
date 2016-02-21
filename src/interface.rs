@@ -58,7 +58,7 @@ pub struct ViewInterface {
     /// View lost or got focus
     pub focus: Option<extern "C" fn(handle: WlcView, focused: bool)>,
     /// View was moved to to output
-    pub move_to_output: Option<extern "C" fn(current: WlcView, from_output: WlcView, to_output: WlcView)>,
+    pub move_to_output: Option<extern "C" fn(current: WlcView, from_output: WlcOutput, to_output: WlcOutput)>,
     pub request: RequestInterface,
 }
 
@@ -192,7 +192,7 @@ impl WlcInterface {
         self.view.focus = Some(func); self
     }
 
-    fn view_move_to_output(mut self, func: extern "C" fn(view: WlcView, old_output: WlcOutput, new_output: WlcOutput)) -> WlcInterface {
+    fn view_move_to_output(mut self, func: extern "C" fn(view: WlcVie, old_output: WlcOutput, new_output: WlcOutput)) -> WlcInterface {
         self.view.move_to_output = Some(func); self
     }
 
