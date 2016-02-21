@@ -26,10 +26,7 @@ fn main() {
             .view_created(view_created)
             .view_focus(view_focus);
 
-    if !rustwlc::init(interface) {
-        panic!("Unable to initialize!");
-    }
-    
+    rustwlc::init(interface).expect("Unable to initialize!");
     rustwlc::run_wlc();
 }
 ```
