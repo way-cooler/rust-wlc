@@ -53,13 +53,16 @@ extern "C" {
 /// }
 /// rustwlc::run_wlc();
 /// ```
-pub fn init(interface: WlcInterface) -> Option<()> {
+pub fn init(interface: WlcInterface) -> Option<fn () -> ()> {
+    fn run_wlc() {
+        unsafe { wlc_run() }
+    }
     unsafe {
         let args: Vec<*const libc::c_char> = env::args().into_iter()
             .map(|arg| CString::new(arg).unwrap().into_raw() as *const libc::c_char).collect();
 
         if wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char) {
-            Some(())
+            Some(run_wlc)
         } else {
             None
         }
@@ -80,11 +83,14 @@ pub fn init(interface: WlcInterface) -> Option<()> {
 /// }
 /// rustwlc::run_wlc();
 /// ```
-pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<()> {
+pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<(fn () -> ())> {
+    fn run_wlc() {
+        unsafe { wlc_run() }
+    }
     let arg_copy = args.clone();
     unsafe {
         if wlc_init(&interface, arg_copy.len() as i32, arg_copy.as_ptr() as *const *const libc::c_char) {
-            Some(())
+            Some(run_wlc)
         } else {
             None
         }
@@ -94,7 +100,8 @@ pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<()> 
 
 /// Runs wlc's event loop.
 ///
-/// After initalizing wlc with `rustwlc::init` call this method
+/// The initialize functions will return this function in an Option.
+/// If and only if they succeed can this function be called wlc with `rustwlc::init` call this method
 /// to being wlc's main event loop.
 ///
 /// # Example
@@ -107,7 +114,7 @@ pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<()> 
 /// }
 /// rustwlc::run_wlc();
 /// ```
-pub fn run_wlc() {
+fn run_wlc() {
     unsafe { wlc_run(); }
 }
 

@@ -26,8 +26,8 @@ fn main() {
             .view_created(view_created)
             .view_focus(view_focus);
 
-    rustwlc::init(interface).expect("Unable to initialize!");
-    rustwlc::run_wlc();
+    let run_fn = rustwlc::init(interface).expect("Unable to initialize!");
+    run_fn();
 }
 ```
 
