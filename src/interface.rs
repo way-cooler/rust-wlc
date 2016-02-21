@@ -1,6 +1,9 @@
 //! Contains callback-holding struct `WlcInterface` which is used
 //! to initialize wlc.
 
+// We get warnings on WlcInterface. It has a #[repr(C)] on it...
+#![allow(improper_ctypes)]
+
 extern crate libc;
 
 use std::option::Option;
@@ -11,15 +14,24 @@ use super::handle::{WlcOutput, WlcView};
 /// Represents the wlc callback interface.
 /// wlc initialization involves registering
 /// a series of callbacks to the library
-/// using this interface struct. See `WlcInterface::new()` for usage.
+/// using this interface struct.
+///
+/// See `WlcInterface::new()` for usage.
 #[repr(C)]
 pub struct WlcInterface {
+    /// Interface for output callbacks
     pub output: OutputInterface,
+    /// Interface for view callbacks
     pub view: ViewInterface,
+    /// Interface for keyboard callbacks
     pub keyboard: KeyboardInterface,
+    /// Interface for pointer callbacks
     pub pointer: PointerInterface,
+    /// Interface for touch callbacks
     pub touch: TouchInterface,
+    /// Interface for compositor callbacks
     pub compositor: CompositorInterface,
+    /// Interface for touch callbacks
     pub input: InputInterface
 }
 
@@ -30,9 +42,11 @@ pub struct OutputInterface {
     pub created: Option<extern "C" fn(output: WlcOutput) -> bool>,
     /// Output lost or destroyed
     pub destroyed: Option<extern "C" fn(handle: WlcOutput)>,
+    /// Output was focused
     pub focus: Option<extern "C" fn(handle: WlcOutput, focused: bool)>,
     /// Output resolution changed
     pub resolution: Option<extern "C" fn(handle: WlcOutput, old_size: &Size, new_size: &Size)>,
+    /// Interface for render callbacks
     pub render: OutputRenderInterface,
 }
 
@@ -58,6 +72,7 @@ pub struct ViewInterface {
     /// View was moved to to output
     pub move_to_output: Option<extern "C" fn(current: WlcView,
                                              from_output: WlcOutput, to_output: WlcOutput)>,
+    /// Interface for request callbacks
     pub request: RequestInterface,
 }
 
@@ -83,7 +98,9 @@ pub struct RequestInterface {
 /// Represents rendering callbacks for views
 #[repr(C)]
 pub struct ViewRenderInterface {
+    /// Pre-render
     pub pre: Option<extern "C" fn(view: WlcView)>,
+    /// Post-render
     pub post: Option<extern "C" fn(view: WlcView)>
 }
 
@@ -130,10 +147,12 @@ pub struct CompositorInterface {
     pub ready: Option<extern "C" fn()>
 }
 
-/// Represents experimencallbacks for libinput events
+/// Represents experimenal callbacks for libinput events
 #[repr(C)]
 pub struct InputInterface {
+    /// Input created
     pub created: Option<extern "C" fn(device: &LibinputDevice) -> bool>,
+    /// Input destroyed
     pub destroyed: Option<extern "C" fn(device: &LibinputDevice)>
 }
 
