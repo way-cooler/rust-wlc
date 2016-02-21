@@ -85,6 +85,7 @@ fn stop_interactive_action() {
     }
 
     (*comp).view = None;
+    comp.edges = ResizeEdge::empty();
 }
 
 fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
@@ -206,10 +207,8 @@ extern fn on_pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers,
 
 extern fn on_pointer_motion(in_view: WlcView, time: u32, point: &Point) -> bool {
     rustwlc::input::pointer::set_position(point);
-    if time % 2 == 0 { return true; }
     {
         let comp = COMPOSITOR.read().unwrap();
-
         if let Some(ref view) = comp.view {
                 println!("Pointer motion for moving view!");
                 let dx = point.x - comp.grab.x;
