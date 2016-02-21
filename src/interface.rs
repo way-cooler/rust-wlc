@@ -192,7 +192,7 @@ impl WlcInterface {
         self.view.focus = Some(func); self
     }
 
-    fn view_move_to_output(mut self, func: extern "C" fn(view: WlcVie, old_output: WlcOutput, new_output: WlcOutput)) -> WlcInterface {
+    fn view_move_to_output(mut self, func: extern "C" fn(view: WlcView, old_output: WlcOutput, new_output: WlcOutput)) -> WlcInterface {
         self.view.move_to_output = Some(func); self
     }
 
@@ -205,7 +205,7 @@ impl WlcInterface {
     }
 
     fn view_request_move(mut self, func: extern "C" fn(handle: WlcView, destination: &Point)) -> WlcInterface {
-        self.view.request.move_ = Some(func)
+        self.view.request.move_ = Some(func); self
     }
 
     fn view_request_resize(mut self, func: extern "C" fn(handle: WlcView, edge: ResizeEdge, location: &Point)) -> WlcInterface {
