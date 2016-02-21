@@ -152,8 +152,8 @@ impl WlcOutput {
         let name: *const i8;
         unsafe {
             name = wlc_output_get_name(self.0);
+            pointer_to_string(name)
         }
-        pointer_to_string(name)
     }
 
     /// Gets the sleep status of the output.
@@ -400,11 +400,11 @@ impl WlcView {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_title(self.0);
-        }
-        if chars == 0 as *const i8 {
-            String::new()
-        } else {
-            pointer_to_string(chars)
+            if chars == 0 as *const i8 {
+                String::new()
+            } else {
+                    pointer_to_string(chars)
+            }
         }
     }
 
@@ -413,11 +413,11 @@ impl WlcView {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_class(self.0);
-        }
-        if chars == 0 as *const i8 {
-            String::new()
-        } else {
-            pointer_to_string(chars)
+            if chars == 0 as *const i8 {
+                String::new()
+            } else {
+                pointer_to_string(chars)
+            }
         }
     }
 
@@ -426,11 +426,11 @@ impl WlcView {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_app_id(self.0);
-        }
-        if chars == 0 as *const i8 {
-            String::new()
-        } else {
-            pointer_to_string(chars)
+            if chars == 0 as *const i8 {
+                String::new()
+            } else {
+                pointer_to_string(chars)
+            }
         }
     }
 }
