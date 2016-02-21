@@ -94,6 +94,7 @@ bitflags! {
 //#[repr(C)]
 bitflags! {
     flags KeyMod: u32 {
+        const MOD_NONE = 0,
         const MOD_SHIFT = 1,
         const MOD_CAPS = 2,
         const MOD_CTRL = 4,

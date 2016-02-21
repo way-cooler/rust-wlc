@@ -5,9 +5,11 @@ extern crate lazy_static;
 
 extern crate rustwlc;
 
+use rustwlc::*;
 use rustwlc::interface::*;
 use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
+use rustwlc::input::keyboard;
 
 use std::cmp;
 
@@ -15,6 +17,13 @@ struct Compositor {
     pub view: Option<WlcView>,
     pub grab: Point,
     pub edges: ResizeEdge
+}
+
+enum KeySym {
+    KeyQ = 0x0071,
+    KeyDown = 0xff54,
+    KeyEsc = 0xff1b,
+    KeyReturn = 0xff0d
 }
 
 lazy_static! {
@@ -166,23 +175,33 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
     println!("Keyboard press on {:?}, with mods {:?} and key {} {:?}", view, mods, key, state);
+    let sym = keyboard::get_keysym_for_key(key, &MOD_NONE);
+    println!("Keysym: {0:x}", sym);
     if state == KeyState::Pressed {
         if mods.mods == MOD_CTRL {
             println!("Checking for keys...");
-            if key == 67 {
+            // Key Q
+            if sym == KeySym::KeyQ as u32 {
                 println!("Handling kill window");
                 if view.is_some() {
                     view.close();
                 }
+            // Down key
+            } else if sym == KeySym::KeyDown as u32 {
+                view.send_to_back();
+                get_topmost_view(&view.get_output(), 0).unwrap().focus();
+            // Esc Key
+            } else if sym == KeySym::KeyEsc as u32 {
+                terminate();
                 return true;
-            }
-            else if key == 66 { // Execute order 66
-                // TODO I will make a dezombifying thread
+            // Return key
+            } else if sym == KeySym::KeyReturn as u32 { // Execute order 66
+                // TODO I will make a dezombifying thread, instead of shell hack
                 let _ = Command::new("sh").arg("-c").arg("/usr/bin/weston-terminal || echo a").spawn()
                     .unwrap_or_else(|e| { println!("Error spawning child: {}", e); panic!("spawning child")});
-                return true;
             }
         }
+        return true;
     }
     return false;
 }
