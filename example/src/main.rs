@@ -9,6 +9,8 @@ use rustwlc::interface::*;
 use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
 
+use std::cmp;
+
 struct Compositor {
     pub view: Option<WlcView>,
     pub grab: Point,
@@ -103,14 +105,20 @@ fn render_output(output: &WlcOutput) {
 
     println!("{} is preparing to render {} views", output.get_name(), views.len());
 
-    for view in views {
+    let mut toggle = false;
+    let mut y = 0;
+    let w = resolution.w / 2;
+    let h = resolution.h / cmp::max((views.len() + 1) / 2, 1) as u32;
+    for (i, view) in views.iter().enumerate() {
         println!("\tView \"{}\"", view.get_title());
         println!("\tGeometry: {:?}", view.get_geometry());
         println!("\tIt's state: {}", view.get_state());
         view.set_geometry(ResizeEdge::empty(), &Geometry {
-            size: Size { w: 0u32, h: 0u32 },
-            origin: Point { x: 0, y: 0 }
+            origin: Point { x: if toggle { w as i32 } else { 0 }, y: y },
+            size: Size { w: if !toggle && i == views.len() - 1 { resolution.w } else { w }, h: h }
         });
+        toggle = ! toggle;
+        y = if y > 0 || !toggle { h as i32 } else { 0 };
         println!("\tAtempted geometry, got {:?}", view.get_geometry());
     }
 
