@@ -186,10 +186,12 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
                 if view.is_some() {
                     view.close();
                 }
+                return true;
             // Down key
             } else if sym == KeySym::KeyDown as u32 {
                 view.send_to_back();
                 get_topmost_view(&view.get_output(), 0).unwrap().focus();
+                return true;
             // Esc Key
             } else if sym == KeySym::KeyEsc as u32 {
                 terminate();
@@ -199,9 +201,9 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
                 // TODO I will make a dezombifying thread, instead of shell hack
                 let _ = Command::new("sh").arg("-c").arg("/usr/bin/weston-terminal || echo a").spawn()
                     .unwrap_or_else(|e| { println!("Error spawning child: {}", e); panic!("spawning child")});
+                return true;
             }
         }
-        return true;
     }
     return false;
 }
