@@ -2,6 +2,9 @@
 #![allow(dead_code)]
 extern crate libc;
 
+#[macro_use]
+extern crate bitflags;
+
 use std::env;
 use std::ffi;
 use std::ffi::{CString};

@@ -5,3 +5,4 @@ authors = ["Snirk Immington <snirk.immington@gmail.com>"]
 
 [dependencies]
 libc = "0.2.4"
+bitflags = "0.4.0"

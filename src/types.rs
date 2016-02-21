@@ -29,32 +29,34 @@ pub enum BackendType {
 
 /// Bitflags describing wayland events
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum EventBit {
-    /// Event can be read
-    Readable = 1,
-    /// Event can be written
-    Writeable = 2,
-    /// Event is hung up (?)
-    Hangup = 4,
-    /// Event is in error
-    Error = 8
+bitflags! {
+    flags EventBit: u32 {
+        /// Event can be read
+        const EVENT_READABLE = 1,
+        /// Event can be written
+        const EVENT_WRITEABLE = 2,
+        /// Event is hung up (?)
+        const EVENT_HANGUP = 4,
+        /// Event is in error
+        const EVENT_ERROR = 8
+    }
 }
 
 /// How and window is being viewed
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ViewState {
-    /// Window maximized
-    Maximized = 1,
-    /// Window fullscreen
-    Fullscreen = 2,
-    /// Window resizing
-    Resizing = 4,
-    /// Window moving
-    Moving = 8,
-    /// Window activated
-    Activated = 16
+bitflags! {
+    flags ViewState: u32 {
+        /// Window maximized
+        const VIEW_MAXIMIZED = 1,
+        /// Window fullscreen
+        const VIEW_FULLSCREEN = 2,
+        /// Window resizing
+        const VIEW_RESIZING = 4,
+        /// Window moving
+        const VIEW_MOVING = 8,
+        /// Window activated
+        const VIEW_ACTIVATED = 16
+    }
 }
 
 /// Viewtype - like x11 flags
@@ -74,47 +76,47 @@ pub enum ViewType {
 }
 
 // Which edge is being used to resize a window.
-// Works like bitflags but also has all the options in the enum
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[repr(C)]
-pub enum ResizeEdge {
-    None = 0,
-    Top = 1,
-    Bottom = 2,
-    Left = 4,
-    TopLeft = 5,
-    BottomLeft = 6,
-    Right = 8,
-    TopRight = 9,
-    BottomRight = 10
+//#[repr(C)]
+bitflags! {
+    flags ResizeEdge: u32 {
+        const RESIZE_TOP = 1,
+        const RESIZE_BOTTOM = 2,
+        const RESIZE_LEFT = 4,
+        const RESIZE_TOPLEFT = 5,
+        const RESIZE_BOTTOMLEFT = 6,
+        const RESIZE_RIGHT = 8,
+        const RESIZE_TOPRIGHT = 9,
+        const RESIZE_BOTTOMRIGHT = 10
+    }
 }
 
 /// Represents which keyboard meta keys are being pressed.
-#[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum KeyModifier {
-    /// (assumed)
-    None = 0,
-    Shift = 1,
-    Caps = 2,
-    Ctrl = 4,
-    Alt = 8,
-    Mod2 = 16,
-    Mod3 = 32,
-    /// Mod4?
-    Logo = 64,
-    Mod5 = 128
+//#[repr(C)]
+bitflags! {
+    flags KeyMod: u32 {
+        const MOD_NONE = 0,
+        const MOD_SHIFT = 1,
+        const MOD_CAPS = 2,
+        const MOD_CTRL = 4,
+        const MOD_ALT= 8,
+        const MOD_MOD2 = 16,
+        const MOD_MOD3 = 32,
+        /// Mod4?
+        const MOD_MOD4 = 64,
+        const MOD_MOD5 = 128
+    }
 }
 
 /// "LEDs" or active key-locks.
 /// i.e. caps lock, scroll lock
-#[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum KeyboardLed {
-    None = 0,
-    NumLock = 1,
-    CapsLock = 2,
-    ScrollLock = 4
+//#[repr(C)]
+//#[derive(Debug, Clone, PartialEq, Eq)]
+bitflags! {
+    flags KeyboardLed: u32 {
+        const NUM_LOCK = 1,
+        const CAPS_LOCK = 2,
+        const SCROL_LLOCK = 4
+    }
 }
 
 /// Represents a key state in key events
@@ -159,7 +161,7 @@ pub enum TouchType {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyboardModifiers {
     pub leds: KeyboardLed,
-    pub mods: KeyModifier
+    pub mods: KeyMod
 }
 
 /// Standard x, y i32 point
@@ -188,8 +190,8 @@ pub struct Size {
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Geometry {
-    pub size: Size,
-    pub origin: Point
+    pub origin: Point,
+    pub size: Size
 }
 
 /// Not currently supporting libinput

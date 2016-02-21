@@ -3,14 +3,14 @@
 //! the xkb enums so we may split that into its own
 //! project.
 
-use super::types::{KeyModifier, Point};
+use super::types::{KeyMod, Point};
 
 #[link(name = "wlc")]
 extern "C" {
     // Keyboard functions
-    fn wlc_keyboard_get_keysym_for_key(key: u32, modifiers: &KeyModifier) -> u32;
+    fn wlc_keyboard_get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32;
 
-    fn wlc_keyboard_get_utf32_for_key(key: u32, modifiers: &KeyModifier) -> u32;
+    fn wlc_keyboard_get_utf32_for_key(key: u32, modifiers: &KeyMod) -> u32;
 
     // Pointer functions
     fn wlc_pointer_get_position(out_position: *mut Point);
@@ -37,13 +37,13 @@ pub mod pointer {
 }
 
 pub mod keyboard {
-    use super::super::types::{KeyModifier};
+    use super::super::types::{KeyMod};
 
-    pub fn get_keysym_for_key(key: u32, modifiers: &KeyModifier) -> u32 {
+    pub fn get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32 {
         unsafe { super::wlc_keyboard_get_keysym_for_key(key, modifiers) }
     }
 
-    pub fn get_utf32_for_key(key: u32, modifiers: &KeyModifier) -> u32 {
+    pub fn get_utf32_for_key(key: u32, modifiers: &KeyMod) -> u32 {
         unsafe { super::wlc_keyboard_get_utf32_for_key(key, modifiers) }
     }
 }
