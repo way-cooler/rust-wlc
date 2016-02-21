@@ -25,7 +25,8 @@ use interface::WlcInterface;
 extern "C" {
     fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
 
-    fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *const libc::c_char) -> bool;
+    fn wlc_init(interface: *const WlcInterface,
+                argc: i32, argv: *const *const libc::c_char) -> bool;
 
     fn wlc_run();
 
@@ -34,20 +35,23 @@ extern "C" {
     fn wlc_log_set_handler(callback: extern fn(log_type: LogType, text: *const libc::c_char));
 }
 
-/// Sets the wlc log callback to a simple function that prints to console.
-///
-/// Not calling any log_set_handler will have no logging, use this or
-/// log_set_handler with a callback to use wlc logging.
-fn log_set_default_handler() {
-    log_set_handler(default_log_callback);
-}
-
 /// Initialize wlc with a `WlcInterface`.
 ///
 /// Create a WlcInterface with the proper callback methods
 /// and call `rustwlc::init` to initialize wlc (alternatively use init_with_args).
-/// If it returns
-/// true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
+/// If it returns true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
+///
+/// # Example
+/// ```no_run
+/// let interface = rustwlc::interface::WlcInterface::new();
+/// // Set a default log callback
+/// rustwlc::log_set_default_handler();
+///
+/// if !rustwlc::init(interface) {
+///      panic!("Unable to init");
+/// }
+/// rustwlc::run_wlc();
+/// ```
 pub fn init(interface: WlcInterface) -> bool {
     unsafe {
         let args: Vec<*const libc::c_char> = env::args().into_iter()
@@ -60,6 +64,17 @@ pub fn init(interface: WlcInterface) -> bool {
 /// Initialize wlc by specifying args.
 ///
 /// If --log <file> is included, log messages will be sent to that file.
+///
+/// # Example
+/// ```no_run
+/// let interface = rustwlc::interface::WlcInterface::new();
+/// rustwlc::log_set_default_handler();
+///
+/// if !rustwlc::init_with_args(interface, vec!["mywm", "--log", "log.txt"]) {
+///      panic!("Unable to init");
+/// }
+/// rustwlc::run_wlc();
+/// ```
 pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> bool {
     unsafe {
         wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char)
@@ -72,12 +87,13 @@ pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> bool {
 /// to being wlc's main event loop.
 ///
 /// # Example
-///
-/// You should call `rustwlc::init` or `rustwlc::init_with_args` with a `WlcInterface` first.
-///
 /// ```no_run
-/// let interface: WlcInterface::new();
-/// rustwlc::init(interface);
+/// let interface = rustwlc::interface::WlcInterface::new();
+/// rustwlc::log_set_default_handler();
+///
+/// if !rustwlc::init(interface) {
+///      panic!("Unable to init");
+/// }
 /// rustwlc::run_wlc();
 /// ```
 pub fn run_wlc() {
@@ -106,14 +122,34 @@ pub fn terminate() {
 }
 
 /// Registers a callback for wlc logging
+#[allow(dead_code)]
 pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_char)) {
     unsafe { wlc_log_set_handler(handler); }
 }
 
+#[allow(dead_code)]
 extern fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
 	let string_text = pointer_to_string(text);
 	// Add fancier logging, with debug levels and all that. Find a nice library
 	println!("wlc log: {:?}: {}", log_type, string_text);
+}
+
+/// Sets the wlc log callback to a simple function that prints to console.
+///
+/// Not calling any log_set_handler will have no logging, use this or
+/// log_set_handler with a callback to use wlc logging.
+///
+/// # Example
+/// ```no_run
+/// let interface = rustwlc::interface::WlcInterface::new();
+/// rustwlc::log_set_default_handler();
+/// if !rustwlc::init(interface) {
+///      panic!("Unable to init");
+/// }
+/// rustwlc::run_wlc();
+/// ```
+pub fn log_set_default_handler() {
+    log_set_handler(default_log_callback);
 }
 
 /// Converts a `*const libc::c_char` to an owned `String`.
