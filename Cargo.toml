@@ -1,7 +1,12 @@
 [package]
 name = "rustwlc"
+description = "wlc Wayland library bindings for Rust"
 version = "0.1.0"
-authors = ["Snirk Immington <snirk.immington@gmail.com>"]
+repository = "https://github.com/Immington-Industries/rust-wlc/"
+keywords = ["wlc", "Wayland", "compositor", "bindings"]
+readme = "README.md"
+liscense = "MIT"
+authors = ["Snirk Immington <snirk.immington@gmail.com>", "Timidger <apragmaticplace@gmail.com>"]
 
 [dependencies]
 libc = "0.2.4"
