@@ -1,7 +1,8 @@
 //! Contains methods for interacting with the pointer
-//! and keyboard of wlc. It's beyond our scope to wrap
-//! the xkb enums so we may split that into its own
-//! project.
+//! and keyboard of wlc.
+
+// We get warnings for &Keymod, which uses bitflags.
+#![allow(improper_ctypes)]
 
 use super::types::{KeyMod, Point};
 
@@ -19,6 +20,7 @@ extern "C" {
 }
 
 pub mod pointer {
+//! Methods for interacting with the mouse
     use super::super::types::{Point};
 
     /// Gets the current position of the mouse.
@@ -30,19 +32,22 @@ pub mod pointer {
         }
     }
 
-    // Sets the current mouse position. Required on mouse move callback.
+    /// Sets the current mouse position. Required on mouse move callback.
     pub fn set_position(point: &Point) {
         unsafe { super::wlc_pointer_set_position(point); }
     }
 }
 
 pub mod keyboard {
+//! Methods for interacting with the keyboard
     use super::super::types::{KeyMod};
 
+    /// Gets a keysym given a key and modifiers.
     pub fn get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32 {
         unsafe { super::wlc_keyboard_get_keysym_for_key(key, modifiers) }
     }
 
+    /// Gets a UTF32 value for a given key and modifiers.
     pub fn get_utf32_for_key(key: u32, modifiers: &KeyMod) -> u32 {
         unsafe { super::wlc_keyboard_get_utf32_for_key(key, modifiers) }
     }
