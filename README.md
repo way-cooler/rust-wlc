@@ -42,7 +42,8 @@ rustwlc = { git = "https://github.com/ImmingtonIndustries/rust-wlc.git" }
 Make sure `rustc` can find wlc - either install it from a package manager (i.e. wlc-git on the AUR for Arch users) or see their instructions.
 
 ### Documentation
-At the moment, we have Cargo documentation. 
+At the moment, we have Cargo documentation hosted at our github.io site [here](http://immington-industries.github.io). 
+You can also generate it with cargo doc.
 ```shell
 $ git clone "https://github.com/ImmingtonIndustries/rust-wlc.git"
 $ cd rust-wlc
