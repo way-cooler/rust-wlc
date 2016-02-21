@@ -224,11 +224,10 @@ extern fn on_pointer_button(view: WlcView, _time: u32, mods: &KeyboardModifiers,
                 }
             }
         }
-        else {
-            stop_interactive_action();
-        }
     }
-    else { return true; }
+    else {
+        stop_interactive_action();
+    }
 
     {
         let comp = COMPOSITOR.read().unwrap();
