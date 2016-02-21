@@ -1,4 +1,4 @@
-//! Contains callback-holding sttuct `WlcInterface` which is used
+//! Contains callback-holding struct `WlcInterface` which is used
 //! to initialize wlc.
 
 extern crate libc;
