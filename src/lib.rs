@@ -60,7 +60,7 @@ pub fn init(interface: WlcInterface) -> bool {
 /// If --log <file> is included, log messages will be sent to that file.
 pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> bool {
     unsafe {
-        wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char);
+        wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char)
     }
 }
 
