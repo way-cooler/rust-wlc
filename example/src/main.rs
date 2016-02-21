@@ -254,20 +254,38 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
 
                     if comp.edges.contains(RESIZE_LEFT) {
                         println!("ResizeEdge::Left detected");
-                        new_geo.size.w -= dx.abs() as u32;
+                        if dx < 0 {
+                            new_geo.size.w += dx.abs() as u32;
+                        } else {
+                            new_geo.size.w -= dx.abs() as u32;
+                        }
                         new_geo.origin.x += dx;
                     }
                     else if comp.edges.contains(RESIZE_RIGHT) {
                         println!("ResizeEdge::Right detected");
-                        new_geo.size.w += dx.abs() as u32;
+                        if dx < 0 {
+                            new_geo.size.w -= dx.abs() as u32;
+                        } else {
+                            new_geo.size.w += dx.abs() as u32;
+                        }
                     }
 
                     if comp.edges.contains(RESIZE_TOP) {
-                        new_geo.size.h -= dy.abs() as u32;
+                        println!("ResizeEdge::Top detected");
+                        if dy < 0 {
+                            new_geo.size.h += dy.abs() as u32;
+                        } else {
+                            new_geo.size.h -= dy.abs() as u32;
+                        }
                         new_geo.origin.y += dy;
                     }
                     else if comp.edges.contains(RESIZE_BOTTOM) {
-                        new_geo.size.h += dy.abs() as u32; // Here
+                        println!("ResizeEdge::Bottom detected");
+                        if dy < 0 {
+                            new_geo.size.h -= dy.abs() as u32;
+                        } else {
+                            new_geo.size.h += dy.abs() as u32;
+                        }
                     }
 
                     if new_geo.size.w >= min.w {
