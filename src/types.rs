@@ -1,6 +1,8 @@
 //! Contains struct and enum declarations for
 //! structs defined by the wlc protocl.
 
+// Bitflags can't work well with docs
+#![allow(missing_docs)]
 use std::fmt;
 
 // Types
@@ -9,9 +11,13 @@ use std::fmt;
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LogType {
+    /// Info log type
     Info,
+    /// Warn log type
     Warn,
+    /// Error log type
     Error,
+    /// Wayland logs
     Wayland
 }
 
@@ -77,45 +83,65 @@ bitflags! {
 }
 
 // Which edge is being used to resize a window.
-//#[repr(C)]
+#[repr(C)]
 bitflags! {
     flags ResizeEdge: u32 {
+        /// No edge
+        const EDGE_NONE = 0,
+        /// Top edge
         const RESIZE_TOP = 1,
+        /// Bottom edge
         const RESIZE_BOTTOM = 2,
+        /// Left edge
         const RESIZE_LEFT = 4,
+        /// Top left edge
         const RESIZE_TOPLEFT = 5,
+        /// Bottom left edge
         const RESIZE_BOTTOMLEFT = 6,
+        /// Right edge
         const RESIZE_RIGHT = 8,
+        /// Top right edge
         const RESIZE_TOPRIGHT = 9,
+        /// Bottom right edge
         const RESIZE_BOTTOMRIGHT = 10
     }
 }
 
 /// Represents which keyboard meta keys are being pressed.
-//#[repr(C)]
+#[repr(C)]
 bitflags! {
     flags KeyMod: u32 {
+        /// No modifiers
         const MOD_NONE = 0,
+        /// Shift
         const MOD_SHIFT = 1,
+        /// Caps lock
         const MOD_CAPS = 2,
+        /// Control
         const MOD_CTRL = 4,
+        /// Alt
         const MOD_ALT= 8,
+        /// Mod2
         const MOD_MOD2 = 16,
+        /// Mod3
         const MOD_MOD3 = 32,
-        /// Mod4?
+        /// Mod4/logo
         const MOD_MOD4 = 64,
+        /// 5Mod5Me
         const MOD_MOD5 = 128
     }
 }
 
 /// "LEDs" or active key-locks.
 /// i.e. caps lock, scroll lock
-//#[repr(C)]
-//#[derive(Debug, Clone, PartialEq, Eq)]
+#[repr(C)]
 bitflags! {
     flags KeyboardLed: u32 {
+        /// Num lock is pressed
         const NUM_LOCK = 1,
+        /// Caps lock is pressed
         const CAPS_LOCK = 2,
+        /// Scroll lock is pressed
         const SCROL_LLOCK = 4
     }
 }
@@ -124,7 +150,9 @@ bitflags! {
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KeyState {
+    /// Key is being pressed
     Released = 0,
+    /// Key is being released
     Pressed = 1
 }
 
@@ -132,7 +160,9 @@ pub enum KeyState {
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ButtonState {
+    /// Button is being pressed
     Released = 0,
+    /// Button is being released
     Pressed = 1
 }
 
@@ -140,19 +170,29 @@ pub enum ButtonState {
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScrollAxis {
+    /// No axes
     None = 0,
+    /// Vertical scroll
     Vertical = 1,
-    Horizontal = 2
+    /// Horizontal scroll
+    Horizontal = 2,
+    /// Both scrolls
+    Both = 3
 }
 
 /// Touch type in touch interface handler
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TouchType {
+    /// Touch down
     Down,
+    /// Touch up
     Up,
+    /// Touch motion
     Motion,
+    /// Touch frame
     Frame,
+    /// Touch cancelled 
     Cancel
 }
 
@@ -161,15 +201,19 @@ pub enum TouchType {
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyboardModifiers {
+    /// Which "lock" keys are being pressed
     pub leds: KeyboardLed,
+    /// Which control/meta keys are being pressed
     pub mods: KeyMod
 }
 
-/// Standard x, y i32 point
+/// Represents the location of a view.
 #[repr(C)]
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Point {
+    /// x coordinate
     pub x: i32,
+    /// y coordinate
     pub y: i32
 }
 
@@ -179,29 +223,38 @@ impl fmt::Display for Point {
     }
 }
 
-/// Represents the height and width of a program
+/// Represents the height and width of a view.
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Size {
+    /// Width
     pub w: u32,
+    /// Height
     pub h: u32
 }
 
-/// Represents the location and size of a program
+impl fmt::Display for Size {
+    fn fmt(&self, format: &mut fmt::Formatter) -> fmt::Result {
+        write!(format, "{} x {}", self.w, self.h)
+    }
+}
+
+/// Represents the location and size of a view
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Geometry {
+    /// The location of the object
     pub origin: Point,
+    /// The size of the object
     pub size: Size
+}
+
+impl fmt::Display for Geometry {
+    fn fmt(&self, format: &mut fmt::Formatter) -> fmt::Result {
+        write!(format, "[{} at {}]", self.size, self.origin)
+    }
 }
 
 /// Not currently supporting libinput
 #[repr(C)]
 pub struct LibinputDevice;
-
-/// Represents a wayland display.
-enum WLDisplay { }
-
-/// Represents a wayland resource.
-/// This object can be rendered in pre and post render hooks.
-enum WLResource { }
