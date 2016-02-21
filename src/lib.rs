@@ -1,5 +1,7 @@
-// This code will be used later
-#![allow(dead_code)]
+#![warn(missing_docs)]
+
+//! Module defining main wlc functions.
+
 extern crate libc;
 
 #[macro_use]

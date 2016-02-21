@@ -61,18 +61,19 @@ bitflags! {
 
 /// Viewtype - like x11 flags
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ViewType {
-    /// Override redirect (X11)
-    OverrideRedirect = 1,
-    /// Tooltips (X11)
-    Unmanaged = 2,
-    /// Splash Screens (X11)
-    Splash = 4,
-    /// Modal Windows (X11)
-    Modal = 8,
-    /// xdg-shell, wl-shell popups
-    Popup = 16
+bitflags! {
+    flags ViewType: u32 {
+        /// Override redirect (X11)
+        const VIEW_BIT_OVERRIDE_REDIRECT = 1,
+        /// Tooltips (X11)
+        const VIEW_BIT_UNMANAGED = 2,
+        /// Splash Screens (X11)
+        const VIEW_BIT_SPLASH = 4,
+        /// Modal Windows (X11)
+        const VIEW_BIT_MODAL = 8,
+        /// xdg-shell, wl-shell popups
+        const VIEW_BIT_POPUP = 16
+    }
 }
 
 // Which edge is being used to resize a window.
