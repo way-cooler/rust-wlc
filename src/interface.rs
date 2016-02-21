@@ -1,7 +1,5 @@
-//! types/interface
-//! Contains all structs used for initializing wlc.
-//! You will only need this module for invoking
-//! `rustwlc::init`.
+//! Contains callback-holding sttuct `WlcInterface` which is used
+//! to initialize wlc.
 
 extern crate libc;
 
@@ -13,7 +11,7 @@ use super::handle::{WlcOutput, WlcView};
 /// Represents the wlc callback interface.
 /// wlc initialization involves registering
 /// a series of callbacks to the library
-/// using this interface struct.
+/// using this interface struct. See `WlcInterface::new()` for usage.
 #[repr(C)]
 pub struct WlcInterface {
     pub output: OutputInterface,
@@ -29,7 +27,7 @@ pub struct WlcInterface {
 #[repr(C)]
 pub struct OutputInterface {
     /// Output was created
-    pub created: Option<extern "C" fn(handle: WlcOutput) -> bool>,
+    pub created: Option<extern "C" fn(output: WlcOutput) -> bool>,
     /// Output lost or destroyed
     pub destroyed: Option<extern "C" fn(handle: WlcOutput)>,
     pub focus: Option<extern "C" fn(handle: WlcOutput, focused: bool)>,
@@ -135,6 +133,20 @@ pub struct InputInterface {
 }
 
 impl WlcInterface {
+    /// Creates a new WlcInterface builder that can have callbacks added.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// # use rustwlc::handle::WlcOutput;
+    /// # let output_created_callback = extern "C" fn(handle: WlcOutput) -> bool { true };
+    /// use rustwlc::interface::WlcInterface;
+    /// // Assuming there exists an output_created_callback function...
+    /// let interface: WlcInterface::new()
+    ///      .output_created(output_created_callback);
+    /// // ...
+    /// rustwlc::init(interfcace);
+    /// rustlwc::run_wlc();
+    /// ```
     pub fn new() -> WlcInterface {
         WlcInterface {
             output: OutputInterface {
@@ -156,11 +168,27 @@ impl WlcInterface {
         }
     }
 
-    pub fn output_created(mut self, func: extern "C" fn(handle: WlcOutput) -> bool) -> WlcInterface {
+    /// Callback invoked when an output is created. Return `true` to allow the output to exist.
+    ///
+    /// # Example
+    /// ```
+    /// extern fn on_output_created(output: WlcOutput) -> bool {
+    ///     println!("Output {} ({:?}) was created", output.get_name(), output);
+    ///     return true;
+    /// }
+    /// # fn main() { }
+    /// ```
+    pub fn output_created(mut self, func: extern "C" fn(output: WlcOutput) -> bool) -> WlcInterface {
         self.output.created = Some(func); self
     }
 
-    pub fn output_destroted(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
+    /// Callback invoked when an output is destroyed.
+    ///
+    /// # Example
+    /// extern fn output_destroyed(output: WlcOutput) {
+    ///     println!("Goodbye, {:?}", output);
+    /// }
+    pub fn output_destroyed(mut self, func: extern "C" fn(handle: WlcOutput)) -> WlcInterface {
         self.output.destroyed = Some(func); self
     }
 

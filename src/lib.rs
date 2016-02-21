@@ -115,6 +115,7 @@ extern fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
 }
 
 /// Converts a `*const libc::c_char` to an owned `String`.
+/// Useful for log callbacks.
 pub fn pointer_to_string(pointer: *const libc::c_char) -> String {
     let slice = unsafe { ffi::CStr::from_ptr(pointer) };
     slice.to_string_lossy().into_owned()
