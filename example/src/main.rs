@@ -297,47 +297,16 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
 }
 
 fn main() {
-
-    // We need a fucking builder
-    let interface = WlcInterface {
-        output: OutputInterface {
-            created: None, destroyed: None, focus: None,
-
-            resolution: Some(on_output_resolution),
-
-            render: OutputRenderInterface { pre: None, post: None }
-        },
-        view: ViewInterface {
-            created: Some(on_view_created),
-            destroyed: Some(on_view_destroyed),
-            focus: Some(on_view_focus),
-
-            move_to_output: None,
-
-            request: RequestInterface {
-                geometry: None, state: None,
-
-                move_: Some(on_view_request_move),
-                resize: Some(on_view_request_resize),
-
-                render: ViewRenderInterface { pre: None, post: None }
-            }
-        },
-
-        keyboard: KeyboardInterface { key: Some(on_keyboard_key) },
-
-        pointer: PointerInterface {
-            button: Some(on_pointer_button),
-            scroll: None,
-            motion: Some(on_pointer_motion)
-        },
-
-        touch: TouchInterface { touch: None },
-
-        compositor: CompositorInterface { ready: None },
-
-        input: InputInterface { created: None, destroyed: None }
-    };
+    let interface = WlcInterface::new()
+        .output_resolution(on_output_resolution)
+        .view_created(on_view_created)
+        .view_destroyed(on_view_destroyed)
+        .view_focus(on_view_focus)
+        .view_request_move(on_view_request_move)
+        .view_request_resize(on_view_request_resize)
+        .keyboard_key(on_keyboard_key)
+        .pointer_button(on_pointer_button)
+        .pointer_motion(on_pointer_motion);
 
     if !(rustwlc::init(interface)) {
         panic!("Unable to initialize!");
