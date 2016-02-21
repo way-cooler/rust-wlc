@@ -56,7 +56,7 @@ extern "C" {
 pub fn init(interface: WlcInterface) -> bool {
     unsafe {
         let args: Vec<*const libc::c_char> = env::args().into_iter()
-            .map(|arg| arg.as_ptr() as *const libc::c_char ).collect();
+            .map(|arg| CString::new(arg).unwrap().into_raw() as *const libc::c_char).collect();
 
         wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char)
     }
@@ -77,8 +77,9 @@ pub fn init(interface: WlcInterface) -> bool {
 /// rustwlc::run_wlc();
 /// ```
 pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> bool {
+    let arg_copy = args.clone();
     unsafe {
-        wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char)
+        wlc_init(&interface, arg_copy.len() as i32, arg_copy.as_ptr() as *const *const libc::c_char)
     }
 }
 
@@ -104,6 +105,8 @@ pub fn run_wlc() {
 /// Executes a program in wayland.
 /// Is passed the program and all arguments (the first should be the program)
 pub fn exec(bin: String, args: Vec<String>) {
+    let bin = bin.clone();
+    let args = args.clone();
     unsafe {
         let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
 
@@ -130,7 +133,7 @@ pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_c
 
 #[allow(dead_code)]
 extern fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
-	let string_text = pointer_to_string(text);
+	let string_text = unsafe { pointer_to_string(text) };
 	// Add fancier logging, with debug levels and all that. Find a nice library
 	println!("wlc log: {:?}: {}", log_type, string_text);
 }
@@ -155,7 +158,7 @@ pub fn log_set_default_handler() {
 
 /// Converts a `*const libc::c_char` to an owned `String`.
 /// Useful for log callbacks.
-pub fn pointer_to_string(pointer: *const libc::c_char) -> String {
-    let slice = unsafe { ffi::CStr::from_ptr(pointer) };
+pub unsafe fn pointer_to_string(pointer: *const libc::c_char) -> String {
+    let slice =  ffi::CStr::from_ptr(pointer);
     slice.to_string_lossy().into_owned()
 }
