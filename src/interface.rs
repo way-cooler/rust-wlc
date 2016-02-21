@@ -144,7 +144,9 @@ pub struct TouchInterface {
 #[repr(C)]
 pub struct CompositorInterface {
     /// Compositor is ready to accept clients.
-    pub ready: Option<extern "C" fn()>
+    pub ready: Option<extern "C" fn()>,
+    /// The compositor is terminating.
+    pub terminate: Option<extern "C" fn()>
 }
 
 /// Represents experimenal callbacks for libinput events
@@ -187,7 +189,7 @@ impl WlcInterface {
             keyboard: KeyboardInterface { key: None },
             pointer: PointerInterface { button: None, scroll: None, motion: None },
             touch: TouchInterface { touch: None },
-            compositor: CompositorInterface { ready: None },
+            compositor: CompositorInterface { ready: None, terminate: None },
             input: InputInterface { created: None, destroyed: None }
         }
     }
@@ -434,6 +436,11 @@ impl WlcInterface {
     /// Callback invoked by wlc after `rustwlc::init` is called.
     pub fn compositor_ready(mut self, func: extern "C" fn()) -> WlcInterface {
         self.compositor.ready = Some(func); self
+    }
+
+    /// Callback invoked by wlc when a compositor is terminating
+    pub fn compositor_terminate(mut self, func: extern "C" fn()) -> WlcInterface {
+        self.compositor.terminate = Some(func); self
     }
 
     // Not supporting input and output through the builder...

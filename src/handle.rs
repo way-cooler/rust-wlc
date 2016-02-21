@@ -21,6 +21,10 @@ pub struct WlcOutput(libc::uintptr_t);
 
 #[link(name = "wlc")]
 extern "C" {
+    fn wlc_get_outputs(memb: *mut libc::size_t) -> *const libc::uintptr_t;
+
+    fn wlc_get_focused_output() -> uintptr_t;
+
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
     //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
@@ -123,6 +127,24 @@ impl WlcOutput {
         WlcOutput(view.0)
     }
 
+    /// Gets a list of the current outputs.
+    pub fn list() -> Vec<WlcOutput> {
+        unsafe {
+            let mut out_memb: libc::size_t = 0;
+            let outputs = wlc_get_outputs(&mut out_memb);
+            let mut result = Vec::with_capacity(out_memb);
+            for index in (0 as isize) .. (out_memb as isize) {
+                result.push(WlcOutput(*(outputs.offset(index))));
+            }
+            result
+        }
+    }
+
+    /// Gets the currently focused output.
+    pub fn focused() -> WlcOutput {
+        unsafe { WlcOutput(wlc_get_focused_output()) }
+    }
+
     /// Gets the name of the WlcOutput.
     /// Names are usually assigned in the format WLC-n,
     /// where the first output is WLC-1.
@@ -178,7 +200,7 @@ impl WlcOutput {
         unsafe { wlc_output_get_mask(self.0) }
     }
 
-    /// Sets the mask for this output 
+    /// Sets the mask for this output
     pub fn set_mask(&self, mask: u32) {
         unsafe { wlc_output_set_mask(self.0, mask) }
     }
