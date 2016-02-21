@@ -170,7 +170,7 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
             }
             else if key == 66 { // Execute order 66
                 // TODO I will make a dezombifying thread
-                let child = Command::new("/bin/weston-terminal").spawn()
+                let _ = Command::new("sh").arg("-c").arg("/usr/bin/weston-terminal || echo a").spawn()
                     .unwrap_or_else(|e| { println!("Error spawning child: {}", e); panic!("spawning child")});
                 return true;
             }
