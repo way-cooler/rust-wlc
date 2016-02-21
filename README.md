@@ -35,9 +35,10 @@ fn main() {
 ```
 
 ### Usage
+We're on [crates.io](https://crates.io/crates/rustwlc):
 ```toml
 [depdenencies]
-rustwlc = { git = "https://github.com/ImmingtonIndustries/rust-wlc.git" }
+rustwlc = "0.1.0"
 ```
 Make sure `rustc` can find wlc - either install it from a package manager (i.e. wlc-git on the AUR for Arch users) or see their instructions.
 
