@@ -301,6 +301,7 @@ fn main() {
         .pointer_button(on_pointer_button)
         .pointer_motion(on_pointer_motion);
 
+    rustwlc::log_set_default_handler();
     let run_fn = rustwlc::init(interface).expect("Unable to initialize!");
     run_fn();
 }
