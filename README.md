@@ -41,9 +41,9 @@ rustwlc = "0.1.0"
 ```
 to your Cargo.toml.
 
-You also need to have the wlc library setup so that rust-wlc can see it. If you simply install the library, that will be sufficient.
+You also need to setup the wlc library so that rust-wlc can see it. If you simply install the library, that will be sufficient.
 
-If you are looking to use a custom version of WLC (to ensure compatiblity by building against a specific version or to build the library with debug symbols for example), then you simply need to set the `LD_LIBRARY_PATH` environment variable to the full path of the share library object file (.so).
+If you are looking to use a custom version of wlc (to ensure compatiblity by building against a specific version or to build the library with debug symbols for example), then you simply need to set the `LD_LIBRARY_PATH` environment variable to the full path of the share library object file (.so).
 
 ### Documentation
 At the moment, we have Cargo documentation hosted at our github.io site [here](http://immington-industries.github.io). 
