@@ -26,6 +26,8 @@ fn main() {
             .view_created(view_created)
             .view_focus(view_focus);
 
+    // The default log handler will print wlc logs to stdout
+    rustwlc::log_set_default_handler();
     let run_fn = rustwlc::init(interface).expect("Unable to initialize!");
     run_fn();
 }
