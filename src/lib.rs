@@ -8,8 +8,8 @@ extern crate libc;
 #[macro_use]
 extern crate bitflags;
 
-use std::env;
 use std::ffi;
+use std::ptr;
 use std::ffi::CString;
 
 pub mod handle;
@@ -57,44 +57,7 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
         unsafe { wlc_run() }
     }
     unsafe {
-        let args: Vec<*const libc::c_char> =
-            env::args()
-                .into_iter()
-                .map(|arg| CString::new(arg).unwrap().into_raw() as *const libc::c_char)
-                .collect();
-
-        if wlc_init(&interface,
-                    args.len() as i32,
-                    args.as_ptr() as *const *const libc::c_char) {
-            Some(run_wlc)
-        } else {
-            None
-        }
-    }
-}
-
-/// Initialize wlc by specifying args.
-///
-/// If --log <file> is included, log messages will be sent to that file.
-///
-/// # Example
-/// ```no_run
-/// let interface = rustwlc::interface::WlcInterface::new();
-/// rustwlc::log_set_default_handler();
-///
-/// if !rustwlc::init_with_args(interface, vec!["mywm", "--log", "log.txt"]) {
-///      panic!("Unable to init");
-/// }
-/// rustwlc::run_wlc();
-/// ```
-pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<(fn() -> ())> {
-    fn run_wlc() {
-        unsafe { wlc_run() }
-    }
-    unsafe {
-        if wlc_init(&interface,
-                    args.len() as i32,
-                    args.as_ptr() as *const *const libc::c_char) {
+        if wlc_init(&interface, 0, ptr::null()) {
             Some(run_wlc)
         } else {
             None
