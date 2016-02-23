@@ -8,9 +8,9 @@ extern crate libc;
 #[macro_use]
 extern crate bitflags;
 
-use std::env;
 use std::ffi;
-use std::ffi::{CString};
+use std::ptr;
+use std::ffi::CString;
 
 pub mod handle;
 pub mod interface;
@@ -26,14 +26,13 @@ use interface::WlcInterface;
 extern "C" {
     fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
 
-    fn wlc_init(interface: *const WlcInterface,
-                argc: i32, argv: *const *const libc::c_char) -> bool;
+    fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *mut libc::c_char) -> bool;
 
     fn wlc_run();
 
     fn wlc_terminate();
 
-    fn wlc_log_set_handler(callback: extern fn(log_type: LogType, text: *const libc::c_char));
+    fn wlc_log_set_handler(callback: extern "C" fn(log_type: LogType, text: *const libc::c_char));
 }
 
 /// Initialize wlc with a `WlcInterface`.
@@ -53,42 +52,12 @@ extern "C" {
 /// }
 /// rustwlc::run_wlc();
 /// ```
-pub fn init(interface: WlcInterface) -> Option<fn () -> ()> {
+pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
     fn run_wlc() {
         unsafe { wlc_run() }
     }
     unsafe {
-        let args: Vec<*const libc::c_char> = env::args().into_iter()
-            .map(|arg| CString::new(arg).unwrap().into_raw() as *const libc::c_char).collect();
-
-        if wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char) {
-            Some(run_wlc)
-        } else {
-            None
-        }
-    }
-}
-
-/// Initialize wlc by specifying args.
-///
-/// If --log <file> is included, log messages will be sent to that file.
-///
-/// # Example
-/// ```no_run
-/// let interface = rustwlc::interface::WlcInterface::new();
-/// rustwlc::log_set_default_handler();
-///
-/// if !rustwlc::init_with_args(interface, vec!["mywm", "--log", "log.txt"]) {
-///      panic!("Unable to init");
-/// }
-/// rustwlc::run_wlc();
-/// ```
-pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<(fn () -> ())> {
-    fn run_wlc() {
-        unsafe { wlc_run() }
-    }
-    unsafe {
-        if wlc_init(&interface, args.len() as i32, args.as_ptr() as *const *const libc::c_char) {
+        if wlc_init(&interface, 0, ptr::null()) {
             Some(run_wlc)
         } else {
             None
@@ -113,7 +82,9 @@ pub fn init_with_args(interface: WlcInterface, args: Vec<String>) -> Option<(fn 
 /// rustwlc::run_wlc();
 /// ```
 fn run_wlc() {
-    unsafe { wlc_run(); }
+    unsafe {
+        wlc_run();
+    }
 }
 
 /// Executes a program in wayland.
@@ -123,10 +94,14 @@ pub fn exec(bin: String, args: Vec<String>) {
         let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
 
         let argv: Vec<CString> = args.into_iter()
-            .map(|arg| CString::new(arg).unwrap() ).collect();
+                                     .map(|arg| CString::new(arg).unwrap())
+                                     .collect();
 
         let args: Vec<*const libc::c_char> = argv.into_iter()
-            .map(|arg: CString| { arg.as_ptr() as *const libc::c_char }).collect();
+                                                 .map(|arg: CString| {
+                                                     arg.as_ptr() as *const libc::c_char
+                                                 })
+                                                 .collect();
 
         wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
     }
@@ -134,20 +109,24 @@ pub fn exec(bin: String, args: Vec<String>) {
 
 /// Halts execution of wlc.
 pub fn terminate() {
-    unsafe { wlc_terminate(); }
+    unsafe {
+        wlc_terminate();
+    }
 }
 
 /// Registers a callback for wlc logging
 #[allow(dead_code)]
-pub fn log_set_handler(handler: extern fn(type_: LogType, text: *const libc::c_char)) {
-    unsafe { wlc_log_set_handler(handler); }
+pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
+    unsafe {
+        wlc_log_set_handler(handler);
+    }
 }
 
 #[allow(dead_code)]
-extern fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
-	let string_text = unsafe { pointer_to_string(text) };
-	// Add fancier logging, with debug levels and all that. Find a nice library
-	println!("wlc log: {:?}: {}", log_type, string_text);
+extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
+    let string_text = unsafe { pointer_to_string(text) };
+    // Add fancier logging, with debug levels and all that. Find a nice library
+    println!("wlc log: {:?}: {}", log_type, string_text);
 }
 
 /// Sets the wlc log callback to a simple function that prints to console.
@@ -171,6 +150,6 @@ pub fn log_set_default_handler() {
 /// Converts a `*const libc::c_char` to an owned `String`.
 /// Useful for log callbacks.
 pub unsafe fn pointer_to_string(pointer: *const libc::c_char) -> String {
-    let slice =  ffi::CStr::from_ptr(pointer);
+    let slice = ffi::CStr::from_ptr(pointer);
     slice.to_string_lossy().into_owned()
 }
