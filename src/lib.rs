@@ -26,10 +26,7 @@ use interface::WlcInterface;
 extern "C" {
     fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
 
-    fn wlc_init(interface: *const WlcInterface,
-                argc: i32,
-                argv: *const *const libc::c_char)
-                -> bool;
+    fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *mut libc::c_char) -> bool;
 
     fn wlc_run();
 
