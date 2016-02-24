@@ -106,6 +106,19 @@ extern "C" {
     fn wlc_view_get_app_id(view: uintptr_t) -> *const c_char;
 }
 
+impl From<WlcView> for WlcOutput {
+    fn from(view: WlcView) -> Self {
+        WlcOutput(view.0)
+    }
+}
+
+impl From<WlcOutput> for WlcView {
+    fn from(output: WlcOutput) -> Self {
+        WlcView(output.0)
+    }
+}
+
+
 impl WlcOutput {
     /// Compatability/debugging function.
     ///
@@ -114,17 +127,7 @@ impl WlcOutput {
     /// this function could be called. If this is the case please submit
     /// a bug report.
     pub fn as_view(self) -> WlcView {
-        return WlcView::from_output(self)
-    }
-
-    /// Compatability/debugging function.
-    ///
-    /// wlc internally stores views and outputs under the same type.
-    /// If for some reason a conversion between the two was required,
-    /// this function could be called. If this is the case please submit
-    /// a bug report.
-    pub fn from_view(view: WlcView) -> WlcOutput {
-        WlcOutput(view.0)
+        return WlcView::from(self)
     }
 
     /// Gets a list of the current outputs.
@@ -257,16 +260,7 @@ impl WlcView {
     /// this function could be called. If this is the case please submit
     /// a bug report.
     pub fn as_output(self) -> WlcOutput {
-        WlcOutput::from_view(self)
-    }
-    /// Compatability/debugging function.
-    ///
-    /// wlc internally stores views and outputs under the same type.
-    /// If for some reason a conversion between the two was required,
-    /// this function could be called. If this is the case please submit
-    /// a bug report.
-    pub fn from_output(output: WlcOutput) -> WlcView {
-        WlcView(output.0)
+        WlcOutput::from(self)
     }
 
     /// Returns a reference to the root window (desktop background).
