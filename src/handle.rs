@@ -27,10 +27,10 @@ extern "C" {
 
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
-    // fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
+    //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
 
     // TODO need representation of userdata
-    // fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ?????) -> ();
+    //fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ?????) -> ();
 
     fn wlc_output_get_sleep(output: uintptr_t) -> bool;
 
@@ -45,18 +45,15 @@ extern "C" {
     fn wlc_output_set_mask(output: uintptr_t, mask: u32);
 
     // TODO tricky definition here
-    // fn wlc_output_get_pixels(output: WlcHandle) -> ();
+    //fn wlc_output_get_pixels(output: WlcHandle) -> ();
 
-    fn wlc_output_get_views(output: uintptr_t, out_memb: *mut libc::size_t) -> *const uintptr_t;
+    fn wlc_output_get_views(output: uintptr_t,
+                            out_memb: *mut libc::size_t) -> *const uintptr_t;
 
-    fn wlc_output_get_mutable_views(output: uintptr_t,
-                                    out_memb: *mut libc::size_t)
-                                    -> *mut uintptr_t;
+    fn  wlc_output_get_mutable_views(output: uintptr_t,
+                                     out_memb: *mut libc::size_t) -> *mut uintptr_t;
 
-    fn wlc_output_set_views(output: uintptr_t,
-                            views: *const uintptr_t,
-                            memb: libc::size_t)
-                            -> bool;
+    fn wlc_output_set_views(output: uintptr_t, views: *const uintptr_t, memb: libc::size_t) -> bool;
 
     fn wlc_output_focus(output: uintptr_t);
 
@@ -130,7 +127,7 @@ impl WlcOutput {
     /// this function could be called. If this is the case please submit
     /// a bug report.
     pub fn as_view(self) -> WlcView {
-        return WlcView::from(self);
+        return WlcView::from(self)
     }
 
     /// Gets a list of the current outputs.
@@ -139,7 +136,7 @@ impl WlcOutput {
             let mut out_memb: libc::size_t = 0;
             let outputs = wlc_get_outputs(&mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize)..(out_memb as isize) {
+            for index in (0 as isize) .. (out_memb as isize) {
                 result.push(WlcOutput(*(outputs.offset(index))));
             }
             result
@@ -172,9 +169,7 @@ impl WlcOutput {
 
     /// Sets the sleep status of the output.
     pub fn set_sleep(&self, sleep: bool) {
-        unsafe {
-            wlc_output_set_sleep(self.0, sleep);
-        }
+        unsafe { wlc_output_set_sleep(self.0, sleep); }
     }
 
     /// Gets the output resolution in pixels.
@@ -184,9 +179,7 @@ impl WlcOutput {
 
     /// Sets the resolution of the output.
     pub fn set_resolution(&self, size: Size) {
-        unsafe {
-            wlc_output_set_resolution(self.0, &size);
-        }
+        unsafe { wlc_output_set_resolution(self.0, &size); }
     }
 
     /// Get views in stack order.
@@ -198,8 +191,8 @@ impl WlcOutput {
             let views = wlc_output_get_views(self.0, &mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
 
-            for index in (0 as isize)..(out_memb as isize) {
-                result.push(WlcView(*(views.offset(index))));
+            for index in (0 as isize) .. (out_memb as isize) {
+                  result.push(WlcView(*(views.offset(index))));
             }
             return result;
         }
@@ -227,7 +220,7 @@ impl WlcOutput {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_mutable_views(self.0, &mut out_memb);
             let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize)..(out_memb as isize) {
+            for index in (0 as isize) .. (out_memb as isize) {
                 result.push(WlcView(*(views.offset(index))));
             }
             result
@@ -253,7 +246,7 @@ impl WlcOutput {
         unsafe {
             match output {
                 Some(output) => wlc_output_focus(output.0),
-                None => wlc_output_focus(0),
+                None => wlc_output_focus(0)
             }
         }
     }
@@ -293,12 +286,8 @@ impl WlcView {
     /// # Errors
     /// This function will not do anything if `view.is_root()`.
     pub fn close(&self) {
-        if self.is_root() {
-            return;
-        };
-        unsafe {
-            wlc_view_close(self.0);
-        }
+        if self.is_root() { return };
+        unsafe { wlc_view_close(self.0); }
     }
 
     /// Gets the WlcOutput this view is currently part of.
@@ -317,38 +306,28 @@ impl WlcView {
     ///
     /// Can be called on `WlcView::root()` to lose all focus.
     pub fn focus(&self) {
-        unsafe {
-            wlc_view_focus(self.0);
-        }
+        unsafe { wlc_view_focus(self.0); }
     }
 
     /// Sends the view to the back of the compositor
     pub fn send_to_back(&self) {
-        unsafe {
-            wlc_view_send_to_back(self.0);
-        }
+        unsafe { wlc_view_send_to_back(self.0); }
     }
 
     /// Sends this view underneath another.
     pub fn send_below(&self, other: &WlcView) {
-        unsafe {
-            wlc_view_send_below(self.0, other.0);
-        }
+        unsafe { wlc_view_send_below(self.0, other.0); }
     }
 
     /// Brings this view above another.
     pub fn bring_above(&self, other: &WlcView) {
-        unsafe {
-            wlc_view_bring_above(self.0, other.0);
-        }
+        unsafe { wlc_view_bring_above(self.0, other.0); }
     }
 
     /// Brings this view to the front of the stack
     /// within its WlcOutput.
     pub fn bring_to_front(&self) {
-        unsafe {
-            wlc_view_bring_to_front(self.0);
-        }
+        unsafe { wlc_view_bring_to_front(self.0); }
     }
 
     // TODO Get masks enum working properly
@@ -360,23 +339,21 @@ impl WlcView {
     // TODO Get masks enum working properly
     /// Sets the visibilty bitmask for the view.
     pub fn set_mask(&self, mask: u32) {
-        unsafe {
-            wlc_view_set_mask(self.0, mask);
-        }
+        unsafe { wlc_view_set_mask(self.0, mask); }
     }
 
     /// Gets the geometry of the view.
     pub fn get_geometry(&self) -> &Geometry {
-        unsafe { &*wlc_view_get_geometry(self.0) }
+        unsafe {
+            &*wlc_view_get_geometry(self.0)
+        }
     }
 
     /// Sets the geometry of the view.
     ///
     /// Set edges if geometry is caused by interactive resize.
     pub fn set_geometry(&self, edges: ResizeEdge, geometry: &Geometry) {
-        unsafe {
-            wlc_view_set_geometry(self.0, edges.bits(), geometry as *const Geometry);
-        }
+        unsafe { wlc_view_set_geometry(self.0, edges.bits(), geometry as *const Geometry); }
     }
 
     /// Gets the type bitfield of the curent view
@@ -386,9 +363,7 @@ impl WlcView {
 
     /// Set flag in the type field. Toggle indicates whether it is set.
     pub fn set_type(&self, view_type: ViewType, toggle: bool) {
-        unsafe {
-            wlc_view_set_type(self.0, view_type, toggle);
-        }
+        unsafe { wlc_view_set_type(self.0, view_type, toggle); }
     }
 
     // TODO get bitflags enums
@@ -399,9 +374,7 @@ impl WlcView {
 
     /// Set ViewState bit. Toggle indicates whether it is set or not.
     pub fn set_state(&self, state: ViewState, toggle: bool) {
-        unsafe {
-            wlc_view_set_state(self.0, state, toggle);
-        }
+        unsafe { wlc_view_set_state(self.0, state, toggle); }
     }
 
     /// Gets parent view, returns `WlcView::root()` if this view has no parent.
@@ -413,9 +386,7 @@ impl WlcView {
     ///
     /// Call with `WlcView::root()` to make its parent the root window.
     pub fn set_parent(&self, parent: &WlcView) {
-        unsafe {
-            wlc_view_set_parent(self.0, parent.0);
-        }
+        unsafe { wlc_view_set_parent(self.0, parent.0); }
     }
 
     /// Get the title of the view
@@ -426,7 +397,7 @@ impl WlcView {
             if chars == 0 as *const i8 {
                 String::new()
             } else {
-                pointer_to_string(chars)
+                    pointer_to_string(chars)
             }
         }
     }

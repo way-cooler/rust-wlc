@@ -18,7 +18,7 @@ pub enum LogType {
     /// Error log type
     Error,
     /// Wayland logs
-    Wayland,
+    Wayland
 }
 
 /// Type of backend that a window is being composited in
@@ -30,7 +30,7 @@ pub enum BackendType {
     /// Standard wayland client
     DRM,
     /// wayland-x11 client
-    X11,
+    X11
 }
 
 /// Bitflags describing wayland events
@@ -153,7 +153,7 @@ pub enum KeyState {
     /// Key is being pressed
     Released = 0,
     /// Key is being released
-    Pressed = 1,
+    Pressed = 1
 }
 
 /// Represents a button state in button events
@@ -163,7 +163,7 @@ pub enum ButtonState {
     /// Button is being pressed
     Released = 0,
     /// Button is being released
-    Pressed = 1,
+    Pressed = 1
 }
 
 /// Which axis of the scroll wheel is being used
@@ -177,7 +177,7 @@ pub enum ScrollAxis {
     /// Horizontal scroll
     Horizontal = 2,
     /// Both scrolls
-    Both = 3,
+    Both = 3
 }
 
 /// Touch type in touch interface handler
@@ -192,8 +192,8 @@ pub enum TouchType {
     Motion,
     /// Touch frame
     Frame,
-    /// Touch cancelled
-    Cancel,
+    /// Touch cancelled 
+    Cancel
 }
 
 /// State of keyoard modifiers.
@@ -204,7 +204,7 @@ pub struct KeyboardModifiers {
     /// Which "lock" keys are being pressed
     pub leds: KeyboardLed,
     /// Which control/meta keys are being pressed
-    pub mods: KeyMod,
+    pub mods: KeyMod
 }
 
 /// Represents the location of a view.
@@ -214,7 +214,7 @@ pub struct Point {
     /// x coordinate
     pub x: i32,
     /// y coordinate
-    pub y: i32,
+    pub y: i32
 }
 
 impl fmt::Display for Point {
@@ -230,7 +230,7 @@ pub struct Size {
     /// Width
     pub w: u32,
     /// Height
-    pub h: u32,
+    pub h: u32
 }
 
 impl fmt::Display for Size {
@@ -246,7 +246,7 @@ pub struct Geometry {
     /// The location of the object
     pub origin: Point,
     /// The size of the object
-    pub size: Size,
+    pub size: Size
 }
 
 impl fmt::Display for Geometry {

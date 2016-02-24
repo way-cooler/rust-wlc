@@ -68,8 +68,8 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
 /// Runs wlc's event loop.
 ///
 /// The initialize functions will return this function in an Option.
-/// If and only if they succeed can this function be called wlc with `rustwlc::init`
-/// call this method to being wlc's main event loop.
+/// If and only if they succeed can this function be called wlc with `rustwlc::init` call this method
+/// to being wlc's main event loop.
 ///
 /// # Example
 /// ```no_run
