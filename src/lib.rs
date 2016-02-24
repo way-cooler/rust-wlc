@@ -125,8 +125,7 @@ pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc:
 #[allow(dead_code)]
 extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
     let string_text = unsafe { pointer_to_string(text) };
-    // Add fancier logging, with debug levels and all that. Find a nice library
-    println!("wlc log: {:?}: {}", log_type, string_text);
+    println!("wlc [{:?}] {}", log_type, string_text);
 }
 
 /// Sets the wlc log callback to a simple function that prints to console.
