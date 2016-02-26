@@ -192,6 +192,9 @@ impl WlcOutput {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self.0, &mut out_memb);
+            if views.is_null() {
+                return Vec::new();
+            }
             let mut result = Vec::with_capacity(out_memb);
 
             for index in (0 as isize) .. (out_memb as isize) {
