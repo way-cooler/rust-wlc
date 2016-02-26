@@ -7,7 +7,7 @@ extern crate libc;
 use libc::{uintptr_t, c_char};
 
 use super::pointer_to_string;
-use super::types::{Geometry, ResizeEdge, Size, ViewType, ViewState};
+use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -82,6 +82,8 @@ extern "C" {
     fn wlc_view_set_mask(view: uintptr_t, mask: u32);
 
     fn wlc_view_get_geometry(view: uintptr_t) -> *const Geometry;
+
+    fn wlc_view_get_visible_geometry(view: uintptr_t, geo: *const Geometry);
 
     fn wlc_view_set_geometry(view: uintptr_t, edges: u32, geo: *const Geometry);
 
@@ -342,11 +344,20 @@ impl WlcView {
         unsafe { wlc_view_set_mask(self.0, mask); }
     }
 
-    /// Gets the geometry of the view.
+    /// Gets the geometry of the view (that the client sees).
     pub fn get_geometry(&self) -> &Geometry {
         unsafe {
             &*wlc_view_get_geometry(self.0)
         }
+    }
+
+    /// Gets the geometry of the view (that wlc displays).
+    pub fn get_visible_geometry(&self) -> Geometry {
+        let mut geo = Geometry { origin: Point { x: 0, y: 0}, size: Size { w: 0, h: 0 }};
+        unsafe {
+            wlc_view_get_visible_geometry(self.0, &mut geo);
+        }
+        return geo;
     }
 
     /// Sets the geometry of the view.
