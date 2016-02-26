@@ -52,7 +52,10 @@ fn start_interactive_move(view: &WlcView, origin: &Point) {
 }
 
 fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
-    let geometry = view.get_geometry();
+    let geometry = match view.get_geometry() {
+        None => { return; }
+        Some(g) => g,
+    };
 
     if !start_interactive_action(view, origin) {
         return;
@@ -225,7 +228,7 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
         if let Some(ref view) = comp.view {
                 let dx = point.x - comp.grab.x;
                 let dy = point.y - comp.grab.y;
-                let mut geo = view.get_geometry().clone();
+                let mut geo = view.get_geometry().unwrap().clone();
                 if comp.edges.bits() != 0 {
                     let min = Size { w: 80u32, h: 40u32};
                     let mut new_geo = geo.clone();
