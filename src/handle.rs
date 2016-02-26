@@ -83,7 +83,7 @@ extern "C" {
 
     fn wlc_view_get_geometry(view: uintptr_t) -> *const Geometry;
 
-    fn wlc_view_get_visible_geometry(view: uintptr_t, geo: *const Geometry);
+    fn wlc_view_get_visible_geometry(view: uintptr_t, geo: *mut Geometry);
 
     fn wlc_view_set_geometry(view: uintptr_t, edges: u32, geo: *const Geometry);
 
