@@ -36,12 +36,12 @@ extern "C" {
 impl Keysym {
 
     /// Whether this keysym is valid or is `XKB_KEY_NoSymbol`
-    fn is_valid(&self) {
+    pub fn is_valid(&self) {
         return self.0 != 0;
     }
 
     /// Gets the Keysym for the given name.
-    fn from_name(name: &str, flags: KeyboardFlags) -> Option<Keysym> {
+    pub fn from_name(name: &str, flags: KeyboardFlags) -> Option<Keysym> {
         unsafe {
             let c_name = Cstr::new(name).unwrap() as *const char;
             let sym_val: u32 = xkb_keysym_from_name(c_name, flags);
@@ -52,8 +52,8 @@ impl Keysym {
         }
     }
 
-    /// Gets 
-    fn get_name(&self) -> Option<String> {
+    /// Gets name name of the keysym.
+    pub fn get_name(&self) -> Option<String> {
         // create buffer
         // Call get_name with buffer
         // if get_name == -1 None
@@ -66,14 +66,26 @@ impl Keysym {
             let result = xkb_keysym_get_name(self.0, buffer, BUFFER_LEN);
             match result {
                 -1 => None,
-                _ => str::from_utf8_lossy(buffer)
+                _ => str::from_utf8_lossy(buffer) // ?
+            }
         }
     }
 
-    fn to_utf8() -> i32 {
+    /// Converts the keysym to utf8
+    fn to_utf8() -> Option<String> {
         // create buffer
         // call to_utf8 with buffer
         // Convert buffer to String
+        const BUFFER_LEN: usize = 7usize;
+        let buffer_vec: Vec<char> = Vec::with_capacity(BUFFER_LEN);
+        unsafe {
+            let mut buffer: &mut char = buffer_vec.as_mut_slice();
+            let result = xkb_keysym_get_name(self.0, buffer, BUFFER_LEN);
+            match result {
+                -1: None,
+                _ => str::from_utf8_lossy(buffer)
+            }
+        }
     }
 
     fn to_utf32() -> u32 {
