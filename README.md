@@ -1,7 +1,7 @@
 # rust-wlc
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-For wlc more recent than [651ebc8](https://github.com/Cloudef/wlc/commit/651ebc8f7da750e77fd26f09182043e7e7c036c1) (add `wlc_view_get_visible_geometry`).
+Requires wlc more recent than [651ebc8](https://github.com/Cloudef/wlc/commit/651ebc8f7da750e77fd26f09182043e7e7c036c1) (add `wlc_view_get_visible_geometry`).
 ### Rust Example
 
 ```rust
