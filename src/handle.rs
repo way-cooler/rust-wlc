@@ -236,12 +236,15 @@ impl WlcOutput {
     /// Attempts to set the views of a given output.
     ///
     /// Returns true if the operation succeeded.
-    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> bool {
-        unsafe {
+    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> Result<(), &'static str> {
             let view_len = views.len() as libc::size_t;
             let view_vals: Vec<uintptr_t> = views.into_iter().map(|v| v.0).collect();
             let const_views = view_vals.as_ptr();
-            return wlc_output_set_views(self.0, const_views, view_len);
+        unsafe {
+            match wlc_output_set_views(self.0, const_views, view_len) {
+                true => Ok(()),
+                false => Err("Could not set views on output"),
+            }
         }
     }
 
