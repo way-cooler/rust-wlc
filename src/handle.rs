@@ -186,7 +186,7 @@ impl WlcOutput {
     /// This is mainly useful for wm's who need another view stack for inplace sorting.
     /// For example tiling wms, may want to use this to keep their tiling order separated
     /// from floating order.
-    /// Returned array is a direct refeferemce, for a mutable version, see `get_mutable_views`.
+    /// This handles `wlc_output_get_views` and `wlc_output_get_mutable_views`.
     pub fn get_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
@@ -208,6 +208,13 @@ impl WlcOutput {
     /// Sets the mask for this output
     pub fn set_mask(&self, mask: u32) {
         unsafe { wlc_output_set_mask(self.0, mask) }
+    }
+
+    #[deprecated]
+    /// # Deprecated
+    /// This function is equivalent to simply calling get_views
+    pub fn get_mutable_views(&self) -> Vec<WlcView> {
+        self.get_views()
     }
 
     /// Attempts to set the views of a given output.

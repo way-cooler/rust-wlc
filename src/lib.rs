@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+#![feature(deprecated)]
 
 //! Module defining main wlc functions.
 #![allow(improper_ctypes)] // We get warnings on WlcInterface
