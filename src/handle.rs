@@ -135,6 +135,9 @@ impl WlcOutput {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let outputs = wlc_get_outputs(&mut out_memb);
+            if outputs.is_null() {
+                return Vec::new();
+            }
             let mut result = Vec::with_capacity(out_memb);
             for index in (0 as isize) .. (out_memb as isize) {
                 result.push(WlcOutput(*(outputs.offset(index))));
@@ -189,6 +192,9 @@ impl WlcOutput {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self.0, &mut out_memb);
+            if views.is_null() {
+                return Vec::new();
+            }
             let mut result = Vec::with_capacity(out_memb);
 
             for index in (0 as isize) .. (out_memb as isize) {
@@ -230,12 +236,15 @@ impl WlcOutput {
     /// Attempts to set the views of a given output.
     ///
     /// Returns true if the operation succeeded.
-    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> bool {
-        unsafe {
+    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> Result<(), &'static str> {
             let view_len = views.len() as libc::size_t;
             let view_vals: Vec<uintptr_t> = views.into_iter().map(|v| v.0).collect();
             let const_views = view_vals.as_ptr();
-            return wlc_output_set_views(self.0, const_views, view_len);
+        unsafe {
+            match wlc_output_set_views(self.0, const_views, view_len) {
+                true => Ok(()),
+                false => Err("Could not set views on output"),
+            }
         }
     }
 
@@ -343,9 +352,14 @@ impl WlcView {
     }
 
     /// Gets the geometry of the view.
-    pub fn get_geometry(&self) -> &Geometry {
+    pub fn get_geometry(&self) -> Option<&Geometry> {
         unsafe {
-            &*wlc_view_get_geometry(self.0)
+            let geometry = wlc_view_get_geometry(self.0);
+            if geometry.is_null() {
+                None
+            } else {
+                Some(&*geometry)
+            }
         }
     }
 

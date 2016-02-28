@@ -150,6 +150,9 @@ pub fn log_set_default_handler() {
 /// Converts a `*const libc::c_char` to an owned `String`.
 /// Useful for log callbacks.
 pub unsafe fn pointer_to_string(pointer: *const libc::c_char) -> String {
+    if pointer.is_null() {
+        return "".to_string();
+    }
     let slice = ffi::CStr::from_ptr(pointer);
     slice.to_string_lossy().into_owned()
 }
