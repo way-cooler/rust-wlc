@@ -50,9 +50,6 @@ extern "C" {
     fn wlc_output_get_views(output: uintptr_t,
                             out_memb: *mut libc::size_t) -> *const uintptr_t;
 
-    fn  wlc_output_get_mutable_views(output: uintptr_t,
-                                     out_memb: *mut libc::size_t) -> *mut uintptr_t;
-
     fn wlc_output_set_views(output: uintptr_t, views: *const uintptr_t, memb: libc::size_t) -> bool;
 
     fn wlc_output_focus(output: uintptr_t);
@@ -186,6 +183,9 @@ impl WlcOutput {
 
     /// Get views in stack order.
     ///
+    /// This is mainly useful for wm's who need another view stack for inplace sorting.
+    /// For example tiling wms, may want to use this to keep their tiling order separated
+    /// from floating order.
     /// Returned array is a direct refeferemce, for a mutable version, see `get_mutable_views`.
     pub fn get_views(&self) -> Vec<WlcView> {
         unsafe {
@@ -208,25 +208,6 @@ impl WlcOutput {
     /// Sets the mask for this output
     pub fn set_mask(&self, mask: u32) {
         unsafe { wlc_output_set_mask(self.0, mask) }
-    }
-
-    /// Get mutable views in creation order.
-    /// This is mainly useful for wm's who need another view stack for inplace sorting.
-    /// For example tiling wms, may want to use this to keep their tiling order separated
-    /// from floating order.
-
-    /// # Safety
-    /// Returned array is a direct reference.
-    pub fn get_mutable_views(&self) -> Vec<WlcView> {
-        unsafe {
-            let mut out_memb: libc::size_t = 0;
-            let views = wlc_output_get_mutable_views(self.0, &mut out_memb);
-            let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize) .. (out_memb as isize) {
-                result.push(WlcView(*(views.offset(index))));
-            }
-            result
-        }
     }
 
     /// Attempts to set the views of a given output.
