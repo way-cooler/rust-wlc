@@ -168,7 +168,12 @@ impl Keysym {
     /// returns: The keysym. If the name is invalid, returns None.
     ///
     /// # Examples
-    /// 
+    /// ```rust
+    /// let key_A = KeySym::from_name("A", KeyboardFlags::None);
+    /// let key_a = KeySym::from_name("a", KeyboardFlags::None);
+    /// let key_
+    /// assert!(key.is_valid() && key.get_name() == "A");
+    /// ```
     pub fn from_name(name: &str, flags: KeyboardFlags) -> Option<Keysym> {
         unsafe {
             let c_name = Cstr::new(name).unwrap() as *const char;
@@ -183,6 +188,10 @@ impl Keysym {
     /// Gets name name of the keysym.
     ///
     /// # Examples
+    /// ```rust
+    /// let key = KeySym::from_name("A");
+    /// assert!(key.is_valid() && key.get_name() == "A");
+    /// ```
     pub fn get_name(&self) -> Option<String> {
         // create buffer
         // Call get_name with buffer
@@ -198,7 +207,7 @@ impl Keysym {
                 -1 => None,
                 _ => {
                     // Truncate buffer to = result!
-                    let 
+                    //
                     str::from_utf8_lossy(buffer) // ?
                 }
             }
