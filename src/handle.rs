@@ -7,7 +7,7 @@ extern crate libc;
 use libc::{uintptr_t, c_char};
 
 use super::pointer_to_string;
-use super::types::{Geometry, ResizeEdge, Size, ViewType, ViewState};
+use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -50,9 +50,6 @@ extern "C" {
     fn wlc_output_get_views(output: uintptr_t,
                             out_memb: *mut libc::size_t) -> *const uintptr_t;
 
-    fn  wlc_output_get_mutable_views(output: uintptr_t,
-                                     out_memb: *mut libc::size_t) -> *mut uintptr_t;
-
     fn wlc_output_set_views(output: uintptr_t, views: *const uintptr_t, memb: libc::size_t) -> bool;
 
     fn wlc_output_focus(output: uintptr_t);
@@ -82,6 +79,8 @@ extern "C" {
     fn wlc_view_set_mask(view: uintptr_t, mask: u32);
 
     fn wlc_view_get_geometry(view: uintptr_t) -> *const Geometry;
+
+    fn wlc_view_get_visible_geometry(view: uintptr_t, geo: *mut Geometry);
 
     fn wlc_view_set_geometry(view: uintptr_t, edges: u32, geo: *const Geometry);
 
@@ -184,7 +183,10 @@ impl WlcOutput {
 
     /// Get views in stack order.
     ///
-    /// Returned array is a direct refeferemce, for a mutable version, see `get_mutable_views`.
+    /// This is mainly useful for wm's who need another view stack for inplace sorting.
+    /// For example tiling wms, may want to use this to keep their tiling order separated
+    /// from floating order.
+    /// This handles `wlc_output_get_views` and `wlc_output_get_mutable_views`.
     pub fn get_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
@@ -208,23 +210,10 @@ impl WlcOutput {
         unsafe { wlc_output_set_mask(self.0, mask) }
     }
 
-    /// Get mutable views in creation order.
-    /// This is mainly useful for wm's who need another view stack for inplace sorting.
-    /// For example tiling wms, may want to use this to keep their tiling order separated
-    /// from floating order.
-
-    /// # Safety
-    /// Returned array is a direct reference.
+    /// # Deprecated
+    /// This function is equivalent to simply calling get_views
     pub fn get_mutable_views(&self) -> Vec<WlcView> {
-        unsafe {
-            let mut out_memb: libc::size_t = 0;
-            let views = wlc_output_get_mutable_views(self.0, &mut out_memb);
-            let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize) .. (out_memb as isize) {
-                result.push(WlcView(*(views.offset(index))));
-            }
-            result
-        }
+        self.get_views()
     }
 
     /// Attempts to set the views of a given output.
@@ -342,11 +331,20 @@ impl WlcView {
         unsafe { wlc_view_set_mask(self.0, mask); }
     }
 
-    /// Gets the geometry of the view.
+    /// Gets the geometry of the view (that the client sees).
     pub fn get_geometry(&self) -> &Geometry {
         unsafe {
             &*wlc_view_get_geometry(self.0)
         }
+    }
+
+    /// Gets the geometry of the view (that wlc displays).
+    pub fn get_visible_geometry(&self) -> Geometry {
+        let mut geo = Geometry { origin: Point { x: 0, y: 0}, size: Size { w: 0, h: 0 }};
+        unsafe {
+            wlc_view_get_visible_geometry(self.0, &mut geo);
+        }
+        return geo;
     }
 
     /// Sets the geometry of the view.

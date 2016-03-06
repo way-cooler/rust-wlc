@@ -54,9 +54,6 @@ extern "C" {
 /// rustwlc::run_wlc();
 /// ```
 pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
-    fn run_wlc() {
-        unsafe { wlc_run() }
-    }
     unsafe {
         if wlc_init(&interface, 0, ptr::null()) {
             Some(run_wlc)
@@ -74,6 +71,8 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
 ///
 /// # Example
 /// ```no_run
+/// use rustwlc;
+///
 /// let interface = rustwlc::interface::WlcInterface::new();
 /// rustwlc::log_set_default_handler();
 ///

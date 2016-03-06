@@ -180,7 +180,7 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
                 terminate();
                 return true;
             // Return key
-            } else if sym == KeySym::KeyReturn as u32 { // Execute order 66
+            } else if sym == KeySym::KeyReturn as u32 {
                 let _ = Command::new("sh")
                                 .arg("-c")
                                 .arg("/usr/bin/weston-terminal || echo a").spawn()
