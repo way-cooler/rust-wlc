@@ -3,6 +3,9 @@
 //! We do not wrap the full funcionality of xkb, as wlc handles
 //! most of the setup.
 
+#[cfg(test)]
+mod tests;
+
 /*
  * Copyright 1985, 1987, 1990, 1998  The Open Group
  * Copyright 2008  Dan Nicholson
@@ -136,7 +139,7 @@ pub enum NameFlags {
 extern "C" {
     fn xkb_keysym_get_name(keysym: u32, buffer: *mut c_char, size: size_t) -> i32;
 
-    fn xkb_keysym_from_name(name: *const char, flags: NameFlags) -> u32;
+    fn xkb_keysym_from_name(name: *const c_char, flags: NameFlags) -> u32;
 
     fn xkb_keysym_to_utf8(keysym: u32, buffer: *mut c_char, size: size_t) -> i32;
 
@@ -179,7 +182,7 @@ impl Keysym {
     /// ```
     pub fn from_name(name: &str, flags: NameFlags) -> Option<Keysym> {
         unsafe {
-            let c_name = name.as_ptr() as *const char;
+            let c_name = name.as_ptr() as *const c_char;
             let sym_val: u32 = xkb_keysym_from_name(c_name, flags);
             match sym_val {
                 0 => None,
