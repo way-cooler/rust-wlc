@@ -83,8 +83,7 @@
  * Author: Daniel Stone <daniel@fooishbar.org>
  */
 
-use std::ffi::{CStr};
-use libc;
+use libc::{c_char, size_t};
 // Keysym utils functions
 
 // An xkb keycode.
@@ -133,13 +132,13 @@ pub enum NameFlags {
     CaseInsensitive = 1
 }
 
-#[link(name = "libxkbcommon")]
+#[link(name = "xkbcommon")]
 extern "C" {
-    fn xkb_keysym_get_name(keysym: u32, buffer: *mut char, size: libc::size_t) -> i32;
+    fn xkb_keysym_get_name(keysym: u32, buffer: *mut c_char, size: size_t) -> i32;
 
     fn xkb_keysym_from_name(name: *const char, flags: NameFlags) -> u32;
 
-    fn xkb_keysym_to_utf8(keysym: u32, buffer: &mut char, size: libc::size_t) -> i32;
+    fn xkb_keysym_to_utf8(keysym: u32, buffer: *mut c_char, size: size_t) -> i32;
 
     fn xkb_keysym_to_utf32(keysym: u32) -> u32;
 }
@@ -177,7 +176,7 @@ impl Keysym {
     /// ```
     pub fn from_name(name: &str, flags: NameFlags) -> Option<Keysym> {
         unsafe {
-            let c_name = CStr::new(name).unwrap() as *mut char;
+            let c_name = name.as_ptr() as *const char;
             let sym_val: u32 = xkb_keysym_from_name(c_name, flags);
             match sym_val {
                 0 => None,
@@ -199,18 +198,13 @@ impl Keysym {
         // if get_name == -1 None
         // Convert buffer to String
         // The xkb documentation specifically recommends 7 as a buffer length
-        const BUFFER_LEN: usize = 64usize;
-        let buffer_vec: Vec<char> = Vec::with_capacity(BUFFER_LEN);
+        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(7);
         unsafe {
-            let mut buffer: &mut char = buffer_vec.as_mut_slice();
-            let length = xkb_keysym_get_name(self.0, buffer, BUFFER_LEN);
+            let buffer: *mut c_char = buffer_vec.as_mut_ptr();
+            let length = xkb_keysym_get_name(self.0, buffer, 7);
             match length {
                 -1 => None,
-                _ => {
-                    // Truncate buffer to = result!
-                    //
-                    str::from_utf8_lossy(buffer) // ?
-                }
+                _ => Some(super::pointer_to_string(buffer))
             }
         }
     }
@@ -220,21 +214,22 @@ impl Keysym {
         // create buffer
         // call to_utf8 with buffer
         // Convert buffer to String
-        const BUFFER_LEN: u64 = 7;
-        let buffer_vec: Vec<char> = Vec::with_capacity(BUFFER_LEN);
+        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(7);
         unsafe {
-            let mut buffer: &mut char = buffer_vec.as_mut_slice();
-            let result = xkb_keysym_get_name(self.0, buffer, BUFFER_LEN);
+            let buffer: *mut c_char = buffer_vec.as_mut_ptr();
+            let result = xkb_keysym_to_utf8(self.0, buffer, 7);
             match result {
                 -1 => None,
-                _ => str::from_utf8_lossy(buffer)
+                _ => Some(super::pointer_to_string(buffer))
             }
         }
     }
 
     /// Gets the Unicode/UTF32 representation of this keysym.
-    pub fn to_utf32() -> u32 {
-        0
+    pub fn to_utf32(&self) -> u32 {
+        unsafe {
+            xkb_keysym_to_utf32(self.0)
+        }
     }
 }
 
