@@ -210,7 +210,6 @@ impl WlcOutput {
         unsafe { wlc_output_set_mask(self.0, mask) }
     }
 
-    #[deprecated]
     /// # Deprecated
     /// This function is equivalent to simply calling get_views
     pub fn get_mutable_views(&self) -> Vec<WlcView> {
