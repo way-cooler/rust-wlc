@@ -169,10 +169,13 @@ impl Keysym {
     ///
     /// # Examples
     /// ```rust
-    /// let key_A = KeySym::from_name("A", KeyboardFlags::None);
-    /// let key_a = KeySym::from_name("a", KeyboardFlags::None);
-    /// let key_
-    /// assert!(key.is_valid() && key.get_name() == "A");
+    /// use rustwlc::xkb::{Keysym, NameFlags};
+    ///
+    /// let key_match_a = Keysym::from_name("a", NameFlags::None);
+    /// assert!(key_match_a.is_some());
+    ///
+    /// let key_a = key_match_a.unwrap();
+    /// assert!(key_a.is_valid());
     /// ```
     pub fn from_name(name: &str, flags: NameFlags) -> Option<Keysym> {
         unsafe {
@@ -189,8 +192,11 @@ impl Keysym {
     ///
     /// # Examples
     /// ```rust
-    /// let key = KeySym::from_name("A");
-    /// assert!(key.is_valid() && key.get_name() == "A");
+    /// use rustwlc::xkb::{Keysym, NameFlags};
+    ///
+    /// let key = Keysym::from_name("a", NameFlags::None).unwrap();
+    ///
+    /// assert_eq!(key.get_name(), Some("a".to_string()));
     /// ```
     pub fn get_name(&self) -> Option<String> {
         // create buffer
@@ -243,3 +249,4 @@ impl From<u32> for Keysym {
         Keysym(value)
     }
 }
+
