@@ -84,6 +84,7 @@
  */
 
 use std::ffi::{CStr};
+use libc;
 // Keysym utils functions
 
 // An xkb keycode.
@@ -136,7 +137,7 @@ pub enum NameFlags {
 extern "C" {
     fn xkb_keysym_get_name(keysym: u32, buffer: *mut char, size: libc::size_t) -> i32;
 
-    fn xkb_keysym_from_name(name: *const char, flags: KeyboardFlags) -> u32;
+    fn xkb_keysym_from_name(name: *const char, flags: NameFlags) -> u32;
 
     fn xkb_keysym_to_utf8(keysym: u32, buffer: &mut char, size: libc::size_t) -> i32;
 
@@ -146,8 +147,8 @@ extern "C" {
 impl Keysym {
 
     /// Whether this keysym is valid or is `XKB_KEY_NoSymbol`
-    pub fn is_valid(&self) {
-        return self.0 != 0 && self.0 != 0xffffffff;
+    pub fn is_valid(&self) -> bool {
+        self.0 != 0 && self.0 != 0xffffffff
     }
 
     /// Gets the Keysym for the given name.
@@ -174,9 +175,9 @@ impl Keysym {
     /// let key_
     /// assert!(key.is_valid() && key.get_name() == "A");
     /// ```
-    pub fn from_name(name: &str, flags: KeyboardFlags) -> Option<Keysym> {
+    pub fn from_name(name: &str, flags: NameFlags) -> Option<Keysym> {
         unsafe {
-            let c_name = Cstr::new(name).unwrap() as *const char;
+            let c_name = CStr::new(name).unwrap() as *mut char;
             let sym_val: u32 = xkb_keysym_from_name(c_name, flags);
             match sym_val {
                 0 => None,
@@ -215,17 +216,17 @@ impl Keysym {
     }
 
     /// Gets the Unicode/UTF8 representation of this keysym.
-    pub fn to_utf8() -> Option<String> {
+    pub fn to_utf8(&self) -> Option<String> {
         // create buffer
         // call to_utf8 with buffer
         // Convert buffer to String
-        const BUFFER_LEN: usize = 7usize;
+        const BUFFER_LEN: u64 = 7;
         let buffer_vec: Vec<char> = Vec::with_capacity(BUFFER_LEN);
         unsafe {
             let mut buffer: &mut char = buffer_vec.as_mut_slice();
             let result = xkb_keysym_get_name(self.0, buffer, BUFFER_LEN);
             match result {
-                -1: None,
+                -1 => None,
                 _ => str::from_utf8_lossy(buffer)
             }
         }
@@ -233,7 +234,17 @@ impl Keysym {
 
     /// Gets the Unicode/UTF32 representation of this keysym.
     pub fn to_utf32() -> u32 {
-        
+        0
     }
+}
 
+/// An error returned from attempting to crete a Keysym.
+///
+/// Returned by `Keysym::from()`, `Keysym::from_name()`
+pub struct KeysymParseError;
+
+impl From<u32> for Keysym {
+    fn from(value: u32) -> Self {
+        Keysym(value)
+    }
 }

@@ -17,6 +17,7 @@ pub mod interface;
 pub mod types;
 pub mod input;
 pub mod wayland;
+pub mod xkb;
 
 use types::LogType;
 use interface::WlcInterface;
