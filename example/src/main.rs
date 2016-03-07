@@ -158,7 +158,6 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
     let sym = input::keyboard::get_keysym_for_key(key, &mods.mods);
-    println!("{:?} {:?}", state, sym.get_name());
     if state == KeyState::Pressed {
         if mods.mods == MOD_CTRL {
             // Key Q
