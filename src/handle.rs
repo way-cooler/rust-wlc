@@ -148,6 +148,7 @@ impl WlcOutput {
     }
 
     /// Gets the name of the WlcOutput.
+    ///
     /// Names are usually assigned in the format WLC-n,
     /// where the first output is WLC-1.
     pub fn get_name(&self) -> String {
@@ -256,6 +257,8 @@ impl WlcView {
     ///
     /// # Example
     /// ```
+    /// use rustwlc::handle::WlcView;
+    ///
     /// let view = WlcView::root();
     /// assert!(view.is_root());
     /// ```
@@ -263,7 +266,7 @@ impl WlcView {
         WlcView(0)
     }
 
-    /// Gets whether this view is the root window (desktop background).
+    /// Whether this view is the root window (desktop background).
     pub fn is_root(&self) -> bool {
         self.0 == 0
     }
@@ -272,7 +275,7 @@ impl WlcView {
     ///
     /// For the main windows of most programs, this should close the program where applicable.
     ///
-    /// # Errors
+    /// # Behavior
     /// This function will not do anything if `view.is_root()`.
     pub fn close(&self) {
         if self.is_root() { return };
