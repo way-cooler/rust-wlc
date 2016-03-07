@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 #![allow(missing_docs)]
 #![allow(non_upper_case_globals)]
 
