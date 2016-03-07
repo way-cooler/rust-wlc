@@ -248,6 +248,8 @@ impl Keysym {
 pub struct KeysymParseError;
 
 impl From<u32> for Keysym {
+
+    #[inline]
     fn from(value: u32) -> Self {
         Keysym(value)
     }
