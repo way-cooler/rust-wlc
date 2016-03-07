@@ -164,14 +164,20 @@ impl WlcInterface {
     /// # Examples
     /// ```no_run
     /// # use rustwlc::handle::WlcOutput;
-    /// # let output_created_callback = extern "C" fn(handle: WlcOutput) -> bool { true };
+    /// # extern "C" fn output_created_callback(handle: WlcOutput) -> bool { true };
     /// use rustwlc::interface::WlcInterface;
+    ///
     /// // Assuming there exists an output_created_callback function...
-    /// let interface: WlcInterface::new()
-    ///      .output_created(output_created_callback);
-    /// // ...
-    /// rustwlc::init(interfcace);
-    /// rustlwc::run_wlc();
+    /// let interface = WlcInterface::new()
+    ///     .output_created(output_created_callback);
+    ///     // .more_callbacks() ...
+    ///
+    /// if let Some(run_wlc) = rustwlc::init(interface) {
+    ///     run_wlc();
+    /// }
+    /// else {
+    ///     panic!("Unable to initialize wlc!");
+    /// }
     /// ```
     pub fn new() -> WlcInterface {
         WlcInterface {
@@ -197,7 +203,9 @@ impl WlcInterface {
     /// Callback invoked when an output is created. Return `true` to allow the output to exist.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcOutput;
+    ///
     /// extern fn on_output_created(output: WlcOutput) -> bool {
     ///     println!("Output {} ({:?}) was created", output.get_name(), output);
     ///     return true;
@@ -212,7 +220,9 @@ impl WlcInterface {
     /// Callback invoked when an output is destroyed.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcOutput;
+    ///
     /// extern fn output_destroyed(output: WlcOutput) {
     ///     println!("Goodbye, {:?}", output);
     /// }
@@ -225,7 +235,9 @@ impl WlcInterface {
     /// Callback invoked when an output gains focus.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcOutput;
+    ///
     /// extern fn output_focus(output: WlcOutput, focused: bool) {
     ///     println!("Output {} {} focus", output.get_name(), if focused { "gained" } else { "lost" });
     /// }
@@ -238,7 +250,10 @@ impl WlcInterface {
     /// Callback invoked when an output's resolution changes.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcOutput;
+    /// use rustwlc::types::Size;
+    ///
     /// extern fn output_resolution(output: WlcOutput, old_size: &Size, new_size: &Size) {
     ///     println!("Output {} went from {} to {}", output.get_name(), old_size, new_size);
     /// }
@@ -267,7 +282,9 @@ impl WlcInterface {
     /// * Bring the view to the front
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    ///
     /// extern fn view_created(view: WlcView) -> bool {
     ///     println!("View \"{}\" was created ({:?})", view.get_class(), view);
     ///     view.set_mask(view.get_output().get_mask());
@@ -287,7 +304,9 @@ impl WlcInterface {
     /// some other view, i.e. the last one used.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    ///
     /// extern fn view_destroyed(view: WlcView) {
     ///     println!("Goodbye, {:?}", view);
     /// }
@@ -302,7 +321,10 @@ impl WlcInterface {
     /// The view's `ViewState::VIEW_ACTIVATED` bit should be set to true here.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::types::*;
+    ///
     /// extern fn view_focus(view: WlcView, focused: bool) {
     ///     println!("View {:?} is {} focus, updating...",
     ///               view, if focused { "in" } else { "out of" });
@@ -366,7 +388,10 @@ impl WlcInterface {
     /// documentation on the subject, it may not support your keyboard layout at the moment.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::types::{KeyboardModifiers, KeyState};
+    ///
     /// extern fn keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers,
     ///                        key: u32, state: KeyState) -> bool {
     ///     println!("Key {} {:?} on {:?} at {} with modifiers {:?}",
@@ -387,7 +412,10 @@ impl WlcInterface {
     /// window. Probper values for `button` can be found in `input.h` or a similar library/crate.
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::types::{KeyboardModifiers, ButtonState, Point};
+    ///
     /// extern fn pointer_button(view: WlcView, time: u32, mods: &KeyboardModifiers, button: u32,
     ///                          state: ButtonState, point: &Point) -> bool {
     ///     println!("Button {} {:?} at {} at {} in {:?}, keyboard mods: {:?}",
@@ -403,7 +431,7 @@ impl WlcInterface {
     /// Callback invoked on mouse scroll. Return `true` to block the scroll from the view.
     ///
     /// # Arguments
-    /// The first u32 is a tiemstamp, the amount is measured in scrollx and scrolly.
+    /// The first u32 is a timestamp, the amount is measured in scrollx and scrolly.
     pub fn pointer_scroll(mut self, func: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool) -> WlcInterface {
         self.pointer.scroll = Some(func); self
     }
@@ -413,11 +441,15 @@ impl WlcInterface {
     /// `rustwlc::input::pointer::set_position` must be invoked to actually move the cursor!
     ///
     /// # Example
-    /// ```
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::types::Point;
+    /// use rustwlc::input::pointer;
+    ///
     /// extern fn pointer_motion(view: WlcView, time: u32, point: &Point) -> bool {
     ///     println!("Pointer was moved to {} in {:?} at {}", point, view, time);
     ///     // This is very important.
-    ///     rustwlc::input::pointer::set_position(point);
+    ///     pointer::set_position(point);
     ///     return false;
     /// }
     /// # fn main() { }

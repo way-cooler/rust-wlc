@@ -4,6 +4,7 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
+Requires wlc more recent than [651ebc8](https://github.com/Cloudef/wlc/commit/651ebc8f7da750e77fd26f09182043e7e7c036c1) (add `wlc_view_get_visible_geometry`).
 ### Rust Example
 
 ```rust
@@ -65,7 +66,9 @@ If the documentation isn't clear enough or in the wrong places, please let us kn
 
 The callbacks registered from `WlcInterface` must be labeled `extern` (or `extern "C"`) because they are called from C code. In addition, as per the Rust spec, panicking from C is undefined behavior (although it's worked for us).
 
-You should be able to use our code without the need for `unsafe` blocks. One thing we found was that the callback structure necessitated the use of global mutable state, i.e. for the compositor to keep track of whether the user was resizing or not. See the example for details.
+Compositors using rust-wlc can do so without any `unsafe` code. The only exception to this is registering a callback for wlc's logging function exposed through  `rustwlc::log_set_handler` (the callback must take in a `*const libc::c_char`). We have provided a `println!`-powered default enabled with `rustwlc::log_set_default_handler()`.
+
+One thing we found was that the callback structure necessitated the use of global mutable state, i.e. for the compositor to keep track of whether the user was resizing or not. See the example for details.
 
 ## Contributing
 We accept pull requests! If you find a bug or would like to contribute (wlc isn't versioned, we may be a few commits behind their API) please submit an issue/pull request.
