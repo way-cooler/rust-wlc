@@ -176,7 +176,7 @@ impl Keysym {
     /// ```rust
     /// use rustwlc::xkb::{Keysym, NameFlags};
     ///
-    /// let key_match_a = Keysym::from_name("a", NameFlags::None);
+    /// let key_match_a = Keysym::from_name("a".to_string(), NameFlags::None);
     /// assert!(key_match_a.is_some());
     ///
     /// let key_a = key_match_a.unwrap();
@@ -199,7 +199,7 @@ impl Keysym {
     /// ```rust
     /// use rustwlc::xkb::{Keysym, NameFlags};
     ///
-    /// let key = Keysym::from_name("a", NameFlags::None).unwrap();
+    /// let key = Keysym::from_name("a".to_string(), NameFlags::None).unwrap();
     ///
     /// assert_eq!(key.get_name(), Some("a".to_string()));
     /// ```
@@ -218,10 +218,10 @@ impl Keysym {
 
     /// Gets the Unicode/UTF8 representation of this keysym.
     pub fn to_utf8(&self) -> Option<String> {
-        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(14);
+        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(64);
         unsafe {
             let buffer: *mut c_char = buffer_vec.as_mut_ptr();
-            let result = xkb_keysym_to_utf8(self.0, buffer, 14);
+            let result = xkb_keysym_to_utf8(self.0, buffer, 64);
             match result {
                 -1 => None,
                 _ => Some(super::pointer_to_string(buffer))
