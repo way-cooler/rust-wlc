@@ -8,32 +8,25 @@ fn sanity_test() {
     assert_eq!(1, 1);
 }
 
-fn name_and_get_name(name: &str) {
-    let name_string = name.to_string();
-    let sym = Keysym::from_name(name, NameFlags::None);
-    assert!(sym.is_some());
-    assert_eq!(sym.unwrap().get_name(), Some(name_string));
-}
-
 #[test]
-fn from_name_to_get_name() {
-    // TODO Implement this with a macro
-    name_and_get_name("a");
-    //name_and_get_name("b");
-    //name_and_get_name("c");
-    //name_and_get_name("d");
-    // name_and_get_name("e");
-    // name_and_get_name("f");
-    // name_and_get_name("g");
-    // name_and_get_name("h");
-    // name_and_get_name("i");
-    // name_and_get_name("j");
-    // name_and_get_name("k");
-    // name_and_get_name("l");
-    // name_and_get_name("m");
-    // name_and_get_name("n");
-    // name_and_get_name("o");
-    // name_and_get_name("p");
-    // name_and_get_name("q");
-    // name_and_get_name("r");
+fn from_name_get_name() {
+    // Test a small (but most likely to be used) subset of keysyms
+    let names = vec![
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+        "BackSpace", "Tab", "Return", "Escape", "Delete",
+        "Left", "Right", "Up", "Down", "Home", "End",
+        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
+        "Shift_L", "Shift_R", "Super_L", "Meta_R", "Caps_Lock",
+        "space", "exclam", "dollar", "ampersand", "apostrophe"
+        ];
+    for name in names {
+        let msym = Keysym::from_name(name.to_string(), NameFlags::None);
+        assert!(msym.is_some());
+        let sym = msym.unwrap();
+        assert!(sym.is_valid());
+        let mname = sym.get_name();
+        assert!(mname.is_some());
+        let sym_name = mname.unwrap();
+        assert_eq!(sym_name, name.to_string());
+    }
 }

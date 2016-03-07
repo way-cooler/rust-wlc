@@ -88,6 +88,7 @@ pub mod keysyms;
  */
 
 use libc::{c_char, size_t};
+use std::ffi::CString;
 // Keysym utils functions
 
 // An xkb keycode.
@@ -181,9 +182,9 @@ impl Keysym {
     /// let key_a = key_match_a.unwrap();
     /// assert!(key_a.is_valid());
     /// ```
-    pub fn from_name(name: &str, flags: NameFlags) -> Option<Keysym> {
+    pub fn from_name(name: String, flags: NameFlags) -> Option<Keysym> {
         unsafe {
-            let c_name = name.as_ptr() as *const c_char;
+            let c_name = CString::new(name).unwrap().as_ptr() as *const c_char;
             let sym_val: u32 = xkb_keysym_from_name(c_name, flags);
             match sym_val {
                 0 => None,
