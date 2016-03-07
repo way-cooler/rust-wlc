@@ -276,8 +276,35 @@ impl WlcView {
     }
 
     /// Whether this view is the root window (desktop background).
+    ///
+    /// # Example
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// # // This example can be run because WlcView::root() does not interact with wlc
+    /// let view = WlcView::root();
+    /// assert!(view.is_root());
+    /// ```
+    #[inline]
     pub fn is_root(&self) -> bool {
         self.0 == 0
+    }
+
+    /// Whether this view is not the root window (desktop background).
+    ///
+    /// # Usage
+    /// A convenience method, the opposite of `view.is_root()`.
+    ///
+    /// # Example
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    ///
+    /// let view = WlcView::root();
+    /// assert!(view.is_root());
+    /// assert!(!view.is_window());
+    /// ```
+    #[inline]
+    pub fn is_window(&self) -> bool {
+        self.0 != 0
     }
 
     /// Closes this view.
