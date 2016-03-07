@@ -5,7 +5,7 @@
 
 #[cfg(test)]
 mod tests;
-mod keysyms;
+pub mod keysyms;
 
 /*
  * Copyright 1985, 1987, 1990, 1998  The Open Group
