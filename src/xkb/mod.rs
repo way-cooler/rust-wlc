@@ -203,15 +203,11 @@ impl Keysym {
     /// assert_eq!(key.get_name(), Some("a".to_string()));
     /// ```
     pub fn get_name(&self) -> Option<String> {
-        // create buffer
-        // Call get_name with buffer
-        // if get_name == -1 None
-        // Convert buffer to String
-        // The xkb documentation specifically recommends 7 as a buffer length
-        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(7);
+        // The xkb documentation specifically recommends 64 as a buffer length
+        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(64);
         unsafe {
             let buffer: *mut c_char = buffer_vec.as_mut_ptr();
-            let length = xkb_keysym_get_name(self.0, buffer, 7);
+            let length = xkb_keysym_get_name(self.0, buffer, 64);
             match length {
                 -1 => None,
                 _ => Some(super::pointer_to_string(buffer))
@@ -221,13 +217,10 @@ impl Keysym {
 
     /// Gets the Unicode/UTF8 representation of this keysym.
     pub fn to_utf8(&self) -> Option<String> {
-        // create buffer
-        // call to_utf8 with buffer
-        // Convert buffer to String
-        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(7);
+        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(14);
         unsafe {
             let buffer: *mut c_char = buffer_vec.as_mut_ptr();
-            let result = xkb_keysym_to_utf8(self.0, buffer, 7);
+            let result = xkb_keysym_to_utf8(self.0, buffer, 14);
             match result {
                 -1 => None,
                 _ => Some(super::pointer_to_string(buffer))
