@@ -41,10 +41,11 @@ pub mod pointer {
 pub mod keyboard {
 //! Methods for interacting with the keyboard
     use super::super::types::{KeyMod};
+    use super::super::xkb::Keysym;
 
     /// Gets a keysym given a key and modifiers.
-    pub fn get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32 {
-        unsafe { super::wlc_keyboard_get_keysym_for_key(key, modifiers) }
+    pub fn get_keysym_for_key(key: u32, modifiers: &KeyMod) -> Keysym {
+        unsafe { Keysym::from(super::wlc_keyboard_get_keysym_for_key(key, modifiers)) }
     }
 
     /// Gets a UTF32 value for a given key and modifiers.
