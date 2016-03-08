@@ -4,7 +4,7 @@
 #![allow(improper_ctypes)]
 
 extern crate libc;
-use libc::{uintptr_t, c_char};
+use libc::{uintptr_t, c_char, c_void};
 
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
@@ -27,10 +27,9 @@ extern "C" {
 
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
-    //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
+    fn wlc_handle_get_user_data(handle: uintptr_t) -> *mut c_void;
 
-    // TODO need representation of userdata
-    //fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ?????) -> ();
+    fn wlc_handle_set_user_data(handle: uintptr_t, userdata: *const c_void);
 
     fn wlc_output_get_sleep(output: uintptr_t) -> bool;
 
@@ -128,6 +127,15 @@ impl WlcOutput {
     pub fn as_view(self) -> WlcView {
         return WlcView::from(self)
     }
+
+    /*
+    pub fn get_user_data<T>(&self) -> &mut T {
+        
+    }
+
+    pub fn set_user_data<T>(&self, T) {
+        
+    }*/
 
     /// Gets a list of the current outputs.
     pub fn list() -> Vec<WlcOutput> {
