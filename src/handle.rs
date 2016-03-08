@@ -27,6 +27,9 @@ extern "C" {
 
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
+    // Defined in wlc-render.h
+    fn wlc_output_schedule_render(output: uintptr_t);
+
     //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
 
     // TODO need representation of userdata
@@ -127,6 +130,15 @@ impl WlcOutput {
     /// a bug report.
     pub fn as_view(self) -> WlcView {
         return WlcView::from(self)
+    }
+
+    /// Schedules output for rendering next frame.
+    ///
+    /// If the output was already scheduled, this is
+    /// a no-op; if output is currently rendering,
+    /// it will render immediately after.
+    pub fn schedule_render(&self) {
+        unsafe { wlc_output_schedule_render(self.0) };
     }
 
     /// Gets a list of the current outputs.
