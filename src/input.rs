@@ -48,15 +48,11 @@ pub mod keyboard {
     use std::slice;
 
     /// Get currently held keys.
-    pub fn get_current_keys() -> Vec<u32> {
+    pub fn get_current_keys<'a>() -> &'a[u32] {
         let mut out_memb: size_t = 0;
         unsafe {
             let keys = super::wlc_keyboard_get_current_keys(&mut out_memb);
-            let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize) .. (out_memb as isize) {
-                result.push(*(keys.offset(index)));
-            }
-            result
+            return slice::from_raw_parts(keys, out_memb as usize);
         }
     }
 
