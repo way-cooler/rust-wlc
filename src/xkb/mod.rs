@@ -137,6 +137,25 @@ pub enum NameFlags {
     CaseInsensitive = 1
 }
 
+/// Opaque keyboard state object.
+///
+/// State objects contain the active state of a keyboard (or keyboards), such
+/// as the currently effective layout and the active modifiers.  It acts as a
+/// simple state machine, wherein key presses and releases are the input, and
+/// key symbols (keysyms) are the output.
+#[repr(C)]
+pub struct XKBState;
+
+/// Opaque compiled keymap object.
+///
+/// The keymap object holds all of the static keyboard information obtained
+/// from compiling XKB files.
+///
+/// A keymap is immutable after it is created (besides reference counts, etc.);
+/// if you need to change it, you must create a new one.
+#[repr(C)]
+pub struct XKBKeymap;
+
 #[link(name = "xkbcommon")]
 extern "C" {
     fn xkb_keysym_get_name(keysym: u32, buffer: *mut c_char, size: size_t) -> i32;
@@ -149,7 +168,6 @@ extern "C" {
 }
 
 impl Keysym {
-
     /// Whether this keysym is valid or is `XKB_KEY_NoSymbol`
     pub fn is_valid(&self) -> bool {
         self.0 != 0 && self.0 != 0xffffffff
