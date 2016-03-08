@@ -19,7 +19,7 @@ pub mod input;
 pub mod wayland;
 pub mod xkb;
 
-use types::LogType;
+use types::{BackendType, LogType};
 use interface::WlcInterface;
 
 // External WLC functions
@@ -34,6 +34,18 @@ extern "C" {
     fn wlc_terminate();
 
     fn wlc_log_set_handler(callback: extern "C" fn(log_type: LogType, text: *const libc::c_char));
+
+    fn wlc_get_backend_type() -> BackendType;
+}
+
+/// Query backend wlc is using.
+///
+/// # Results
+/// * None: Unknown backend type
+/// * DRM: "Direct Rendering Manager" - running on tty
+/// * X11: Running inside an X server
+pub fn get_backend_type() -> BackendType {
+    unsafe { wlc_get_backend_type() }
 }
 
 /// Initialize wlc with a `WlcInterface`.
