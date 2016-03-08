@@ -5,10 +5,12 @@
 #![allow(improper_ctypes)]
 
 use super::types::{KeyMod, Point};
+use libc::size_t;
 
 #[link(name = "wlc")]
 extern "C" {
-    // Keyboard functions
+    fn wlc_keyboard_get_current_keys(out_memb: *const size_t) -> *const u32;
+
     fn wlc_keyboard_get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32;
 
     fn wlc_keyboard_get_utf32_for_key(key: u32, modifiers: &KeyMod) -> u32;
@@ -42,6 +44,17 @@ pub mod keyboard {
 //! Methods for interacting with the keyboard
     use super::super::types::{KeyMod};
     use super::super::xkb::Keysym;
+    use libc::size_t;
+    use std::slice;
+
+    /// Get currently held keys.
+    pub fn get_current_keys<'a>() -> &'a[u32] {
+        let mut out_memb: size_t = 0;
+        unsafe {
+            let keys = super::wlc_keyboard_get_current_keys(&mut out_memb);
+            return slice::from_raw_parts(keys, out_memb as usize);
+        }
+    }
 
     /// Gets a keysym given a key and modifiers.
     pub fn get_keysym_for_key(key: u32, modifiers: &KeyMod) -> Keysym {
