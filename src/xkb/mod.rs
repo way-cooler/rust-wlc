@@ -168,7 +168,31 @@ extern "C" {
 }
 
 impl Keysym {
-    /// Whether this keysym is valid or is `XKB_KEY_NoSymbol`
+
+    /// Whether this keysym is a valid keysym.
+    ///
+    /// This checks whether the Keysym's value isn't `0` or `0xffffffff`.
+    ///
+    /// Tested on `libxkbcommon 0.5.0-1`, keysyms less than `0x20000000`
+    /// stopped having meaningful names (`.get_name()` returned `None`).
+    ///
+    /// # Validity
+    /// If a call to `Keysym::from_name(some_name)` returns a `Some(named_sym)`
+    /// , `named_sym.is_valid()` will return true.
+    ///
+    /// In general, whenever a Keysym `sym` passes `sym.is_valid()`,
+    /// `sym.get_name()` will be a `Some` (for keysyms less than 0x20000000).
+    ///
+    /// In addition, if `sym.get_name()` is a `Some(name)`,
+    /// `Keysym::from_name(name)` will also return a valid Keysym.
+    /// # Examples
+    /// ```rust
+    /// use rustwlc::xkb::Keysym;
+    ///
+    /// let sym = Keysym::from(0x41); // Something
+    /// assert!(sym.is_valid();
+    /// ```
+    #[inline]
     pub fn is_valid(&self) -> bool {
         self.0 != 0 && self.0 != 0xffffffff
     }
