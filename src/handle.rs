@@ -29,6 +29,9 @@ extern "C" {
 
     fn wlc_handle_get_user_data(handle: uintptr_t) -> *mut c_void;
 
+    // Defined in wlc-render.h
+    fn wlc_output_schedule_render(output: uintptr_t);
+
     fn wlc_handle_set_user_data(handle: uintptr_t, userdata: *const c_void);
 
     fn wlc_output_get_sleep(output: uintptr_t) -> bool;
@@ -128,6 +131,7 @@ impl WlcOutput {
         return WlcView::from(self)
     }
 
+<<<<<<< HEAD
     /*
     pub fn get_user_data<T>(&self) -> &mut T {
         
@@ -137,6 +141,17 @@ impl WlcOutput {
         
     }*/
 
+=======
+    /// Schedules output for rendering next frame.
+    ///
+    /// If the output was already scheduled, this is
+    /// a no-op; if output is currently rendering,
+    /// it will render immediately after.
+    pub fn schedule_render(&self) {
+        unsafe { wlc_output_schedule_render(self.0) };
+    }
+
+>>>>>>> master
     /// Gets a list of the current outputs.
     pub fn list() -> Vec<WlcOutput> {
         unsafe {
