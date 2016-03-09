@@ -197,6 +197,14 @@ impl Keysym {
         self.0 != 0 && self.0 != 0xffffffff
     }
 
+    /// Whether a Keysym is invalid.
+    ///
+    /// See `is_valid()`.
+    #[inline]
+    pub fn is_invalid(&self) -> bool {
+        self.0 == 0 || self.0 == 0xffffffff
+    }
+
     /// Gets the Keysym for the given name.
     ///
     /// # Arguments
