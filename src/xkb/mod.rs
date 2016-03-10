@@ -190,7 +190,7 @@ impl Keysym {
     /// use rustwlc::xkb::Keysym;
     ///
     /// let sym = Keysym::from(0x41); // Something
-    /// assert!(sym.is_valid();
+    /// assert!(sym.is_valid());
     /// ```
     #[inline]
     pub fn is_valid(&self) -> bool {
