@@ -1,5 +1,3 @@
-#![feature(convert)]
-
 use std::sync::RwLock;
 
 #[macro_use]
@@ -11,7 +9,6 @@ use rustwlc::*;
 use rustwlc::interface::*;
 use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
-use rustwlc::input::keyboard;
 use rustwlc::xkb::keysyms;
 
 use std::cmp;
