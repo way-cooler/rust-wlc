@@ -5,14 +5,14 @@ struct_lit_width = 50
 impl_empty_single_line = false
 
 fn_single_line = true
-fn_rgs_density = Compressed
+fn_rgs_density = "Compressed"
 
-struct_trailing_comma = Never
-struct_lit_trailing_comma = Never
+struct_trailing_comma = "Never"
+struct_lit_trailing_comma = "Never"
 enum_trailing_comma = false
 
-report_fixme = Always
+report_fixme = "Always"
 
 match_wildcard_trailing_comma = false
 
-write_mode = Overwrite
+write_mode = "Overwrite"
