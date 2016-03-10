@@ -4,7 +4,7 @@
 #![allow(improper_ctypes)]
 
 extern crate libc;
-use libc::{uintptr_t, c_char};
+use libc::{uintptr_t, c_char, c_void};
 
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
@@ -27,13 +27,12 @@ extern "C" {
 
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
+    fn wlc_handle_get_user_data(handle: uintptr_t) -> *mut c_void;
+
     // Defined in wlc-render.h
     fn wlc_output_schedule_render(output: uintptr_t);
 
-    //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
-
-    // TODO need representation of userdata
-    //fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ?????) -> ();
+    fn wlc_handle_set_user_data(handle: uintptr_t, userdata: *const c_void);
 
     fn wlc_output_get_sleep(output: uintptr_t) -> bool;
 
@@ -130,6 +129,38 @@ impl WlcOutput {
     /// a bug report.
     pub fn as_view(self) -> WlcView {
         return WlcView::from(self)
+    }
+
+    /// Gets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+        let raw_data = wlc_handle_get_user_data(self.0);
+        return &mut *(raw_data as *mut T);
+    }
+
+    /// Sets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn set_user_data<T>(&self, data: &T) {
+        let data_ptr: *const c_void = data as *const _ as *const c_void;
+        wlc_handle_set_user_data(self.0, data_ptr);
     }
 
     /// Schedules output for rendering next frame.
@@ -317,6 +348,38 @@ impl WlcView {
     #[inline]
     pub fn is_window(&self) -> bool {
         self.0 != 0
+    }
+
+    /// Gets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+        let raw_data = wlc_handle_get_user_data(self.0);
+        return &mut *(raw_data as *mut T);
+    }
+
+    /// Sets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn set_user_data<T>(&self, data: &T) {
+        let data_ptr: *const c_void = data as *const _ as *const c_void;
+        wlc_handle_set_user_data(self.0, data_ptr);
     }
 
     /// Closes this view.
