@@ -334,6 +334,22 @@ impl WlcView {
         self.0 != 0
     }
 
+    /// Gets user-specified data.
+    ///
+    /// This function is used by wlc itself and we can only
+    /// guarantee a `*mut c_void`. Use at your own risk.
+    pub unsafe fn get_user_data(&self) -> *mut c_void {
+        wlc_handle_get_user_data(self.0)
+    }
+
+    /// Sets user-specified data.
+    ///
+    /// This function is used by wlc itself and we can only
+    /// guarantee a `*mut c_void`. Use at your own risk.
+    pub unsafe fn set_user_data(&self, data: *const c_void) {
+        wlc_handle_set_user_data(self.0, data);
+    }
+
     /// Closes this view.
     ///
     /// For the main windows of most programs, this should close the program where applicable.
