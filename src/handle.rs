@@ -4,10 +4,10 @@
 #![allow(improper_ctypes)]
 
 extern crate libc;
-use libc::{uintptr_t, c_char};
+use libc::{uintptr_t, c_char, c_void};
 
 use super::pointer_to_string;
-use super::types::{Geometry, ResizeEdge, Size, ViewType, ViewState};
+use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -27,10 +27,12 @@ extern "C" {
 
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
-    //fn wlc_handle_get_user_data(handle: WlcHandle) -> ();
+    fn wlc_handle_get_user_data(handle: uintptr_t) -> *mut c_void;
 
-    // TODO need representation of userdata
-    //fn wlc_handle_set_user_data(handle: WlcHandle, userdata: ?????) -> ();
+    // Defined in wlc-render.h
+    fn wlc_output_schedule_render(output: uintptr_t);
+
+    fn wlc_handle_set_user_data(handle: uintptr_t, userdata: *const c_void);
 
     fn wlc_output_get_sleep(output: uintptr_t) -> bool;
 
@@ -49,9 +51,6 @@ extern "C" {
 
     fn wlc_output_get_views(output: uintptr_t,
                             out_memb: *mut libc::size_t) -> *const uintptr_t;
-
-    fn  wlc_output_get_mutable_views(output: uintptr_t,
-                                     out_memb: *mut libc::size_t) -> *mut uintptr_t;
 
     fn wlc_output_set_views(output: uintptr_t, views: *const uintptr_t, memb: libc::size_t) -> bool;
 
@@ -82,6 +81,8 @@ extern "C" {
     fn wlc_view_set_mask(view: uintptr_t, mask: u32);
 
     fn wlc_view_get_geometry(view: uintptr_t) -> *const Geometry;
+
+    fn wlc_view_get_visible_geometry(view: uintptr_t, geo: *mut Geometry);
 
     fn wlc_view_set_geometry(view: uintptr_t, edges: u32, geo: *const Geometry);
 
@@ -130,11 +131,55 @@ impl WlcOutput {
         return WlcView::from(self)
     }
 
+    /// Gets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+        let raw_data = wlc_handle_get_user_data(self.0);
+        return &mut *(raw_data as *mut T);
+    }
+
+    /// Sets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn set_user_data<T>(&self, data: &T) {
+        let data_ptr: *const c_void = data as *const _ as *const c_void;
+        wlc_handle_set_user_data(self.0, data_ptr);
+    }
+
+    /// Schedules output for rendering next frame.
+    ///
+    /// If the output was already scheduled, this is
+    /// a no-op; if output is currently rendering,
+    /// it will render immediately after.
+    pub fn schedule_render(&self) {
+        unsafe { wlc_output_schedule_render(self.0) };
+    }
+
     /// Gets a list of the current outputs.
     pub fn list() -> Vec<WlcOutput> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let outputs = wlc_get_outputs(&mut out_memb);
+            if outputs.is_null() {
+                return Vec::new();
+            }
             let mut result = Vec::with_capacity(out_memb);
             for index in (0 as isize) .. (out_memb as isize) {
                 result.push(WlcOutput(*(outputs.offset(index))));
@@ -149,6 +194,7 @@ impl WlcOutput {
     }
 
     /// Gets the name of the WlcOutput.
+    ///
     /// Names are usually assigned in the format WLC-n,
     /// where the first output is WLC-1.
     pub fn get_name(&self) -> String {
@@ -184,11 +230,17 @@ impl WlcOutput {
 
     /// Get views in stack order.
     ///
-    /// Returned array is a direct refeferemce, for a mutable version, see `get_mutable_views`.
+    /// This is mainly useful for wm's who need another view stack for inplace sorting.
+    /// For example tiling wms, may want to use this to keep their tiling order separated
+    /// from floating order.
+    /// This handles `wlc_output_get_views` and `wlc_output_get_mutable_views`.
     pub fn get_views(&self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self.0, &mut out_memb);
+            if views.is_null() {
+                return Vec::new();
+            }
             let mut result = Vec::with_capacity(out_memb);
 
             for index in (0 as isize) .. (out_memb as isize) {
@@ -208,34 +260,24 @@ impl WlcOutput {
         unsafe { wlc_output_set_mask(self.0, mask) }
     }
 
-    /// Get mutable views in creation order.
-    /// This is mainly useful for wm's who need another view stack for inplace sorting.
-    /// For example tiling wms, may want to use this to keep their tiling order separated
-    /// from floating order.
-
-    /// # Safety
-    /// Returned array is a direct reference.
+    /// # Deprecated
+    /// This function is equivalent to simply calling get_views
     pub fn get_mutable_views(&self) -> Vec<WlcView> {
-        unsafe {
-            let mut out_memb: libc::size_t = 0;
-            let views = wlc_output_get_mutable_views(self.0, &mut out_memb);
-            let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize) .. (out_memb as isize) {
-                result.push(WlcView(*(views.offset(index))));
-            }
-            result
-        }
+        self.get_views()
     }
 
     /// Attempts to set the views of a given output.
     ///
     /// Returns true if the operation succeeded.
-    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> bool {
-        unsafe {
+    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> Result<(), &'static str> {
             let view_len = views.len() as libc::size_t;
             let view_vals: Vec<uintptr_t> = views.into_iter().map(|v| v.0).collect();
             let const_views = view_vals.as_ptr();
-            return wlc_output_set_views(self.0, const_views, view_len);
+        unsafe {
+            match wlc_output_set_views(self.0, const_views, view_len) {
+                true => Ok(()),
+                false => Err("Could not set views on output"),
+            }
         }
     }
 
@@ -267,6 +309,8 @@ impl WlcView {
     ///
     /// # Example
     /// ```
+    /// use rustwlc::handle::WlcView;
+    ///
     /// let view = WlcView::root();
     /// assert!(view.is_root());
     /// ```
@@ -274,16 +318,75 @@ impl WlcView {
         WlcView(0)
     }
 
-    /// Gets whether this view is the root window (desktop background).
+    /// Whether this view is the root window (desktop background).
+    ///
+    /// # Example
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// # // This example can be run because WlcView::root() does not interact with wlc
+    /// let view = WlcView::root();
+    /// assert!(view.is_root());
+    /// ```
+    #[inline]
     pub fn is_root(&self) -> bool {
         self.0 == 0
+    }
+
+    /// Whether this view is not the root window (desktop background).
+    ///
+    /// # Usage
+    /// A convenience method, the opposite of `view.is_root()`.
+    ///
+    /// # Example
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    ///
+    /// let view = WlcView::root();
+    /// assert!(view.is_root());
+    /// assert!(!view.is_window());
+    /// ```
+    #[inline]
+    pub fn is_window(&self) -> bool {
+        self.0 != 0
+    }
+
+    /// Gets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+        let raw_data = wlc_handle_get_user_data(self.0);
+        return &mut *(raw_data as *mut T);
+    }
+
+    /// Sets user-specified data.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn set_user_data<T>(&self, data: &T) {
+        let data_ptr: *const c_void = data as *const _ as *const c_void;
+        wlc_handle_set_user_data(self.0, data_ptr);
     }
 
     /// Closes this view.
     ///
     /// For the main windows of most programs, this should close the program where applicable.
     ///
-    /// # Errors
+    /// # Behavior
     /// This function will not do anything if `view.is_root()`.
     pub fn close(&self) {
         if self.is_root() { return };
@@ -343,10 +446,24 @@ impl WlcView {
     }
 
     /// Gets the geometry of the view.
-    pub fn get_geometry(&self) -> &Geometry {
+    pub fn get_geometry(&self) -> Option<&Geometry> {
         unsafe {
-            &*wlc_view_get_geometry(self.0)
+            let geometry = wlc_view_get_geometry(self.0);
+            if geometry.is_null() {
+                None
+            } else {
+                Some(&*geometry)
+            }
         }
+    }
+
+    /// Gets the geometry of the view (that wlc displays).
+    pub fn get_visible_geometry(&self) -> Geometry {
+        let mut geo = Geometry { origin: Point { x: 0, y: 0}, size: Size { w: 0, h: 0 }};
+        unsafe {
+            wlc_view_get_visible_geometry(self.0, &mut geo);
+        }
+        return geo;
     }
 
     /// Sets the geometry of the view.

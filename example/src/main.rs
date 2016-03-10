@@ -9,7 +9,7 @@ use rustwlc::*;
 use rustwlc::interface::*;
 use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
-use rustwlc::input::keyboard;
+use rustwlc::xkb::keysyms;
 
 use std::cmp;
 
@@ -17,13 +17,6 @@ struct Compositor {
     pub view: Option<WlcView>,
     pub grab: Point,
     pub edges: ResizeEdge
-}
-
-enum KeySym {
-    KeyQ = 0x0071,
-    KeyDown = 0xff54,
-    KeyEsc = 0xff1b,
-    KeyReturn = 0xff0d
 }
 
 lazy_static! {
@@ -52,7 +45,10 @@ fn start_interactive_move(view: &WlcView, origin: &Point) {
 }
 
 fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
-    let geometry = view.get_geometry();
+    let geometry = match view.get_geometry() {
+        None => { return; }
+        Some(g) => g,
+    };
 
     if !start_interactive_action(view, origin) {
         return;
@@ -161,26 +157,26 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
 
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
-    let sym = keyboard::get_keysym_for_key(key, &MOD_NONE);
+    let sym = input::keyboard::get_keysym_for_key(key, &mods.mods);
     if state == KeyState::Pressed {
         if mods.mods == MOD_CTRL {
             // Key Q
-            if sym == KeySym::KeyQ as u32 {
+            if sym == keysyms::KEY_q {
                 if !view.is_root() {
                     view.close();
                 }
                 return true;
             // Down key
-            } else if sym == KeySym::KeyDown as u32 {
+            } else if sym == keysyms::KEY_Down {
                 view.send_to_back();
                 get_topmost_view(&view.get_output(), 0).unwrap().focus();
                 return true;
             // Esc Key
-            } else if sym == KeySym::KeyEsc as u32 {
+            } else if sym == keysyms::KEY_Escape {
                 terminate();
                 return true;
             // Return key
-            } else if sym == KeySym::KeyReturn as u32 { // Execute order 66
+            } else if sym == keysyms::KEY_Return {
                 let _ = Command::new("sh")
                                 .arg("-c")
                                 .arg("/usr/bin/weston-terminal || echo a").spawn()
@@ -225,7 +221,7 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
         if let Some(ref view) = comp.view {
                 let dx = point.x - comp.grab.x;
                 let dy = point.y - comp.grab.y;
-                let mut geo = view.get_geometry().clone();
+                let mut geo = view.get_geometry().unwrap().clone();
                 if comp.edges.bits() != 0 {
                     let min = Size { w: 80u32, h: 40u32};
                     let mut new_geo = geo.clone();
