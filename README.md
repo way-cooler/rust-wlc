@@ -1,5 +1,5 @@
 # rust-wlc
-[![Crates.io](https://img.shields.io/badge/crates.io-v0.1.0-orange.svg)](https://crates.io/crate/rustwlc)
+[![Crates.io](https://img.shields.io/badge/crates.io-v0.2.0-orange.svg)](https://crates.io/crate/rustwlc)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Immington-Industries/rust-wlc/)
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
@@ -41,7 +41,7 @@ fn main() {
 We're on [crates.io](https://crates.io/crates/rustwlc), so to use the library simply add:
 ```toml
 [depdenencies]
-rustwlc = "0.1.0"
+rustwlc = "0.2.0"
 ```
 to your Cargo.toml.
 
