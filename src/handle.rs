@@ -131,14 +131,21 @@ impl WlcOutput {
         return WlcView::from(self)
     }
 
-    /*
-    pub fn get_user_data<T>(&self) -> &mut T {
-        
+    /// Gets user-specified data.
+    ///
+    /// This function is used by wlc itself and we can only
+    /// guarantee a `*mut c_void`. Use at your own risk.
+    pub unsafe fn get_user_data(&self) -> *mut c_void {
+        wlc_handle_get_user_data(self.0)
     }
 
-    pub fn set_user_data<T>(&self, T) {
-        
-    }*/
+    /// Sets user-specified data.
+    ///
+    /// This function is used by wlc itself and we can only
+    /// guarantee a `*mut c_void`. Use at your own risk.
+    pub unsafe fn set_user_data(&self, data: *const c_void) {
+        wlc_handle_set_user_data(self.0, data);
+    }
 
     /// Schedules output for rendering next frame.
     ///
