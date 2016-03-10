@@ -62,13 +62,11 @@ $ cargo doc
 If the documentation isn't clear enough or in the wrong places, please let us know.
 
 ### Safety
-`rust-wlc` is written to be a clean Rust wrapper around wlc. While we've taken the liberty to make the code more Rust-friendly (such as creating instance methods for `WlcView` and `WlcOutput`) we did not try to extend wlc itself. 
+`rust-wlc` is written to be a clean Rust wrapper around wlc. While we've taken the liberty to make the code more Rust-friendly (such as creating instance methods for `WlcView` and `WlcOutput`), but we did not try to extend wlc itself. 
 
 The callbacks registered from `WlcInterface` must be labeled `extern` (or `extern "C"`) because they are called from C code. In addition, as per the Rust spec, panicking from C is undefined behavior (although it's worked for us).
 
-Compositors using rust-wlc can do so without any `unsafe` code. The only exception to this is registering a callback for wlc's logging function exposed through  `rustwlc::log_set_handler` (the callback must take in a `*const libc::c_char`). We have provided a `println!`-powered default enabled with `rustwlc::log_set_default_handler()`.
-
-One thing we found was that the callback structure necessitated the use of global mutable state, i.e. for the compositor to keep track of whether the user was resizing or not. See the example for details.
+Compositors using rust-wlc can do so without any `unsafe` code. The only exception to this is registering a callback for wlc's logging function exposed through  `rustwlc::log_set_handler` (the callback must take in a `*const libc::c_char`). We have provided a `println!`-powered default enabled with `rustwlc::log_set_default_handler()`. In addition, the methods `get_user_data` and `set_user_data` in `WlcView` and `WlcOutput` are unsafe because they use C raw types (`void*`) underneath, and proper usage requires a deeper understanding of wlc itself.
 
 ## Contributing
 We accept pull requests! If you find a bug or would like to contribute (wlc isn't versioned, we may be a few commits behind their API) please submit an issue/pull request.
