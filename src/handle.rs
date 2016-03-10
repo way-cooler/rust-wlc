@@ -133,18 +133,34 @@ impl WlcOutput {
 
     /// Gets user-specified data.
     ///
-    /// This function is used by wlc itself and we can only
-    /// guarantee a `*mut c_void`. Use at your own risk.
-    pub unsafe fn get_user_data(&self) -> *mut c_void {
-        wlc_handle_get_user_data(self.0)
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+        let raw_data = wlc_handle_get_user_data(self.0);
+        return &mut *(raw_data as *mut T);
     }
 
     /// Sets user-specified data.
     ///
-    /// This function is used by wlc itself and we can only
-    /// guarantee a `*mut c_void`. Use at your own risk.
-    pub unsafe fn set_user_data(&self, data: *const c_void) {
-        wlc_handle_set_user_data(self.0, data);
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn set_user_data<T>(&self, data: &T) {
+        let data_ptr: *const c_void = data as *const _ as *const c_void;
+        wlc_handle_set_user_data(self.0, data_ptr);
     }
 
     /// Schedules output for rendering next frame.
@@ -336,18 +352,34 @@ impl WlcView {
 
     /// Gets user-specified data.
     ///
-    /// This function is used by wlc itself and we can only
-    /// guarantee a `*mut c_void`. Use at your own risk.
-    pub unsafe fn get_user_data(&self) -> *mut c_void {
-        wlc_handle_get_user_data(self.0)
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+        let raw_data = wlc_handle_get_user_data(self.0);
+        return &mut *(raw_data as *mut T);
     }
 
     /// Sets user-specified data.
     ///
-    /// This function is used by wlc itself and we can only
-    /// guarantee a `*mut c_void`. Use at your own risk.
-    pub unsafe fn set_user_data(&self, data: *const c_void) {
-        wlc_handle_set_user_data(self.0, data);
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers
+    /// for raw C data. This function will internaly do a conversion
+    /// between the input `T` and a `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As
+    /// such, usage of these functions requires an understanding of
+    /// what data they will have. Please review wlc's usage of these
+    /// functions before attempting to use them yourself.
+    pub unsafe fn set_user_data<T>(&self, data: &T) {
+        let data_ptr: *const c_void = data as *const _ as *const c_void;
+        wlc_handle_set_user_data(self.0, data_ptr);
     }
 
     /// Closes this view.
