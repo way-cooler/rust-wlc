@@ -1,9 +1,6 @@
 //! Contains callback-holding struct `WlcInterface` which is used
 //! to initialize wlc.
 
-// We get warnings on WlcInterface. It has a #[repr(C)] on it...
-#![allow(improper_ctypes)]
-
 extern crate libc;
 
 use std::option::Option;
