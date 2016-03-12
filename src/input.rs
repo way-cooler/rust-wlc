@@ -1,9 +1,6 @@
 //! Contains methods for interacting with the pointer
 //! and keyboard of wlc.
 
-// We get warnings for &Keymod, which uses bitflags.
-#![allow(improper_ctypes)]
-
 use super::types::{KeyMod, Point};
 use libc::size_t;
 

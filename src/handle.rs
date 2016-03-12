@@ -1,8 +1,5 @@
 //! Contains definitions for wlc handle types.
 
-// We get warnings for the bitflags, which are described in the crate as C-safe...
-#![allow(improper_ctypes)]
-
 extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
