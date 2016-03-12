@@ -137,8 +137,13 @@ bitflags! {
         const NUM_LOCK = 1,
         /// Caps lock is pressed
         const CAPS_LOCK = 2,
-        /// Scroll lock is pressed
-        const SCROL_LLOCK = 4
+        /// Original typo of SCROLL_LOCK
+        ///
+        /// # Deprecated
+        /// Please use SCROLL_LOCK instead.
+        const SCROL_LLOCK = 4,
+        /// Scroll lock key is being pressed.
+        const SCROLL_LOCK = 4
     }
 }
 
