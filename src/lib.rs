@@ -1,7 +1,6 @@
-#![warn(missing_docs)]
-
 //! Module defining main wlc functions.
-#![allow(improper_ctypes)] // We get warnings on WlcInterface
+
+#![warn(missing_docs)]
 
 extern crate libc;
 
@@ -24,9 +23,13 @@ use interface::WlcInterface;
 
 // External WLC functions
 #[link(name = "wlc")]
+#[allow(improper_ctypes)] // Because the annotation on wlc_init wasn't enough
 extern "C" {
     fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
 
+    // This is giving us a "found zero-size struct in foreign module" for the WlcInterface.
+    // The interface itself has a #[repr(C)] and builds fine...
+    #[allow(improper_ctypes)]
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *mut libc::c_char) -> bool;
 
     fn wlc_run();
