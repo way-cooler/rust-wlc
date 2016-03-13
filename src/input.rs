@@ -45,12 +45,10 @@ pub mod keyboard {
     use std::slice;
 
     /// Get currently held keys.
+    /// # Panics
+    /// All the time, this function hasn't been implemented yet
     pub fn get_current_keys<'a>() -> &'a[u32] {
-        let mut out_memb: size_t = 0;
-        unsafe {
-            let keys = super::wlc_keyboard_get_current_keys(&mut out_memb);
-            return slice::from_raw_parts(keys, out_memb as usize);
-        }
+        unimplemented!();
     }
 
     /// Gets a keysym given a key and modifiers.
