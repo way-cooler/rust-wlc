@@ -2,11 +2,10 @@
 //! and keyboard of wlc.
 
 use super::types::{KeyMod, Point};
-use libc::size_t;
 
 #[link(name = "wlc")]
 extern "C" {
-    fn wlc_keyboard_get_current_keys(out_memb: *const size_t) -> *const u32;
+    //fn wlc_keyboard_get_current_keys(out_memb: *const size_t) -> *const u32;
 
     fn wlc_keyboard_get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32;
 
@@ -41,8 +40,6 @@ pub mod keyboard {
 //! Methods for interacting with the keyboard
     use super::super::types::{KeyMod};
     use super::super::xkb::Keysym;
-    use libc::size_t;
-    use std::slice;
 
     /// Get currently held keys.
     /// # Panics
