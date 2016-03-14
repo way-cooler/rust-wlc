@@ -457,7 +457,11 @@ impl WlcInterface {
 
     /// Callback invoked on touchscreen touch. Return `true` to block the touch from the view.
     ///
-    /// If you have a touchscreen, please tell us what `slot` means.
+    /// # Arguments
+    /// * `mods`: Which keyboard modifiers are being pressed during the event
+    /// * `touch`: What kind of event it is (a touch down, a frame being made, a touch release). In the case of `TouchType::Frame`, `slot` and `point` will both be zero.
+    /// * `slot`: Which finger - in cases of multiple touches down - is causing the event
+    /// * `point`: Where the touch event happened
     pub fn touch_touch(mut self, func: extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers, touch: TouchType, slot: i32, point: &Point) -> bool) -> WlcInterface {
         self.touch.touch = Some(func); self
     }
