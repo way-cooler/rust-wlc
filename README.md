@@ -1,7 +1,7 @@
 # rust-wlc
 
 [![Join the chat at https://gitter.im/Immington-Industries/rust-wlc](https://badges.gitter.im/Immington-Industries/rust-wlc.svg)](https://gitter.im/Immington-Industries/rust-wlc?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Crates.io](https://img.shields.io/badge/crates.io-v0.2.0-orange.svg)](https://crates.io/crate/rustwlc)
+[![Crates.io](https://img.shields.io/badge/crates.io-v0.2.1-orange.svg)](https://crates.io/crate/rustwlc)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Immington-Industries/rust-wlc/)
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
@@ -43,7 +43,7 @@ fn main() {
 We're on [crates.io](https://crates.io/crates/rustwlc), so to use the library simply add:
 ```toml
 [depdenencies]
-rustwlc = "0.2.0"
+rustwlc = "0.2.1"
 ```
 to your Cargo.toml.
 
@@ -54,7 +54,7 @@ If you are looking to use a custom version of wlc (to ensure compatiblity by bui
 So if you wlc install is at `/opt/wlc`, then the full path will probably be `/opt/wlc/target/src`. Notice that we only include the directory that containts the .so, not the .so itself. For more information on using DLLs in Linux, see [this link](http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html#AEN77).
 
 ### Documentation
-At the moment, we have Cargo documentation hosted at our github.io site [here](http://immington-industries.github.io). 
+At the moment, we have Cargo documentation hosted at [our github.io site](http://immington-industries.github.io). 
 You can also generate it with cargo doc:
 ```shell
 $ git clone "https://github.com/ImmingtonIndustries/rust-wlc.git"
