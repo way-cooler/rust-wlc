@@ -85,8 +85,8 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
 /// Runs wlc's event loop.
 ///
 /// The initialize functions will return this function in an Option.
-/// If and only if they succeed can this function be called wlc with `rustwlc::init` call this method
-/// to being wlc's main event loop.
+/// If and only if they succeed can this function be called wlc with
+/// `rustwlc::init` call this method to being wlc's main event loop.
 fn run_wlc() {
     unsafe {
         wlc_run();
@@ -135,8 +135,8 @@ pub fn terminate() {
 /// to convert it to a Rust String.
 ///
 /// # Safety
-/// The callback function (like other callbacks in `rustwlc`) must be marked as extern as it is called
-/// from C code.
+/// The callback function (like other callbacks in `rustwlc`) must be marked as extern,
+/// as it is called from C code.
 ///
 /// In addition, `unsafe` will be required to convert the text into a Rust String.
 #[allow(dead_code)]

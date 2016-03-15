@@ -43,9 +43,6 @@ extern "C" {
 
     fn wlc_output_set_mask(output: uintptr_t, mask: u32);
 
-    // TODO tricky definition here
-    //fn wlc_output_get_pixels(output: WlcHandle) -> ();
-
     fn wlc_output_get_views(output: uintptr_t,
                             out_memb: *mut libc::size_t) -> *const uintptr_t;
 
@@ -125,7 +122,7 @@ impl WlcOutput {
     /// this function could be called. If this is the case please submit
     /// a bug report.
     pub fn as_view(self) -> WlcView {
-        return WlcView::from(self)
+        WlcView::from(self)
     }
 
     /// Gets user-specified data.
@@ -386,7 +383,7 @@ impl WlcView {
     /// # Behavior
     /// This function will not do anything if `view.is_root()`.
     pub fn close(&self) {
-        if self.is_root() { return };
+        if self.is_root() { return; }
         unsafe { wlc_view_close(self.0); }
     }
 
@@ -480,7 +477,6 @@ impl WlcView {
         unsafe { wlc_view_set_type(self.0, view_type, toggle); }
     }
 
-    // TODO get bitflags enums
     /// Get the current ViewState bitfield.
     pub fn get_state(&self) -> ViewState {
         unsafe { wlc_view_get_state(self.0) }

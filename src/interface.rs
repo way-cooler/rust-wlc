@@ -155,6 +155,8 @@ pub struct InputInterface {
     pub destroyed: Option<extern "C" fn(device: &LibinputDevice)>
 }
 
+// Running rustfmt on this makes it needlessly long.
+#[cfg_attr(rustfmt, rustfmt_skip)]
 impl WlcInterface {
     /// Creates a new WlcInterface builder that can have callbacks added.
     ///
@@ -236,11 +238,13 @@ impl WlcInterface {
     /// use rustwlc::handle::WlcOutput;
     ///
     /// extern fn output_focus(output: WlcOutput, focused: bool) {
-    ///     println!("Output {} {} focus", output.get_name(), if focused { "gained" } else { "lost" });
+    ///     println!("Output {} {} focus", output.get_name(),
+    ///                                    if focused { "gained" } else { "lost" });
     /// }
     /// # fn main() { }
     /// ```
-    pub fn output_focus(mut self, func: extern "C" fn(output: WlcOutput, focused: bool)) -> WlcInterface {
+    pub fn output_focus(mut self,
+                        func: extern "C" fn(output: WlcOutput, focused: bool)) -> WlcInterface {
         self.output.focus = Some(func); self
     }
 
@@ -256,8 +260,8 @@ impl WlcInterface {
     /// }
     /// # fn main() { }
     /// ```
-    pub fn output_resolution(mut self,func: extern "C" fn(output: WlcOutput,
-                                                old_size: &Size, new_size: &Size)) -> WlcInterface {
+    pub fn output_resolution(mut self, func: extern "C" fn(output: WlcOutput,
+                                               old_size: &Size, new_size: &Size)) -> WlcInterface {
         self.output.resolution = Some(func); self
     }
 
@@ -421,7 +425,10 @@ impl WlcInterface {
     /// }
     /// # fn main() { }
     /// ```
-    pub fn pointer_button(mut self, func: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, button: u32, state: ButtonState, point: &Point) -> bool) -> WlcInterface {
+    pub fn pointer_button(mut self, func: extern "C" fn(view: WlcView, time: u32,
+                                                        mods: &KeyboardModifiers, button: u32,
+                                                        state: ButtonState, point: &Point) -> bool)
+                          -> WlcInterface {
         self.pointer.button = Some(func); self
     }
 
@@ -429,7 +436,9 @@ impl WlcInterface {
     ///
     /// # Arguments
     /// The first u32 is a timestamp, the amount is measured in scrollx and scrolly.
-    pub fn pointer_scroll(mut self, func: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool) -> WlcInterface {
+    pub fn pointer_scroll(mut self, func: extern "C" fn(view: WlcView, time: u32,
+                                                        mods: &KeyboardModifiers, axis: ScrollAxis,
+                                                        amount: [u64; 2]) -> bool) -> WlcInterface {
         self.pointer.scroll = Some(func); self
     }
 
@@ -451,7 +460,9 @@ impl WlcInterface {
     /// }
     /// # fn main() { }
     /// ```
-    pub fn pointer_motion(mut self, func: extern "C" fn(view: WlcView, time: u32, point: &Point) -> bool) -> WlcInterface {
+    pub fn pointer_motion(mut self, func: extern "C" fn(view: WlcView,
+                                                        time: u32,
+                                                        point: &Point) -> bool) -> WlcInterface {
         self.pointer.motion = Some(func); self
     }
 
@@ -459,10 +470,14 @@ impl WlcInterface {
     ///
     /// # Arguments
     /// * `mods`: Which keyboard modifiers are being pressed during the event
-    /// * `touch`: What kind of event it is (a touch down, a frame being made, a touch release). In the case of `TouchType::Frame`, `slot` and `point` will both be zero.
+    /// * `touch`: What kind of event it is (a touch down, a frame being made, a touch release).
+    /// In the case of `TouchType::Frame`, `slot` and `point` will both be zero.
     /// * `slot`: Which finger - in cases of multiple touches down - is causing the event
     /// * `point`: Where the touch event happened
-    pub fn touch_touch(mut self, func: extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers, touch: TouchType, slot: i32, point: &Point) -> bool) -> WlcInterface {
+    pub fn touch_touch(mut self, func: extern "C" fn(handle: WlcView, time: u32,
+                                                     mods: &KeyboardModifiers, touch: TouchType,
+                                                     slot: i32, point: &Point) -> bool)
+                       -> WlcInterface {
         self.touch.touch = Some(func); self
     }
 

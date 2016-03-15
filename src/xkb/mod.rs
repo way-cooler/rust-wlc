@@ -3,6 +3,7 @@
 //! We do not wrap the full funcionality of xkb, as wlc handles
 //! most of the setup.
 
+#![cfg_attr(rustfmt, rustfmt_skip)] // Don't touch the pasted in copyright information
 #[cfg(test)]
 mod tests;
 pub mod keysyms;
