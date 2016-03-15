@@ -5,7 +5,7 @@ use super::types::{KeyMod, Point};
 
 #[link(name = "wlc")]
 extern "C" {
-    //fn wlc_keyboard_get_current_keys(out_memb: *const size_t) -> *const u32;
+    // fn wlc_keyboard_get_current_keys(out_memb: *const size_t) -> *const u32;
 
     fn wlc_keyboard_get_keysym_for_key(key: u32, modifiers: &KeyMod) -> u32;
 
@@ -18,8 +18,8 @@ extern "C" {
 }
 
 pub mod pointer {
-//! Methods for interacting with the mouse
-    use super::super::types::{Point};
+    //! Methods for interacting with the mouse
+    use super::super::types::Point;
 
     /// Gets the current position of the mouse.
     pub fn get_position() -> Point {
@@ -32,19 +32,21 @@ pub mod pointer {
 
     /// Sets the current mouse position. Required on mouse move callback.
     pub fn set_position(point: &Point) {
-        unsafe { super::wlc_pointer_set_position(point); }
+        unsafe {
+            super::wlc_pointer_set_position(point);
+        }
     }
 }
 
 pub mod keyboard {
-//! Methods for interacting with the keyboard
-    use super::super::types::{KeyMod};
+    //! Methods for interacting with the keyboard
+    use super::super::types::KeyMod;
     use super::super::xkb::Keysym;
 
     /// Get currently held keys.
     /// # Panics
     /// All the time, this function hasn't been implemented yet
-    pub fn get_current_keys<'a>() -> &'a[u32] {
+    pub fn get_current_keys<'a>() -> &'a [u32] {
         unimplemented!();
     }
 

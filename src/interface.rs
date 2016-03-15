@@ -44,7 +44,7 @@ pub struct OutputInterface {
     /// Output resolution changed
     pub resolution: Option<extern "C" fn(handle: WlcOutput, old_size: &Size, new_size: &Size)>,
     /// Interface for render callbacks
-    pub render: OutputRenderInterface,
+    pub render: OutputRenderInterface
 }
 
 /// Represents rendering callbacks for outputs
@@ -53,7 +53,7 @@ pub struct OutputRenderInterface {
     /// Pre render hook
     pub pre: Option<extern "C" fn(handle: WlcOutput)>,
     /// Post render hook
-    pub post: Option<extern "C" fn(handle: WlcOutput)>,
+    pub post: Option<extern "C" fn(handle: WlcOutput)>
 }
 
 /// Represents window viewing callbacks
@@ -68,9 +68,11 @@ pub struct ViewInterface {
     pub focus: Option<extern "C" fn(handle: WlcView, focused: bool)>,
     /// View was moved to to output
     pub move_to_output: Option<extern "C" fn(current: WlcView,
-                                             from_output: WlcOutput, to_output: WlcOutput)>,
+                                                 from_output: WlcOutput,
+                                                 to_output: WlcOutput)
+                                                >,
     /// Interface for request callbacks
-    pub request: RequestInterface,
+    pub request: RequestInterface
 }
 
 /// Represents window rendering callbacks
@@ -89,7 +91,7 @@ pub struct RequestInterface {
     pub resize: Option<extern "C" fn(handle: WlcView, edge: ResizeEdge, location: &Point)>,
 
     /// View rendering hooks
-    pub render: ViewRenderInterface,
+    pub render: ViewRenderInterface
 }
 
 /// Represents rendering callbacks for views
@@ -106,8 +108,12 @@ pub struct ViewRenderInterface {
 pub struct KeyboardInterface {
     /// Key event was triggered, handle will be None if there was no focus
     /// Return true to prevent sending the event to clients.
-    pub key: Option<extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers,
-                                  key: u32, state: KeyState) -> bool>,
+    pub key: Option<extern "C" fn(view: WlcView,
+                                      time: u32,
+                                      mods: &KeyboardModifiers,
+                                      key: u32,
+                                      state: KeyState)
+                                      -> bool>
 }
 
 /// Represents mouse input callbacks
@@ -115,17 +121,26 @@ pub struct KeyboardInterface {
 pub struct PointerInterface {
     /// Button event was triggered, view will be None if there was no
     /// focus. Return true to prevent sending the event to clients.
-    pub button: Option<extern "C" fn(hande: WlcView, time: u32, mods: &KeyboardModifiers,
-                                     button: u32, state: ButtonState, point: &Point) -> bool>,
+    pub button: Option<extern "C" fn(hande: WlcView,
+                                         time: u32,
+                                         mods: &KeyboardModifiers,
+                                         button: u32,
+                                         state: ButtonState,
+                                         point: &Point)
+                                         -> bool>,
 
     /// Scroll event was triggered, view handle will be None if there was
     /// no focus. Return true to prevent sending the event to clients.
-    pub scroll: Option<extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers,
-                                     axis: ScrollAxis, amount: [u64; 2]) -> bool>,
+    pub scroll: Option<extern "C" fn(handle: WlcView,
+                                         time: u32,
+                                         mods: &KeyboardModifiers,
+                                         axis: ScrollAxis,
+                                         amount: [u64; 2])
+                                         -> bool>,
     /// Mouse was moved, view will be none if there was no focus.
     /// Use wlc_pointer_set_position to agree. Return true to prevent
     /// sending event to clients.
-    pub motion: Option<extern "C" fn(heights: WlcView, time: u32, point: &Point) -> bool>,
+    pub motion: Option<extern "C" fn(heights: WlcView, time: u32, point: &Point) -> bool>
 }
 
 /// Represents touchscreen callbacks
@@ -133,8 +148,13 @@ pub struct PointerInterface {
 pub struct TouchInterface {
     /// Screen was touched, handle will be None if there was no focus.
     /// Return true to prevent sending the event to clients.
-    pub touch: Option<extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers,
-                                    touch: TouchType, slot: i32, point: &Point) -> bool>,
+    pub touch: Option<extern "C" fn(handle: WlcView,
+                                        time: u32,
+                                        mods: &KeyboardModifiers,
+                                        touch: TouchType,
+                                        slot: i32,
+                                        point: &Point)
+                                        -> bool>
 }
 
 /// Represents a callback for initializing the callback
