@@ -13,6 +13,7 @@ use std::ffi::CString;
 
 pub mod handle;
 pub mod interface;
+pub mod callback;
 pub mod types;
 pub mod input;
 pub mod wayland;
