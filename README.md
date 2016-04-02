@@ -6,7 +6,8 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-Requires wlc more recent than [651ebc8](https://github.com/Cloudef/wlc/commit/651ebc8f7da750e77fd26f09182043e7e7c036c1) (add `wlc_view_get_visible_geometry`).
+Currently requires a version of wlc from before the `v0.0.1` release.
+
 ### Rust Example
 
 ```rust
@@ -17,13 +18,13 @@ use rustwlc::interface::WlcView;
 use rustwlc::types::*;
 
 // Callbacks must be labeled extern as they will be called from C
-extern fn view_created(view: WlcView) -> bool {
+extern "C" fn view_created(view: WlcView) -> bool {
     view.bring_to_front();
     view.focus();
     return true;
 }
 
-extern fn view_focus(view: WlcView, focused: bool) {
+extern "C" fn view_focus(view: WlcView, focused: bool) {
     view.set_state(VIEW_ACTIVATED, focused);
 }
 
