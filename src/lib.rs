@@ -33,6 +33,8 @@ extern "C" {
     #[allow(improper_ctypes)]
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *mut libc::c_char) -> bool;
 
+    fn wlc_init2();
+
     fn wlc_run();
 
     fn wlc_terminate();
