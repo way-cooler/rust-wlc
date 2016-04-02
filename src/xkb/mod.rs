@@ -124,7 +124,7 @@ use std::ffi::CString;
 /// The name of other unnamed keysyms is the hexadecimal representation of
 /// their value, e.g. "0xabcd1234". Keysym names are case-sensitive.
 ///
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Keysym(u32);
 
 /// Represents flags used for `Keysym::from_name`
