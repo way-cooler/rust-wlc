@@ -129,7 +129,12 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
 /// ```
 pub fn init2() -> Option<fn() -> ()> {
     unsafe {
-        wlc_init2();
+        if wlc_init2() {
+            Some(run_wlc)
+        }
+        else {
+            None
+        }
     }
 }
 
