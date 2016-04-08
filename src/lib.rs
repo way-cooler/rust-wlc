@@ -151,21 +151,6 @@ fn run_wlc() {
 /// provides a much better interface in the `std::command::Command` class to
 // execute programs.
 pub fn exec(bin: String, args: Vec<String>) {
-    unsafe {
-        let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
-
-        let argv: Vec<CString> = args.into_iter()
-                                     .map(|arg| CString::new(arg).unwrap())
-                                     .collect();
-
-        let args: Vec<*const libc::c_char> = argv.into_iter()
-                                                 .map(|arg: CString| {
-                                                     arg.as_ptr() as *const libc::c_char
-                                                 })
-                                                 .collect();
-
-        wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
-    }
 }
 
 /// Halts execution of wlc.
