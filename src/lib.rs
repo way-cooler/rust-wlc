@@ -177,14 +177,12 @@ pub fn terminate() {
 /// from C code.
 ///
 /// In addition, `unsafe` will be required to convert the text into a Rust String.
-#[allow(dead_code)]
 pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
     unsafe {
         wlc_log_set_handler(handler);
     }
 }
 
-#[allow(dead_code)]
 extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
     let string_text = unsafe { pointer_to_string(text) };
     println!("wlc [{:?}] {}", log_type, string_text);
