@@ -9,7 +9,6 @@ extern crate bitflags;
 
 use std::ffi;
 use std::ptr;
-use std::ffi::CString;
 
 pub mod handle;
 pub mod interface;
@@ -26,8 +25,6 @@ use interface::WlcInterface;
 #[link(name = "wlc")]
 #[allow(improper_ctypes)] // Because the annotation on wlc_init wasn't enough
 extern "C" {
-    fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
-
     // This is giving us a "found zero-size struct in foreign module" for the WlcInterface.
     // The interface itself has a #[repr(C)] and builds fine...
     #[allow(improper_ctypes)]
@@ -154,7 +151,7 @@ fn run_wlc() {
 /// This function does not seem to work across the FFI boundary, and Rust
 /// provides a much better interface in the `std::command::Command` class to
 // execute programs.
-pub fn exec(bin: String, args: Vec<String>) {
+pub fn exec(_bin: String, _args: Vec<String>) {
 }
 
 /// Halts execution of wlc.
