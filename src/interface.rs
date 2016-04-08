@@ -178,23 +178,36 @@ pub struct InputInterface {
 impl WlcInterface {
     /// Creates a new WlcInterface builder that can have callbacks added.
     ///
-    /// # Examples
+    /// # Deprecated
+    /// The WlcInterface is deprecated. All of the methods called on the builder
+    /// are now called using methods in the `callback` module.
+    ///
+    /// # Conversion example
+    /// Old code:
     /// ```no_run
     /// # use rustwlc::handle::WlcOutput;
-    /// # extern "C" fn output_created_callback(handle: WlcOutput) -> bool { true };
+    /// # extern fn output_created_callback(handle: WlcOutput) -> bool { true };
     /// use rustwlc::interface::WlcInterface;
     ///
-    /// // Assuming there exists an output_created_callback function...
     /// let interface = WlcInterface::new()
     ///     .output_created(output_created_callback);
     ///     // .more_callbacks() ...
     ///
-    /// if let Some(run_wlc) = rustwlc::init(interface) {
-    ///     run_wlc();
-    /// }
-    /// else {
-    ///     panic!("Unable to initialize wlc!");
-    /// }
+    /// let run_wlc = rustwlc::init(interface).expect("Unable to start wlc!");
+    /// run_wlc();
+    /// ```
+    ///
+    /// Converting to `init2` is as easy as replacing the builder calls:
+    /// ```no_run
+    /// # use rustwlc::handle::WlcOutput;
+    /// # extern fn output_created_callback(handle: WlcOutput) -> bool { true };
+    /// use rustwlc::callback;
+    ///
+    /// callback::output_created(output_created_callback);
+    /// // callback::more_callbacks() ...
+    ///
+    /// let run_wlc = rustwlc::init().expect("Unable to start wlc!");
+    /// run_wlc();
     /// ```
     pub fn new() -> WlcInterface {
         WlcInterface {
@@ -217,7 +230,12 @@ impl WlcInterface {
         }
     }
 
-    /// Callback invoked when an output is created. Return `true` to allow the output to exist.
+    /// Callback invoked when an output is created.
+    /// Return `true` to allow the output to exist.
+    ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     ///
     /// # Example
     /// ```rust
@@ -236,6 +254,10 @@ impl WlcInterface {
 
     /// Callback invoked when an output is destroyed.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// # Example
     /// ```rust
     /// use rustwlc::handle::WlcOutput;
@@ -251,6 +273,10 @@ impl WlcInterface {
 
     /// Callback invoked when an output gains focus.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// # Example
     /// ```rust
     /// use rustwlc::handle::WlcOutput;
@@ -265,6 +291,10 @@ impl WlcInterface {
     }
 
     /// Callback invoked when an output's resolution changes.
+    ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     ///
     /// # Example
     /// ```rust
@@ -282,6 +312,10 @@ impl WlcInterface {
     }
 
     /// Callback invoked pre-render for an output.
+    ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn output_render_pre(mut self, func: extern "C" fn(output: WlcOutput)) -> WlcInterface {
         self.output.render.pre = Some(func); self
     }
@@ -292,6 +326,10 @@ impl WlcInterface {
     }
 
     /// Callback invoked when a view is created. Return `true` to allow the view to be created.
+    ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     ///
     /// When a new view is created, the following should probably be applied:
     /// * Set the view's mask to the output's mask
@@ -317,6 +355,10 @@ impl WlcInterface {
 
     /// Callback invoked when a view is destroyed.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// When a view is destroyed, it's a good idea to shift focus to
     /// some other view, i.e. the last one used.
     ///
@@ -337,6 +379,10 @@ impl WlcInterface {
     ///
     /// The view's `ViewState::VIEW_ACTIVATED` bit should be set to true here.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// # Example
     /// ```rust
     /// use rustwlc::handle::WlcView;
@@ -355,49 +401,71 @@ impl WlcInterface {
 
     /// Callback invoked when a view switches outputs.
     ///
-    /// Moving views between outputs is unsupported in wlc at the time of writing.
-    /// Wayland mandates each output have its own memory buffer so it may take wlc some time before
-    // this is implemented.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_move_to_output(mut self, func: extern "C" fn(view: WlcView,
                                    old_output: WlcOutput, new_output: WlcOutput)) -> WlcInterface {
         self.view.move_to_output = Some(func); self
     }
 
     /// Callback invoked when a view requests geometry.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_request_geometry(mut self,
                         func: extern "C" fn(handle: WlcView, geometry: &Geometry)) -> WlcInterface {
         self.view.request.geometry = Some(func); self
     }
 
     /// Callback invoked when a view requests a `ViewState`.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_request_state(mut self,
            func: extern "C" fn(current: WlcView, state: ViewState, handled: bool)) -> WlcInterface {
         self.view.request.state = Some(func); self
     }
 
     /// Callback invoked when a view requests a move.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_request_move(mut self,
                         func: extern "C" fn(handle: WlcView, destination: &Point)) -> WlcInterface {
         self.view.request.move_ = Some(func); self
     }
 
     /// Callback invoked when a view requests a resize.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_request_resize(mut self,
          func: extern "C" fn(handle: WlcView, edge: ResizeEdge, location: &Point)) -> WlcInterface {
         self.view.request.resize = Some(func); self
     }
 
     /// Callback invoked pre-view-render.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_request_render_pre(mut self, func: extern "C" fn(view: WlcView)) -> WlcInterface {
         self.view.request.render.pre = Some(func); self
     }
 
     /// Callback invoked post-view-render.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn view_request_render_post(mut self, func: extern "C" fn(view: WlcView)) -> WlcInterface {
         self.view.request.render.post = Some(func); self
     }
 
     /// Callback invoked on keypresses. Return `true` to block the press from the view.
+    ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     ///
     /// # Arguments
     /// The first `u32` is a timestamp, the second is the key code. The view may be the root window.
@@ -424,6 +492,10 @@ impl WlcInterface {
 
     /// Callback invoked on mouse clicks. Return `true` to block the click from the view.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// # Arguments
     /// The first u32 is a timestamp, the second is the button code. The view may be the root
     /// window. Probper values for `button` can be found in `input.h` or a similar library/crate.
@@ -447,6 +519,10 @@ impl WlcInterface {
 
     /// Callback invoked on mouse scroll. Return `true` to block the scroll from the view.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// # Arguments
     /// The first u32 is a timestamp, the amount is measured in scrollx and scrolly.
     pub fn pointer_scroll(mut self, func: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool) -> WlcInterface {
@@ -456,6 +532,10 @@ impl WlcInterface {
     /// Callback invoked on pointer motion. Return `true` to block the motion from the view.
     ///
     /// `rustwlc::input::pointer::set_position` must be invoked to actually move the cursor!
+    ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     ///
     /// # Example
     /// ```rust
@@ -477,6 +557,10 @@ impl WlcInterface {
 
     /// Callback invoked on touchscreen touch. Return `true` to block the touch from the view.
     ///
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
+    ///
     /// # Arguments
     /// * `mods`: Which keyboard modifiers are being pressed during the event
     /// * `touch`: What kind of event it is (a touch down, a frame being made, a touch release). In the case of `TouchType::Frame`, `slot` and `point` will both be zero.
@@ -487,14 +571,18 @@ impl WlcInterface {
     }
 
     /// Callback invoked by wlc after `rustwlc::init` is called.
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn compositor_ready(mut self, func: extern "C" fn()) -> WlcInterface {
         self.compositor.ready = Some(func); self
     }
 
     /// Callback invoked by wlc when a compositor is terminating
+    /// # Deprecated
+    /// WlcInterface is deprecated.
+    /// See the `callback` module for callback registering.
     pub fn compositor_terminate(mut self, func: extern "C" fn()) -> WlcInterface {
         self.compositor.terminate = Some(func); self
     }
-
-    // Not supporting input and output through the builder...
 }
