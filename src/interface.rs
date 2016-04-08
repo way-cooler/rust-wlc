@@ -1,3 +1,5 @@
+//! WlcInterface is deprecated, see `callback`.
+//!
 //! # Deprecated
 //! wlc has deprecated initialization using the WlcInterface
 //! structure. Please see the `callback` module for registering
@@ -10,7 +12,7 @@ use std::option::Option;
 use super::types::*;
 use super::handle::{WlcOutput, WlcView};
 
-/// Deprecated interface structure for registering wlc callbacks.
+/// Main struct for (deprecated) registering wlc callbacks.
 ///
 /// # Deprecated
 /// See the `callback` module.
@@ -32,7 +34,7 @@ pub struct WlcInterface {
     pub input: InputInterface
 }
 
-/// Represents window callbacks.
+/// Submodule - output callbacks.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -49,7 +51,7 @@ pub struct OutputInterface {
     pub render: OutputRenderInterface,
 }
 
-/// Represents rendering callbacks for outputs.
+/// Submodule - rendering callbacks for outputs.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -60,7 +62,7 @@ pub struct OutputRenderInterface {
     pub post: Option<extern "C" fn(handle: WlcOutput)>,
 }
 
-/// Represents window viewing callbacks.
+/// Submodule - window viewing callbacks.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -79,7 +81,7 @@ pub struct ViewInterface {
     pub request: RequestInterface,
 }
 
-/// Represents window rendering callbacks.
+/// Submodule - window rendering callbacks.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -100,7 +102,7 @@ pub struct RequestInterface {
     pub render: ViewRenderInterface,
 }
 
-/// Represents rendering callbacks for views.
+/// Submodule - rendering callbacks for views.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -111,7 +113,7 @@ pub struct ViewRenderInterface {
     pub post: Option<extern "C" fn(view: WlcView)>
 }
 
-/// Represents keyboard press callbacks.
+/// Submodule - keyboard press callbacks.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -122,7 +124,7 @@ pub struct KeyboardInterface {
                                   key: u32, state: KeyState) -> bool>,
 }
 
-/// Represents mouse input callbacks.
+/// Submodule - mouse input callbacks.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -142,7 +144,7 @@ pub struct PointerInterface {
     pub motion: Option<extern "C" fn(heights: WlcView, time: u32, point: &Point) -> bool>,
 }
 
-/// Represents touchscreen callbacks.
+/// Submodule - touchscreen callbacks.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -153,7 +155,7 @@ pub struct TouchInterface {
                                     touch: TouchType, slot: i32, point: &Point) -> bool>,
 }
 
-/// Represents a callback for initializing the callback.
+/// Submodule - callbacks for compositor ready/done
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -164,7 +166,7 @@ pub struct CompositorInterface {
     pub terminate: Option<extern "C" fn()>
 }
 
-/// Represents experimenal callbacks for libinput events.
+/// Submodule - experimenal callbacks for libinput events.
 /// # Deprecated
 /// See the `callback` module
 #[repr(C)]
@@ -184,6 +186,7 @@ impl WlcInterface {
     ///
     /// # Conversion example
     /// Old code:
+    ///
     /// ```no_run
     /// # use rustwlc::handle::WlcOutput;
     /// # extern fn output_created_callback(handle: WlcOutput) -> bool { true };
@@ -198,6 +201,7 @@ impl WlcInterface {
     /// ```
     ///
     /// Converting to `init2` is as easy as replacing the builder calls:
+    ///
     /// ```no_run
     /// # use rustwlc::handle::WlcOutput;
     /// # extern fn output_created_callback(handle: WlcOutput) -> bool { true };
