@@ -33,7 +33,8 @@ extern "C" {
     #[allow(improper_ctypes)]
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *mut libc::c_char) -> bool;
 
-    fn wlc_init2();
+    // New init function
+    fn wlc_init2() -> bool;
 
     fn wlc_run();
 
@@ -54,26 +55,38 @@ pub fn get_backend_type() -> BackendType {
     unsafe { wlc_get_backend_type() }
 }
 
-/// Initialize wlc with a `WlcInterface`.
+/// Initialize wlc's callbacks and logger with a `WlcInterface`.
 ///
-/// Create a WlcInterface with the proper callback methods
-/// and call `rustwlc::init` to initialize wlc (alternatively use init_with_args).
-/// If it returns true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
+/// # Deprecated
+/// wlc has deprecated this callback interface. They offer a new API with a
+/// series of methods found in the `callback` module
+///
+/// To initialize wlc, register your callbacks with the functions described in
+/// the `callbacks` module, and the logger using `log_set_handler` or
+/// `log_set_default_handler`. Then call `init2()`.
+///
+/// # Permissions
+/// If a compositor is initialized from the tty using suid or logind, it will
+/// drop extra permissions after a call to `init()` or `init2()`. It is strongly
+/// recommended to delay code which is not registering callbacks until after
+/// this call.
 ///
 /// # Example
 /// ```no_run
 /// use rustwlc;
+/// use rustwlc::callbacks;
 ///
-/// let interface = rustwlc::interface::WlcInterface::new();
 /// // Set a default log callback
 /// rustwlc::log_set_default_handler();
 ///
-/// if let Some(run_wlc) = rustwlc::init(interface) {
-///      run_wlc()
-/// }
-/// else {
-///      panic!("Unable to initialize wlc!");
-/// }
+/// // Register some callbacks
+/// callbacks::output_resolution(on_output);
+/// callbacks::pointer_button(pointer_button);
+///
+/// let run_wlc = rustwlc::init2()
+///     .expect("Unable to initialize wlc!");
+///
+/// run_wlc();
 /// ```
 pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
     unsafe {
@@ -82,6 +95,41 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
         } else {
             None
         }
+    }
+}
+
+/// Initialize wlc's callbacks and logger.
+///
+/// To initialize wlc, register your callbacks with the functions described in
+/// the `callbacks` module, and the logger using `log_set_handler` or
+/// `log_set_default_handler`. Then call `init2()`.
+///
+/// # Permissions
+/// If a compositor is initialized from the tty using suid or logind, it will
+/// drop extra permissions after a call to `init2()`. It is strongly
+/// recommended to delay code which is not registering callbacks until after
+/// this call.
+///
+/// # Example
+/// ```no_run
+/// use rustwlc;
+/// use rustwlc::callbacks;
+///
+/// // Set a default log callback
+/// rustwlc::log_set_default_handler();
+///
+/// // Register some callbacks
+/// callbacks::output_resolution(on_output);
+/// callbacks::pointer_button(pointer_button);
+///
+/// let run_wlc = rustwlc::init2()
+///     .expect("Unable to initialize wlc!");
+///
+/// run_wlc();
+/// ```
+pub fn init2() -> Option<fn() -> ()> {
+    unsafe {
+        wlc_init2();
     }
 }
 
@@ -96,11 +144,12 @@ fn run_wlc() {
     }
 }
 
-/// Deprecated, do not use.
+/// Deprecated attempt at wlc_exec wrapper.
 ///
 /// # Deprecated
-/// This function does not seem to work across the FFI boundary, and Rust provides a
-/// much better interface in the `std::command::Command` class to executing programs.
+/// This function does not seem to work across the FFI boundary, and Rust
+/// provides a much better interface in the `std::command::Command` class to
+// execute programs.
 pub fn exec(bin: String, args: Vec<String>) {
     unsafe {
         let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
