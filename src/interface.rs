@@ -1,5 +1,7 @@
-//! Contains callback-holding struct `WlcInterface` which is used
-//! to initialize wlc.
+//! # Deprecated
+//! wlc has deprecated initialization using the WlcInterface
+//! structure. Please see the `callback` module for registering
+//! callbacks with wlc.
 
 extern crate libc;
 
@@ -8,12 +10,10 @@ use std::option::Option;
 use super::types::*;
 use super::handle::{WlcOutput, WlcView};
 
-/// Represents the wlc callback interface.
-/// wlc initialization involves registering
-/// a series of callbacks to the library
-/// using this interface struct.
+/// Deprecated interface structure for registering wlc callbacks.
 ///
-/// See `WlcInterface::new()` for usage.
+/// # Deprecated
+/// See the `callback` module.
 #[repr(C)]
 pub struct WlcInterface {
     /// Interface for output callbacks
@@ -32,7 +32,9 @@ pub struct WlcInterface {
     pub input: InputInterface
 }
 
-/// Represents window callbacks
+/// Represents window callbacks.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct OutputInterface {
     /// Output was created
@@ -47,7 +49,9 @@ pub struct OutputInterface {
     pub render: OutputRenderInterface,
 }
 
-/// Represents rendering callbacks for outputs
+/// Represents rendering callbacks for outputs.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct OutputRenderInterface {
     /// Pre render hook
@@ -56,7 +60,9 @@ pub struct OutputRenderInterface {
     pub post: Option<extern "C" fn(handle: WlcOutput)>,
 }
 
-/// Represents window viewing callbacks
+/// Represents window viewing callbacks.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct ViewInterface {
     /// View was created. Return false if you want to destroy the view
@@ -73,7 +79,9 @@ pub struct ViewInterface {
     pub request: RequestInterface,
 }
 
-/// Represents window rendering callbacks
+/// Represents window rendering callbacks.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct RequestInterface {
     /// Request to set given geometry to view. Apply using
@@ -92,7 +100,9 @@ pub struct RequestInterface {
     pub render: ViewRenderInterface,
 }
 
-/// Represents rendering callbacks for views
+/// Represents rendering callbacks for views.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct ViewRenderInterface {
     /// Pre-render
@@ -101,7 +111,9 @@ pub struct ViewRenderInterface {
     pub post: Option<extern "C" fn(view: WlcView)>
 }
 
-/// Represents keyboard press callbacks
+/// Represents keyboard press callbacks.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct KeyboardInterface {
     /// Key event was triggered, handle will be None if there was no focus
@@ -110,7 +122,9 @@ pub struct KeyboardInterface {
                                   key: u32, state: KeyState) -> bool>,
 }
 
-/// Represents mouse input callbacks
+/// Represents mouse input callbacks.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct PointerInterface {
     /// Button event was triggered, view will be None if there was no
@@ -128,7 +142,9 @@ pub struct PointerInterface {
     pub motion: Option<extern "C" fn(heights: WlcView, time: u32, point: &Point) -> bool>,
 }
 
-/// Represents touchscreen callbacks
+/// Represents touchscreen callbacks.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct TouchInterface {
     /// Screen was touched, handle will be None if there was no focus.
@@ -137,7 +153,9 @@ pub struct TouchInterface {
                                     touch: TouchType, slot: i32, point: &Point) -> bool>,
 }
 
-/// Represents a callback for initializing the callback
+/// Represents a callback for initializing the callback.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct CompositorInterface {
     /// Compositor is ready to accept clients.
@@ -146,7 +164,9 @@ pub struct CompositorInterface {
     pub terminate: Option<extern "C" fn()>
 }
 
-/// Represents experimenal callbacks for libinput events
+/// Represents experimenal callbacks for libinput events.
+/// # Deprecated
+/// See the `callback` module
 #[repr(C)]
 pub struct InputInterface {
     /// Input created
