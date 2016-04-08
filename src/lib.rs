@@ -136,8 +136,7 @@ pub fn init2() -> Option<fn() -> ()> {
 /// Runs wlc's event loop.
 ///
 /// The initialize functions will return this function in an Option.
-/// If and only if they succeed can this function be called wlc with `rustwlc::init` call this method
-/// to being wlc's main event loop.
+/// Only then can it be called to being wlc's main event loop.
 fn run_wlc() {
     unsafe {
         wlc_run();
@@ -198,10 +197,10 @@ extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char)
 /// ```no_run
 /// use rustwlc;
 ///
-/// let interface = rustwlc::interface::WlcInterface::new();
+/// // An example where only the default log handler is registered
 /// rustwlc::log_set_default_handler();
 ///
-/// if let Some(run_wlc) = rustwlc::init(interface) {
+/// if let Some(run_wlc) = rustwlc::init2() {
 ///      run_wlc();
 /// }
 /// else {
