@@ -68,18 +68,27 @@ pub fn get_backend_type() -> BackendType {
 /// recommended to delay code which is not registering callbacks until after
 /// this call.
 ///
-/// # Example
+/// # wlc Example
 /// ```no_run
 /// use rustwlc;
-/// use rustwlc::callbacks;
+/// use rustwlc::callback;
+/// use rustwlc::handle::WlcView;
+///
+/// // An example callback function
+/// // See the various functions in the callback module for more information
+/// extern "C" fn view_focus_callback(view: WlcView, focused: bool) {
+///     println!("A view came into focus!");
+/// }
 ///
 /// // Set a default log callback
 /// rustwlc::log_set_default_handler();
 ///
 /// // Register some callbacks
-/// callbacks::output_resolution(on_output);
-/// callbacks::pointer_button(pointer_button);
+/// callback::view_focus(view_focus_callback);
+/// // ... and additional callbacks
 ///
+/// // The only thing your code should do before init2 is register callbacks
+/// // and log handlers.
 /// let run_wlc = rustwlc::init2()
 ///     .expect("Unable to initialize wlc!");
 ///
@@ -107,18 +116,27 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
 /// recommended to delay code which is not registering callbacks until after
 /// this call.
 ///
-/// # Example
+/// # wlc Example
 /// ```no_run
 /// use rustwlc;
-/// use rustwlc::callbacks;
+/// use rustwlc::callback;
+/// use rustwlc::handle::WlcView;
+///
+/// // An example callback function
+/// // See the various functions in this module for more information
+/// extern "C" fn view_focus_callback(view: WlcView, focused: bool) {
+///     println!("A view came into focus!");
+/// }
 ///
 /// // Set a default log callback
 /// rustwlc::log_set_default_handler();
 ///
 /// // Register some callbacks
-/// callbacks::output_resolution(on_output);
-/// callbacks::pointer_button(pointer_button);
+/// callback::view_focus(view_focus_callback);
+/// // ... and additional callbacks
 ///
+/// // The only thing your code should do before init2 is register callbacks
+/// // and log handlers.
 /// let run_wlc = rustwlc::init2()
 ///     .expect("Unable to initialize wlc!");
 ///

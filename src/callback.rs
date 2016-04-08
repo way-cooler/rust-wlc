@@ -1,5 +1,33 @@
 //! Register wlc callbacks to events.
-//! See individual methods for details.
+//!
+//! See individual methods for callback details.
+//!
+//! # wlc Example
+//! ```no_run
+//! use rustwlc;
+//! use rustwlc::callback;
+//! use rustwlc::handle::WlcView;
+//!
+//! // An example callback function
+//! // See the various functions in this module for more information
+//! extern "C" fn view_focus_callback(view: WlcView, focused: bool) {
+//!     println!("A view came into focus!");
+//! }
+//!
+//! // Set a default log callback
+//! rustwlc::log_set_default_handler();
+//!
+//! // Register some callbacks
+//! callback::view_focus(view_focus_callback);
+//! // ... and additional callbacks
+//!
+//! // The only thing your code should do before init2 is register callbacks
+//! // and log handlers.
+//! let run_wlc = rustwlc::init2()
+//!     .expect("Unable to initialize wlc!");
+//!
+//! run_wlc();
+//! ```
 
 use super::types::*;
 use super::handle::{WlcOutput, WlcView};
