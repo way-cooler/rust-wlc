@@ -6,7 +6,6 @@ extern crate lazy_static;
 extern crate rustwlc;
 
 use rustwlc::*;
-use rustwlc::interface::*;
 use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::types::*;
 use rustwlc::xkb::keysyms;
@@ -286,19 +285,18 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
 }
 
 fn main() {
-    let interface = WlcInterface::new()
-        .output_resolution(on_output_resolution)
-        .view_created(on_view_created)
-        .view_destroyed(on_view_destroyed)
-        .view_focus(on_view_focus)
-        .view_request_move(on_view_request_move)
-        .view_request_resize(on_view_request_resize)
-        .keyboard_key(on_keyboard_key)
-        .pointer_button(on_pointer_button)
-        .pointer_motion(on_pointer_motion);
+    callback::output_resolution(on_output_resolution);
+    callback::view_created(on_view_created);
+    callback::view_destroyed(on_view_destroyed);
+    callback::view_focus(on_view_focus);
+    callback::view_request_move(on_view_request_move);
+    callback::view_request_resize(on_view_request_resize);
+    callback::keyboard_key(on_keyboard_key);
+    callback::pointer_button(on_pointer_button);
+    callback::pointer_motion(on_pointer_motion);
 
     rustwlc::log_set_default_handler();
-    let run_fn = rustwlc::init(interface).expect("Unable to initialize!");
+    let run_fn = rustwlc::init2().expect("Unable to initialize wlc!");
     run_fn();
 }
 
