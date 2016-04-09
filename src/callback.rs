@@ -388,11 +388,22 @@ pub fn pointer_button(callback: extern "C" fn(view: WlcView, time: u32, mods: &K
     }
 }
 
-/// Callback invoked on mouse scroll. Return `true` to block the scroll from the view.
+/// Callback invoked on mouse scroll.
+/// Return `true` to block the scroll from the view.
 ///
 /// # Arguments
-/// The first u32 is a timestamp, the amount is measured in scrollx and scrolly.
-pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [f64; 2]) -> bool) {
+/// * view: The WlcView (or output root) that was scrolled in
+/// * time: Timestamp
+/// * mods: Current pressed keyboard modifiers
+/// * axis: Which direction the scroll was in
+/// * amount: The first argument seems to be either 10 or -10 depending on
+/// up/down (or right/left if `axis == ScrollAxis::Horizontal`).
+/// The second one, when tested on a standard laptop trackpad, seems to be
+/// a double slightly above zero.
+pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32,
+                                              mods: &KeyboardModifiers,
+                                              axis: ScrollAxis,
+                                              amount: [f64; 2]) -> bool) {
     unsafe {
         wlc_set_pointer_scroll_cb(callback);
     }
