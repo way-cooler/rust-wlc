@@ -137,7 +137,7 @@ pub struct PointerInterface {
     /// Scroll event was triggered, view handle will be None if there was
     /// no focus. Return true to prevent sending the event to clients.
     pub scroll: Option<extern "C" fn(handle: WlcView, time: u32, mods: &KeyboardModifiers,
-                                     axis: ScrollAxis, amount: [u64; 2]) -> bool>,
+                                     axis: ScrollAxis, amount: [f64; 2]) -> bool>,
     /// Mouse was moved, view will be none if there was no focus.
     /// Use wlc_pointer_set_position to agree. Return true to prevent
     /// sending event to clients.
@@ -529,7 +529,7 @@ impl WlcInterface {
     ///
     /// # Arguments
     /// The first u32 is a timestamp, the amount is measured in scrollx and scrolly.
-    pub fn pointer_scroll(mut self, func: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool) -> WlcInterface {
+    pub fn pointer_scroll(mut self, func: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [f64; 2]) -> bool) -> WlcInterface {
         self.pointer.scroll = Some(func); self
     }
 

@@ -102,7 +102,7 @@ extern "C" {
     // Scroll event was triggered, view handle will be zero if there was no
     // focus. Return true to prevent sending the event to clients.
     fn wlc_set_pointer_scroll_cb(cb: extern "C" fn(WlcView, u32, &KeyboardModifiers,
-                                               ScrollAxis, [u64; 2]) -> bool);
+                                               ScrollAxis, [f64; 2]) -> bool);
 
     // Motion event was triggered, view handle will be zero if there was no
     // focus. Apply with wlc_pointer_set_position to agree. Return true to
@@ -392,7 +392,7 @@ pub fn pointer_button(callback: extern "C" fn(view: WlcView, time: u32, mods: &K
 ///
 /// # Arguments
 /// The first u32 is a timestamp, the amount is measured in scrollx and scrolly.
-pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [u64; 2]) -> bool) {
+pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32, mods: &KeyboardModifiers, axis: ScrollAxis, amount: [f64; 2]) -> bool) {
     unsafe {
         wlc_set_pointer_scroll_cb(callback);
     }
