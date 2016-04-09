@@ -6,14 +6,14 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-Requires wlc more recent than [651ebc8](https://github.com/Cloudef/wlc/commit/651ebc8f7da750e77fd26f09182043e7e7c036c1) (add `wlc_view_get_visible_geometry`).
+Requires wlc v0.0.1 or later.
 ### Rust Example
 
 ```rust
 // For more functional example see example/src/main.rs
 
 extern crate rustwlc;
-use rustwlc::interface::WlcView;
+use rustwlc::callback;
 use rustwlc::types::*;
 
 // Callbacks must be labeled extern as they will be called from C
@@ -28,13 +28,12 @@ extern fn view_focus(view: WlcView, focused: bool) {
 }
 
 fn main() {
-    let interface = WlcInterface::new()
-            .view_created(view_created)
-            .view_focus(view_focus);
+    callback::view_created(view_created)
+    callback::view_focus(view_focus);
 
     // The default log handler will print wlc logs to stdout
     rustwlc::log_set_default_handler();
-    let run_fn = rustwlc::init(interface).expect("Unable to initialize!");
+    let run_fn = rustwlc::init().expect("Unable to initialize!");
     run_fn();
 }
 ```
