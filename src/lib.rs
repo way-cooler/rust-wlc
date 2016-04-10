@@ -95,12 +95,11 @@ pub fn get_backend_type() -> BackendType {
 /// run_wlc();
 /// ```
 pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
-    unsafe {
-        if wlc_init(&interface, 0, ptr::null()) {
-            Some(run_wlc)
-        } else {
-            None
-        }
+    if unsafe { wlc_init(&interface, 0, ptr::null()) } {
+        Some(run_wlc)
+    }
+    else {
+        None
     }
 }
 
@@ -143,13 +142,11 @@ pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
 /// run_wlc();
 /// ```
 pub fn init2() -> Option<fn() -> ()> {
-    unsafe {
-        if wlc_init2() {
-            Some(run_wlc)
-        }
-        else {
-            None
-        }
+    if unsafe { wlc_init2() } {
+        Some(run_wlc)
+    }
+    else {
+        None
     }
 }
 
