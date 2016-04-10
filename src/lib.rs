@@ -160,15 +160,6 @@ fn run_wlc() {
     }
 }
 
-/// Deprecated attempt at wlc_exec wrapper.
-///
-/// # Deprecated
-/// This function does not seem to work across the FFI boundary, and Rust
-/// provides a much better interface in the `std::command::Command` class to
-// execute programs.
-pub fn exec(_bin: String, _args: Vec<String>) {
-}
-
 /// Halts execution of wlc.
 pub fn terminate() {
     unsafe {
