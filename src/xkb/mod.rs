@@ -205,6 +205,11 @@ impl Keysym {
         self.0 == 0 || self.0 == 0xffffffff
     }
 
+    /// Gets the `Keysym` as a `u32`.
+    pub fn get_code(&self) -> u32 {
+        self.0
+    }
+
     /// Gets the Keysym for the given name.
     ///
     /// # Arguments
@@ -299,4 +304,3 @@ impl From<u32> for Keysym {
         Keysym(value)
     }
 }
-

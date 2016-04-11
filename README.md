@@ -6,7 +6,8 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-Requires wlc v0.0.1 or later.
+Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.1 or later.
+
 ### Rust Example
 
 ```rust
@@ -17,13 +18,13 @@ use rustwlc::callback;
 use rustwlc::types::*;
 
 // Callbacks must be labeled extern as they will be called from C
-extern fn view_created(view: WlcView) -> bool {
+extern "C" fn view_created(view: WlcView) -> bool {
     view.bring_to_front();
     view.focus();
     return true;
 }
 
-extern fn view_focus(view: WlcView, focused: bool) {
+extern "C" fn view_focus(view: WlcView, focused: bool) {
     view.set_state(VIEW_ACTIVATED, focused);
 }
 
@@ -40,9 +41,10 @@ fn main() {
 
 ### Usage
 We're on [crates.io](https://crates.io/crates/rustwlc), so to use the library simply add:
+
 ```toml
 [depdenencies]
-rustwlc = "0.2.1"
+rustwlc = "^0.3"
 ```
 to your Cargo.toml.
 
