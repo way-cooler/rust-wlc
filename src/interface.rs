@@ -210,7 +210,7 @@ impl WlcInterface {
     /// callback::output_created(output_created_callback);
     /// // callback::more_callbacks() ...
     ///
-    /// let run_wlc = rustwlc::init().expect("Unable to start wlc!");
+    /// let run_wlc = rustwlc::init2().expect("Unable to start wlc!");
     /// run_wlc();
     /// ```
     pub fn new() -> WlcInterface {
