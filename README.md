@@ -6,7 +6,7 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-Currently requires a version of wlc from before the `v0.0.1` release.
+Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.1 or later.
 
 ### Rust Example
 
@@ -14,7 +14,7 @@ Currently requires a version of wlc from before the `v0.0.1` release.
 // For more functional example see example/src/main.rs
 
 extern crate rustwlc;
-use rustwlc::interface::WlcView;
+use rustwlc::callback;
 use rustwlc::types::*;
 
 // Callbacks must be labeled extern as they will be called from C
@@ -29,22 +29,22 @@ extern "C" fn view_focus(view: WlcView, focused: bool) {
 }
 
 fn main() {
-    let interface = WlcInterface::new()
-            .view_created(view_created)
-            .view_focus(view_focus);
+    callback::view_created(view_created)
+    callback::view_focus(view_focus);
 
     // The default log handler will print wlc logs to stdout
     rustwlc::log_set_default_handler();
-    let run_fn = rustwlc::init(interface).expect("Unable to initialize!");
+    let run_fn = rustwlc::init().expect("Unable to initialize!");
     run_fn();
 }
 ```
 
 ### Usage
 We're on [crates.io](https://crates.io/crates/rustwlc), so to use the library simply add:
+
 ```toml
 [depdenencies]
-rustwlc = "0.2.1"
+rustwlc = "^0.3"
 ```
 to your Cargo.toml.
 

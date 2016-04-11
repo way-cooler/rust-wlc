@@ -1,7 +1,7 @@
 [package]
 name = "rustwlc"
 description = "wlc Wayland library bindings for Rust"
-version = "0.2.1"
+version = "0.3.0"
 repository = "https://github.com/Immington-Industries/rust-wlc/"
 keywords = ["wlc", "Wayland", "compositor", "bindings"]
 readme = "README.md"

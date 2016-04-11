@@ -149,7 +149,7 @@ bitflags! {
 
 /// Represents a key state in key events
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum KeyState {
     /// Key is being pressed
     Released = 0,
@@ -159,7 +159,7 @@ pub enum KeyState {
 
 /// Represents a button state in button events
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ButtonState {
     /// Button is being pressed
     Released = 0,
@@ -210,7 +210,7 @@ pub struct KeyboardModifiers {
 
 /// Represents the location of a view.
 #[repr(C)]
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub struct Point {
     /// x coordinate
     pub x: i32,
@@ -226,7 +226,7 @@ impl fmt::Display for Point {
 
 /// Represents the height and width of a view.
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Size {
     /// Width
     pub w: u32,
@@ -242,7 +242,7 @@ impl fmt::Display for Size {
 
 /// Represents the location and size of a view
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Geometry {
     /// The location of the object
     pub origin: Point,

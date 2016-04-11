@@ -9,10 +9,10 @@ extern crate bitflags;
 
 use std::ffi;
 use std::ptr;
-use std::ffi::CString;
 
 pub mod handle;
 pub mod interface;
+pub mod callback;
 pub mod types;
 pub mod input;
 pub mod wayland;
@@ -25,12 +25,13 @@ use interface::WlcInterface;
 #[link(name = "wlc")]
 #[allow(improper_ctypes)] // Because the annotation on wlc_init wasn't enough
 extern "C" {
-    fn wlc_exec(bin: *const libc::c_char, args: *const *const libc::c_char);
-
     // This is giving us a "found zero-size struct in foreign module" for the WlcInterface.
     // The interface itself has a #[repr(C)] and builds fine...
     #[allow(improper_ctypes)]
     fn wlc_init(interface: *const WlcInterface, argc: i32, argv: *const *mut libc::c_char) -> bool;
+
+    // New init function
+    fn wlc_init2() -> bool;
 
     fn wlc_run();
 
@@ -51,68 +52,111 @@ pub fn get_backend_type() -> BackendType {
     unsafe { wlc_get_backend_type() }
 }
 
-/// Initialize wlc with a `WlcInterface`.
+/// Initialize wlc's callbacks and logger with a `WlcInterface`.
 ///
-/// Create a WlcInterface with the proper callback methods
-/// and call `rustwlc::init` to initialize wlc (alternatively use init_with_args).
-/// If it returns true, continue with `rustwlc::run_wlc()` to run wlc's event loop.
+/// # Deprecated
+/// wlc has deprecated this callback interface. They offer a new API with a
+/// series of methods found in the `callback` module
 ///
-/// # Example
+/// To initialize wlc, register your callbacks with the functions described in
+/// the `callbacks` module, and the logger using `log_set_handler` or
+/// `log_set_default_handler`. Then call `init2()`.
+///
+/// # Permissions
+/// If a compositor is initialized from the tty using suid or logind, it will
+/// drop extra permissions after a call to `init()` or `init2()`. It is strongly
+/// recommended to delay code which is not registering callbacks until after
+/// this call.
+///
+/// # wlc Example
 /// ```no_run
 /// use rustwlc;
+/// use rustwlc::callback;
+/// use rustwlc::handle::WlcView;
 ///
-/// let interface = rustwlc::interface::WlcInterface::new();
+/// // An example callback function
+/// // See the various functions in the callback module for more information
+/// extern "C" fn view_focus_callback(view: WlcView, focused: bool) {
+///     println!("A view came into focus!");
+/// }
+///
 /// // Set a default log callback
 /// rustwlc::log_set_default_handler();
 ///
-/// if let Some(run_wlc) = rustwlc::init(interface) {
-///      run_wlc()
-/// }
-/// else {
-///      panic!("Unable to initialize wlc!");
-/// }
+/// // Register some callbacks
+/// callback::view_focus(view_focus_callback);
+/// // ... and additional callbacks
+///
+/// // The only thing your code should do before init2 is register callbacks
+/// // and log handlers.
+/// let run_wlc = rustwlc::init2()
+///     .expect("Unable to initialize wlc!");
+///
+/// run_wlc();
 /// ```
 pub fn init(interface: WlcInterface) -> Option<fn() -> ()> {
-    unsafe {
-        if wlc_init(&interface, 0, ptr::null()) {
-            Some(run_wlc)
-        } else {
-            None
-        }
+    if unsafe { wlc_init(&interface, 0, ptr::null()) } {
+        Some(run_wlc)
+    }
+    else {
+        None
+    }
+}
+
+/// Initialize wlc's callbacks and logger.
+///
+/// To initialize wlc, register your callbacks with the functions described in
+/// the `callbacks` module, and the logger using `log_set_handler` or
+/// `log_set_default_handler`. Then call `init2()`.
+///
+/// # Permissions
+/// If a compositor is initialized from the tty using suid or logind, it will
+/// drop extra permissions after a call to `init2()`. It is strongly
+/// recommended to delay code which is not registering callbacks until after
+/// this call.
+///
+/// # wlc Example
+/// ```no_run
+/// use rustwlc;
+/// use rustwlc::callback;
+/// use rustwlc::handle::WlcView;
+///
+/// // An example callback function
+/// // See the various functions in this module for more information
+/// extern "C" fn view_focus_callback(view: WlcView, focused: bool) {
+///     println!("A view came into focus!");
+/// }
+///
+/// // Set a default log callback
+/// rustwlc::log_set_default_handler();
+///
+/// // Register some callbacks
+/// callback::view_focus(view_focus_callback);
+/// // ... and additional callbacks
+///
+/// // The only thing your code should do before init2 is register callbacks
+/// // and log handlers.
+/// let run_wlc = rustwlc::init2()
+///     .expect("Unable to initialize wlc!");
+///
+/// run_wlc();
+/// ```
+pub fn init2() -> Option<fn() -> ()> {
+    if unsafe { wlc_init2() } {
+        Some(run_wlc)
+    }
+    else {
+        None
     }
 }
 
 /// Runs wlc's event loop.
 ///
 /// The initialize functions will return this function in an Option.
-/// If and only if they succeed can this function be called wlc with `rustwlc::init` call this method
-/// to being wlc's main event loop.
+/// Only then can it be called to being wlc's main event loop.
 fn run_wlc() {
     unsafe {
         wlc_run();
-    }
-}
-
-/// Deprecated, do not use.
-///
-/// # Deprecated
-/// This function does not seem to work across the FFI boundary, and Rust provides a
-/// much better interface in the `std::command::Command` class to executing programs.
-pub fn exec(bin: String, args: Vec<String>) {
-    unsafe {
-        let bin_c = CString::new(bin).unwrap().as_ptr() as *const libc::c_char;
-
-        let argv: Vec<CString> = args.into_iter()
-                                     .map(|arg| CString::new(arg).unwrap())
-                                     .collect();
-
-        let args: Vec<*const libc::c_char> = argv.into_iter()
-                                                 .map(|arg: CString| {
-                                                     arg.as_ptr() as *const libc::c_char
-                                                 })
-                                                 .collect();
-
-        wlc_exec(bin_c, args.as_ptr() as *const *const libc::c_char);
     }
 }
 
@@ -139,14 +183,12 @@ pub fn terminate() {
 /// from C code.
 ///
 /// In addition, `unsafe` will be required to convert the text into a Rust String.
-#[allow(dead_code)]
 pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
     unsafe {
         wlc_log_set_handler(handler);
     }
 }
 
-#[allow(dead_code)]
 extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
     let string_text = unsafe { pointer_to_string(text) };
     println!("wlc [{:?}] {}", log_type, string_text);
@@ -161,10 +203,10 @@ extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char)
 /// ```no_run
 /// use rustwlc;
 ///
-/// let interface = rustwlc::interface::WlcInterface::new();
+/// // An example where only the default log handler is registered
 /// rustwlc::log_set_default_handler();
 ///
-/// if let Some(run_wlc) = rustwlc::init(interface) {
+/// if let Some(run_wlc) = rustwlc::init2() {
 ///      run_wlc();
 /// }
 /// else {
