@@ -1,3 +1,5 @@
+before_install:
+  - ./.travis-pre-build.sh
 language: rust
 rust:
   - stable
