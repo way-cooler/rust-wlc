@@ -1,15 +1,16 @@
 addons:
   apt:
+    packages:
     - libxkbcommon-dev
 before_install:
-  - ./.travis-pre-build.sh
+- ./.travis-pre-build.sh
 language: rust
 rust:
-  - stable
-  - beta
-  - nightly
+- stable
+- beta
+- nightly
 matrix:
   allow_failures:
-    - rust: nightly
+  - rust: nightly
 notifications:
   email: false
