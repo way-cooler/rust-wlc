@@ -199,7 +199,7 @@ pub fn output_focus(callback: extern "C" fn(output: WlcOutput, focused: bool)) {
 /// # Example
 /// ```rust
 /// use rustwlc::handle::WlcOutput;
-/// use rustwlc::types::Size;
+/// use rustwlc::Size;
 ///
 /// extern fn output_resolution(output: WlcOutput,
 ///                             old_size: &Size, new_size: &Size) {
@@ -298,7 +298,6 @@ pub fn view_destroyed(callback: extern "C" fn(view: WlcView)) {
 /// # Example
 /// ```rust
 /// use rustwlc::handle::WlcView;
-/// use rustwlc::types::*;
 ///
 /// extern fn view_focus(view: WlcView, focused: bool) {
 ///     println!("View {:?} is {} focus, updating...",
@@ -387,7 +386,7 @@ pub fn view_render_post(callback: extern "C" fn(view: WlcView)) {
 /// # Example
 /// ```rust
 /// use rustwlc::handle::WlcView;
-/// use rustwlc::types::{KeyboardModifiers, KeyState};
+/// use rustwlc::{KeyboardModifiers, KeyState};
 ///
 /// extern fn keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers,
 ///                        key: u32, state: KeyState) -> bool {
@@ -416,7 +415,7 @@ pub fn keyboard_key(callback: extern "C" fn(view: WlcView, time: u32,
 /// # Example
 /// ```rust
 /// use rustwlc::handle::WlcView;
-/// use rustwlc::types::{KeyboardModifiers, ButtonState, Point};
+/// use rustwlc::{KeyboardModifiers, ButtonState, Point};
 ///
 /// extern fn pointer_button(view: WlcView, time: u32,
 ///                          mods: &KeyboardModifiers, button: u32,
@@ -466,7 +465,7 @@ pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32,
 /// # Example
 /// ```rust
 /// use rustwlc::handle::WlcView;
-/// use rustwlc::types::Point;
+/// use rustwlc::Point;
 /// use rustwlc::input::pointer;
 ///
 /// extern fn pointer_motion(view: WlcView, time: u32, point: &Point) -> bool {

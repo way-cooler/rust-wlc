@@ -8,7 +8,6 @@ extern crate libc;
 extern crate bitflags;
 
 use std::ffi;
-use std::ptr;
 
 pub mod handle;
 pub mod callback;
