@@ -47,6 +47,11 @@ extern "C" {
     // Output resolution changed.
     fn wlc_set_output_resolution_cb(cb: extern "C" fn(WlcOutput, &Size, &Size));
 
+    // Output context callbacks
+    fn wlc_set_output_context_created_cb(cb: extern "C" fn(WlcOutput));
+
+    fn wlc_set_output_context_destroyed_cb(cb: extern "C" fn(WlcOutput));
+
     // Output pre render hook.
     fn wlc_set_output_render_pre_cb(cb: extern "C" fn(WlcOutput));
 
@@ -208,6 +213,20 @@ pub fn output_resolution(callback: extern "C" fn(output: WlcOutput,
                                                  new_size: &Size)) {
     unsafe {
         wlc_set_output_resolution_cb(callback);
+    }
+}
+
+/// Output context created. This generally happens on a tty switch.
+pub fn output_context_destroyed(cb: extern "C" fn(output: WlcOutput)) {
+    unsafe {
+        wlc_set_output_context_destroyed_cb(cb);
+    }
+}
+
+/// Output context destroyed
+pub fn output_context_created(cb: extern "C" fn(output: WlcOutput)) {
+    unsafe {
+        wlc_set_output_context_created_cb(cb);
     }
 }
 
