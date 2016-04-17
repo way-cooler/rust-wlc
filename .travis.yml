@@ -1,3 +1,6 @@
+addons:
+  apt:
+    - libxkbcommon-dev
 before_install:
   - ./.travis-pre-build.sh
 language: rust
