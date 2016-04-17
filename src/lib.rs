@@ -20,7 +20,6 @@ pub mod xkb;
 
 pub use types::*;
 
-use types::{BackendType, LogType};
 use interface::WlcInterface;
 
 // External WLC functions
