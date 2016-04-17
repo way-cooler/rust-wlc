@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 echo "Installing dependencies."
 # Stop on errors, be verbose
 set -ex
