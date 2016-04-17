@@ -7,7 +7,6 @@ extern crate rustwlc;
 
 use rustwlc::*;
 use rustwlc::handle::{WlcView, WlcOutput};
-use rustwlc::types::*;
 use rustwlc::xkb::keysyms;
 
 use std::cmp;
@@ -296,7 +295,7 @@ fn main() {
     callback::pointer_motion(on_pointer_motion);
 
     rustwlc::log_set_default_handler();
-    let run_fn = rustwlc::init2().expect("Unable to initialize wlc!");
+    let run_fn = rustwlc::init().expect("Unable to initialize wlc!");
     run_fn();
 }
 
