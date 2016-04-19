@@ -2,6 +2,7 @@ addons:
   apt:
     packages:
     - libxkbcommon-dev
+    - cmake
 before_install:
 - ./.travis-pre-build.sh
 language: rust
