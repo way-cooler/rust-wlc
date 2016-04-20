@@ -18,6 +18,9 @@ pub mod xkb;
 
 pub use types::*;
 
+// Log Handler hack
+static mut rust_fn: fn(_type: LogType, string: String) = default_log_callback;
+
 // External WLC functions
 #[link(name = "wlc")]
 extern "C" {
@@ -136,15 +139,22 @@ pub fn terminate() {
 /// from C code.
 ///
 /// In addition, `unsafe` will be required to convert the text into a Rust String.
-pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
+pub fn log_set_handler(handler: fn(type_: LogType, text: String)) {
     unsafe {
-        wlc_log_set_handler(handler);
+        // Set global handler function
+        rust_fn = handler;
+        extern "C" fn c_handler(type_: LogType, text: *const libc::c_char) {
+            unsafe {
+                let string = ffi::CStr::from_ptr(text).to_string_lossy().into_owned();
+                rust_fn(type_, string);
+            }
+        }
+        wlc_log_set_handler(c_handler);
     }
 }
 
-extern "C" fn default_log_callback(log_type: LogType, text: *const libc::c_char) {
-    let string_text = unsafe { pointer_to_string(text) };
-    println!("wlc [{:?}] {}", log_type, string_text);
+fn default_log_callback(log_type: LogType, text: String) {
+    println!("wlc [{:?}] {}", log_type, text);
 }
 
 /// Sets the wlc log callback to a simple function that prints to console.
