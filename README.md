@@ -6,7 +6,7 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.1 or later.
+Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.2.
 
 ### Rust Example
 
@@ -15,7 +15,7 @@ Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.1 or later.
 
 extern crate rustwlc;
 use rustwlc::callback;
-use rustwlc::types::*;
+use rustwlc::WlcView;
 
 // Callbacks must be labeled extern as they will be called from C
 extern "C" fn view_created(view: WlcView) -> bool {
@@ -44,7 +44,7 @@ We're on [crates.io](https://crates.io/crates/rustwlc), so to use the library si
 
 ```toml
 [depdenencies]
-rustwlc = "^0.3"
+rustwlc = "^0.3.1"
 ```
 to your Cargo.toml.
 
@@ -67,7 +67,7 @@ If the documentation isn't clear enough or in the wrong places, please let us kn
 ### Safety
 `rust-wlc` is written to be a clean Rust wrapper around wlc. While we've taken the liberty to make the code more Rust-friendly (such as creating instance methods for `WlcView` and `WlcOutput`), but we did not try to extend wlc itself. 
 
-The callbacks registered from `WlcInterface` must be labeled `extern` (or `extern "C"`) because they are called from C code. In addition, as per the Rust spec, panicking from C is undefined behavior (although it's worked for us).
+The callbacks registered in `callbacks` must be labeled `extern` (or `extern "C"`) because they are called from C code. In addition, as per the Rust spec, panicking from C is undefined behavior (although it's worked for us).
 
 Compositors using rust-wlc can do so without any `unsafe` code. The only exception to this is registering a callback for wlc's logging function exposed through  `rustwlc::log_set_handler` (the callback must take in a `*const libc::c_char`). We have provided a `println!`-powered default enabled with `rustwlc::log_set_default_handler()`. In addition, the methods `get_user_data` and `set_user_data` in `WlcView` and `WlcOutput` are unsafe because they use C raw types (`void*`) underneath, and proper usage requires a deeper understanding of wlc itself.
 
