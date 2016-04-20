@@ -1,8 +1,17 @@
+addons:
+  apt:
+    packages:
+    - libxkbcommon-dev
+    - cmake
+before_install:
+- ./.travis-pre-build.sh
 language: rust
 rust:
-  - stable
-  - beta
-  - nightly
+- stable
+- beta
+- nightly
 matrix:
   allow_failures:
-    - rust: nightly
+  - rust: nightly
+notifications:
+  email: false
