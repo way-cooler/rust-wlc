@@ -11,7 +11,6 @@ addons:
       - libxcb-image0-dev
       - libxcb-composite0-dev
       - libx11-xcb-dev
-      - libxcb-xkb1
       - libegl1-mesa-dev
       - libglw1-mesa-dev
       - libgles2-mesa-dev
@@ -32,3 +31,7 @@ matrix:
     - rust: nightly
 notifications:
   email: false
+
+cache:
+  directories:
+    - ./target/debug/deps/libwlc.so.0
