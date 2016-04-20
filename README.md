@@ -29,7 +29,7 @@ extern "C" fn view_focus(view: WlcView, focused: bool) {
 }
 
 fn main() {
-    callback::view_created(view_created)
+    callback::view_created(view_created);
     callback::view_focus(view_focus);
 
     // The default log handler will print wlc logs to stdout
