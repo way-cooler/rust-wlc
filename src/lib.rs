@@ -123,7 +123,7 @@ pub fn terminate() {
     }
 }
 
-/// Registers a callback for wlc logging.
+/// Registers a C callback for wlc logging.
 ///
 /// Note that `rustwlc::log_set_default_handler()` will register a simple callback
 /// that will print the type and text to the console.
@@ -139,18 +139,29 @@ pub fn terminate() {
 /// from C code.
 ///
 /// In addition, `unsafe` will be required to convert the text into a Rust String.
-pub fn log_set_handler(handler: fn(type_: LogType, text: &str)) {
+pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
     unsafe {
-        // Set global handler function
-        rust_logging_fn = handler;
-        extern "C" fn c_handler(type_: LogType, text: *const libc::c_char) {
-            unsafe {
-                let string = ffi::CStr::from_ptr(text).to_string_lossy().into_owned();
-                rust_logging_fn(type_, &string);
-            }
-        }
-        wlc_log_set_handler(c_handler);
+        wlc_log_set_handler(handler);
     }
+}
+
+/// Registers a Rust callback for wlc logging.
+
+/// This is a nice convenience function that should be used in place of
+/// `log_set_handler`. That way you can just pass a safe Rust `&str`
+/// and not depend on libc`.
+pub fn log_set_rust_handler(handler: fn(type_: LogType, text: &str)) {
+        // Set global handler function
+        unsafe {
+            rust_logging_fn = handler;
+            extern "C" fn c_handler(type_: LogType, text: *const libc::c_char) {
+                unsafe {
+                    let string = ffi::CStr::from_ptr(text).to_string_lossy().into_owned();
+                    rust_logging_fn(type_, &string);
+                }
+            }
+            wlc_log_set_handler(c_handler);
+        }
 }
 
 fn default_log_callback(log_type: LogType, text: &str) {
@@ -177,7 +188,7 @@ fn default_log_callback(log_type: LogType, text: &str) {
 /// }
 /// ```
 pub fn log_set_default_handler() {
-    log_set_handler(default_log_callback);
+    log_set_rust_handler(default_log_callback);
 }
 
 /// Unsafe strings conversion function.
