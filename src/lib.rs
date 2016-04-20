@@ -19,7 +19,7 @@ pub mod xkb;
 pub use types::*;
 
 // Log Handler hack
-static mut rust_fn: fn(_type: LogType, string: String) = default_log_callback;
+static mut rust_logging_fn: fn(_type: LogType, string: String) = default_log_callback;
 
 // External WLC functions
 #[link(name = "wlc")]
@@ -142,11 +142,11 @@ pub fn terminate() {
 pub fn log_set_handler(handler: fn(type_: LogType, text: String)) {
     unsafe {
         // Set global handler function
-        rust_fn = handler;
+        rust_logging_fn = handler;
         extern "C" fn c_handler(type_: LogType, text: *const libc::c_char) {
             unsafe {
                 let string = ffi::CStr::from_ptr(text).to_string_lossy().into_owned();
-                rust_fn(type_, string);
+                rust_logging_fn(type_, string);
             }
         }
         wlc_log_set_handler(c_handler);
