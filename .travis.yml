@@ -1,4 +1,11 @@
 language: rust
+addons:
+  apt:
+    packages:
+      - libwayland-server0
+before_install:
+  - mkdir -p /home/travis/build/Immington-Industries/rust-wlc/target/debug/deps/
+  - wget https://www.dropbox.com/s/4xjpxwxwy3ulem8/libwlc.so?dl=0 --output-document=/home/travis/build/Immington-Industries/rust-wlc/target/debug/deps/libwlc.so.0
 rust:
   - stable
   - beta
