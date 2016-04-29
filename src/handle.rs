@@ -118,6 +118,15 @@ impl From<WlcOutput> for WlcView {
 
 
 impl WlcOutput {
+    /// Testing/Debugging function.
+    ///
+    /// Makes a new WlcOutput with the given handle. This handle is more likely
+    /// than not invalid, so this function should really only be used for
+    /// testing and making mock outputs/monitors.
+    pub fn new(handle: u32) -> WlcOutput {
+        WlcOutput(handle as libc::uintptr_t)
+    }
+
     /// Compatability/debugging function.
     ///
     /// wlc internally stores views and outputs under the same type.
@@ -292,6 +301,15 @@ impl WlcOutput {
 }
 
 impl WlcView {
+    /// Testing/Debugging function.
+    ///
+    /// Makes a new WlcView with the given handle. This handle is more likely
+    /// than not invalid, so this function should really only be used for
+    /// testing and making mock views.
+    pub fn new(handle: u32) -> WlcView {
+        WlcView(handle as libc::uintptr_t)
+    }
+
     /// Compatability/debugging function.
     ///
     /// wlc internally stores views and outputs under the same type.
