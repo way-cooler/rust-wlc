@@ -1,4 +1,60 @@
-//! Module defining main wlc functions.
+//! `rustwlc` is a wrapper for [wlc][], a library for writing a window
+//! manager using the [wayland][] protocol. Compositors using rustwlc will
+//! not need unsafe code for basic interaction with wayland.
+//!
+//! # wlc
+//!
+//! [wlc][] is a library written in C which acts as a wayland compositor. It
+//! provides abstractions over wayland via structs such as `WlcView`,
+//! `WlcOutput`, `Geometry`, or `KeyboardModifiers`. It provides callbacks
+//! (found in the `callback` module) for events such as `view_created`,
+//! `mouse_move`, or `view_focused`.
+//!
+//! # Example
+//!
+//! For more information on how to use rustwlc, see the `callbacks` module
+//! and the `run_wlc()` method.
+//!
+//! For a more complete example, see [the example program][] on
+//! [our GitHub page][].
+//!
+//! ```rust
+//! extern crate rustwlc;
+//! use rustwlc::callback;
+//! // VIEW_ACTIVATED is a bitflags enum variant, and those must be imported
+//! // manually, or using a wildcatd.
+//! use rustwlc::{WlcView, VIEW_ACTIVATED};
+//!
+//! // Callbacks must be labeled extern as they will be called from C
+//! extern "C" fn view_created(view: WlcView) -> bool {
+//!     view.bring_to_front();
+//!     view.focus();
+//!     return true;
+//! }
+//!
+//! extern "C" fn view_focus(view: WlcView, focused: bool) {
+//!     view.set_state(VIEW_ACTIVATED, focused);
+//! }
+//!
+//! // Entry point for a compositor
+//! fn compsoitor_main() {
+//!     callback::view_created(view_created);
+//!     callback::view_focus(view_focus);
+//!
+//!     // The default log handler will print wlc logs to stdout
+//!     rustwlc::log_set_default_handler();
+//!     let run_fn = rustwlc::init().expect("Unable to initialize!");
+//!     // This will run wlc's event loop and launch wayland.
+//!     run_fn();
+//! }
+//! # fn main() {}
+//! ```
+//! For a more full-featured compositor using rustwlc, see [way-cooler][].
+//! [wlc]: https://github.com/Cloudef/wlc
+//! [wayland]: https://wayland.freedesktop.org/
+//! [the example program]: https://github.com/Immington-Industries/rust-wlc/blob/master/example/src/main.rs
+//! [our GitHub page]: https://github.com/Immington-Industries/rustwlc
+//! [way-cooler]: https://github.com/Immington-Industries/way-cooler
 
 #![warn(missing_docs)]
 
