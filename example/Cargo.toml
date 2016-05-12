@@ -4,6 +4,7 @@ version = "0.2.0"
 authors = ["snirk <snirk.immington@gmail.com>"]
 
 [dependencies]
-lazy_static = "0.1.15"
+lazy_static = "0.1.*"
+
 [dependencies.rustwlc]
 path = "../"

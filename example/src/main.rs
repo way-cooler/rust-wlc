@@ -6,7 +6,6 @@ extern crate lazy_static;
 extern crate rustwlc;
 
 use rustwlc::*;
-use rustwlc::handle::{WlcView, WlcOutput};
 use rustwlc::xkb::keysyms;
 
 use std::cmp;
