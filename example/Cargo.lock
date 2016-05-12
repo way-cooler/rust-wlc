@@ -2,8 +2,8 @@
 name = "rustwlc-example"
 version = "0.2.0"
 dependencies = [
- "lazy_static 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "rustwlc 0.3.0",
+ "lazy_static 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustwlc 0.3.2",
 ]
 
 [[package]]
@@ -13,19 +13,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "lazy_static"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "libc"
-version = "0.2.9"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rustwlc"
-version = "0.3.0"
+version = "0.3.2"
 dependencies = [
  "bitflags 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
