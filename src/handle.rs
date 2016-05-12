@@ -1,12 +1,8 @@
 //! Contains definitions for wlc handle types.
 //!
-//! # Option results
-//! Because wlc uses a memory pool to store its handles, a handle to a view
-//! may exist after the view is destroyed (or replaced with a different view).
-//! As such, 
-//!
 //! # Implementations
 //! - **Debug**: pointer-prints the underlying `uintptr_t` handle
+//! - **Eq, Ord**: compare the underlying `uintptr_t` handle
 //! - **Clone**: View handles can safely be cloned.
 
 extern crate libc;
