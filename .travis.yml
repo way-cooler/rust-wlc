@@ -8,4 +8,5 @@ matrix:
     - rust: nightly
 notifications:
   email: false
+  slack: way-cooler:bf5hNqMVmTgFpHo3a3vgZ4Lu
 script: cargo build --verbose
