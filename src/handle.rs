@@ -1,4 +1,13 @@
 //! Contains definitions for wlc handle types.
+//!
+//! # Option results
+//! Because wlc uses a memory pool to store its handles, a handle to a view
+//! may exist after the view is destroyed (or replaced with a different view).
+//! As such, 
+//!
+//! # Implementations
+//! - **Debug**: pointer-prints the underlying `uintptr_t` handle
+//! - **Clone**: View handles can safely be cloned.
 
 extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
@@ -7,12 +16,13 @@ use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
+///
 pub struct WlcView(libc::uintptr_t);
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput(libc::uintptr_t);
 
@@ -116,7 +126,6 @@ impl From<WlcOutput> for WlcView {
     }
 }
 
-
 impl WlcOutput {
     /// Compatability/debugging function.
     ///
@@ -126,6 +135,32 @@ impl WlcOutput {
     /// a bug report.
     pub fn as_view(self) -> WlcView {
         return WlcView::from(self)
+    }
+
+    /// Create a dummy WlcOutput for testing purposes.
+    ///
+    /// # Unsafety
+    /// Please do not call any methods on dummy views.
+    /// They may cause segfaults. Checking for equality, pretty printing,
+    /// and comparisons are okay.
+    ///
+    /// # Note
+    /// `WlcOutput::root()` is equivalent to `WlcOutput::dummy(0)`:
+    /// ```rust
+    /// use rustwlc::handle::WlcOutput;
+    /// assert!(WlcOutput::root() == WlcOutput::dummy(0))
+    /// ```
+    /// # Example
+    /// ```rust
+    /// use rustwlc::handle::WlcOutput;
+    ///
+    /// let output = WlcOutput::dummy(0u32);
+    /// let output2 = WlcOutput::dummy(1u32);
+    /// assert!(output < output2);
+    /// assert!(output != output2);
+    /// ```
+    pub fn dummy(code: u32) -> WlcOutput {
+        WlcOutput(code as libc::uintptr_t)
     }
 
     /// Gets user-specified data.
@@ -300,6 +335,32 @@ impl WlcView {
     /// a bug report.
     pub fn as_output(self) -> WlcOutput {
         WlcOutput::from(self)
+    }
+
+    /// Create a dummy WlcView for testing purposes.
+    ///
+    /// # Unsafety
+    /// Please do not call any methods on dummy views.
+    /// They may cause segfaults. Checking for equality, pretty printing,
+    /// and comparisons are okay.
+    ///
+    /// # Note
+    /// `WlcView::root()` is equivalent to `WlcView::dummy(0)`:
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    /// assert!(WlcView::root() == WlcView::dummy(0))
+    /// ```
+    /// # Example
+    /// ```rust
+    /// use rustwlc::handle::WlcView;
+    ///
+    /// let view = WlcView::dummy(0u32);
+    /// let view2 = WlcView::dummy(1u32);
+    /// assert!(view < view2);
+    /// assert!(view != view2);
+    /// ```
+    pub fn dummy(code: u32) -> WlcView {
+        WlcView(code as uintptr_t)
     }
 
     /// Returns a reference to the root window (desktop background).
