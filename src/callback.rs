@@ -298,6 +298,8 @@ pub fn view_destroyed(callback: extern "C" fn(view: WlcView)) {
 /// # Example
 /// ```rust
 /// use rustwlc::handle::WlcView;
+/// // The bitflags constants need to be imported manually.
+/// use rustwlc::VIEW_ACTIVATED;
 ///
 /// extern fn view_focus(view: WlcView, focused: bool) {
 ///     println!("View {:?} is {} focus, updating...",
