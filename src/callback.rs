@@ -6,7 +6,7 @@
 //! ```no_run
 //! use rustwlc;
 //! use rustwlc::callback;
-//! use rustwlc::handle::WlcView;
+//! use rustwlc::WlcView;
 //!
 //! // An example callback function
 //! // See the various functions in this module for more information
@@ -145,7 +145,7 @@ extern "C" {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcOutput;
+/// use rustwlc::WlcOutput;
 ///
 /// extern fn on_output_created(output: WlcOutput) -> bool {
 ///     println!("Output {} ({:?}) was created", output.get_name(), output);
@@ -163,7 +163,7 @@ pub fn output_created(callback: extern "C" fn(output: WlcOutput) -> bool) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcOutput;
+/// use rustwlc::WlcOutput;
 ///
 /// extern fn output_destroyed(output: WlcOutput) {
 ///     println!("Goodbye, {:?}", output);
@@ -180,7 +180,7 @@ pub fn output_destroyed(callback: extern "C" fn(output: WlcOutput)) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcOutput;
+/// use rustwlc::WlcOutput;
 ///
 /// extern fn output_focus(output: WlcOutput, focused: bool) {
 ///     println!("Output {} {} focus", output.get_name(),
@@ -198,7 +198,7 @@ pub fn output_focus(callback: extern "C" fn(output: WlcOutput, focused: bool)) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcOutput;
+/// use rustwlc::WlcOutput;
 /// use rustwlc::Size;
 ///
 /// extern fn output_resolution(output: WlcOutput,
@@ -254,7 +254,7 @@ pub fn output_render_post(callback: extern "C" fn(output: WlcOutput)) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 ///
 /// extern fn view_created(view: WlcView) -> bool {
 ///     println!("View \"{}\" was created ({:?})", view.get_class(), view);
@@ -278,7 +278,7 @@ pub fn view_created(callback: extern "C" fn(view: WlcView) -> bool) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 ///
 /// extern fn view_destroyed(view: WlcView) {
 ///     println!("Goodbye, {:?}", view);
@@ -297,7 +297,7 @@ pub fn view_destroyed(callback: extern "C" fn(view: WlcView)) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 /// // The bitflags constants need to be imported manually.
 /// use rustwlc::VIEW_ACTIVATED;
 ///
@@ -387,7 +387,7 @@ pub fn view_render_post(callback: extern "C" fn(view: WlcView)) {
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 /// use rustwlc::{KeyboardModifiers, KeyState};
 ///
 /// extern fn keyboard_key(view: WlcView, time: u32, mods: &KeyboardModifiers,
@@ -416,7 +416,7 @@ pub fn keyboard_key(callback: extern "C" fn(view: WlcView, time: u32,
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 /// use rustwlc::{KeyboardModifiers, ButtonState, Point};
 ///
 /// extern fn pointer_button(view: WlcView, time: u32,
@@ -466,7 +466,7 @@ pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32,
 ///
 /// # Example
 /// ```rust
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 /// use rustwlc::Point;
 /// use rustwlc::input::pointer;
 ///

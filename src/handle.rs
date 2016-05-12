@@ -147,12 +147,12 @@ impl WlcOutput {
     /// # Note
     /// `WlcOutput::root()` is equivalent to `WlcOutput::dummy(0)`:
     /// ```rust
-    /// use rustwlc::handle::WlcOutput;
+    /// use rustwlc::WlcOutput;
     /// assert!(WlcOutput::root() == WlcOutput::dummy(0))
     /// ```
     /// # Example
     /// ```rust
-    /// use rustwlc::handle::WlcOutput;
+    /// use rustwlc::WlcOutput;
     ///
     /// let output = WlcOutput::dummy(0u32);
     /// let output2 = WlcOutput::dummy(1u32);
@@ -347,12 +347,12 @@ impl WlcView {
     /// # Note
     /// `WlcView::root()` is equivalent to `WlcView::dummy(0)`:
     /// ```rust
-    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::WlcView;
     /// assert!(WlcView::root() == WlcView::dummy(0))
     /// ```
     /// # Example
     /// ```rust
-    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::WlcView;
     ///
     /// let view = WlcView::dummy(0u32);
     /// let view2 = WlcView::dummy(1u32);
@@ -367,7 +367,7 @@ impl WlcView {
     ///
     /// # Example
     /// ```
-    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::WlcView;
     ///
     /// let view = WlcView::root();
     /// assert!(view.is_root());
@@ -380,7 +380,7 @@ impl WlcView {
     ///
     /// # Example
     /// ```rust
-    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::WlcView;
     /// # // This example can be run because WlcView::root() does not interact with wlc
     /// let view = WlcView::root();
     /// assert!(view.is_root());
@@ -397,7 +397,7 @@ impl WlcView {
     ///
     /// # Example
     /// ```rust
-    /// use rustwlc::handle::WlcView;
+    /// use rustwlc::WlcView;
     ///
     /// let view = WlcView::root();
     /// assert!(view.is_root());

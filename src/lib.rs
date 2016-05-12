@@ -17,6 +17,7 @@ pub mod wayland;
 pub mod xkb;
 
 pub use types::*;
+pub use handle::{WlcOutput, WlcView};
 
 // Log Handler hack
 static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;
@@ -66,7 +67,7 @@ pub fn get_backend_type() -> BackendType {
 /// ```no_run
 /// use rustwlc;
 /// use rustwlc::callback;
-/// use rustwlc::handle::WlcView;
+/// use rustwlc::WlcView;
 ///
 /// // An example callback function
 /// // See the various functions in the callback module for more information
