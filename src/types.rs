@@ -32,7 +32,7 @@ pub enum BackendType {
 bitflags! {
     /// Flags describing wayland events
     #[repr(C)]
-    flags EventBit: u32 {
+    pub flags EventBit: u32 {
         /// Event can be read
         const EVENT_READABLE = 1,
         /// Event can be written
@@ -47,7 +47,7 @@ bitflags! {
 bitflags! {
     /// How window is being viewed
     #[repr(C)]
-    flags ViewState: u32 {
+    pub flags ViewState: u32 {
         /// Window maximized
         const VIEW_MAXIMIZED = 1,
         /// Window fullscreen
@@ -64,7 +64,7 @@ bitflags! {
 bitflags! {
     /// Viewtype - like x11 flags
     #[repr(C)]
-    flags ViewType: u32 {
+    pub flags ViewType: u32 {
         /// Override redirect (X11)
         const VIEW_BIT_OVERRIDE_REDIRECT = 1,
         /// Tooltips (X11)
@@ -81,7 +81,7 @@ bitflags! {
 bitflags! {
     /// Which edge is being used to resize a window.
     #[repr(C)]
-    flags ResizeEdge: u32 {
+    pub flags ResizeEdge: u32 {
         /// No edge
         const EDGE_NONE = 0,
         /// Top edge
@@ -106,7 +106,7 @@ bitflags! {
 bitflags! {
     /// Represents which keyboard meta keys are being pressed.
     #[repr(C)]
-    flags KeyMod: u32 {
+    pub flags KeyMod: u32 {
         /// No modifiers
         const MOD_NONE = 0,
         /// Shift
@@ -132,7 +132,7 @@ bitflags! {
     /// "LEDs" or active key-locks.
     /// i.e. caps lock, scroll lock
     #[repr(C)]
-    flags KeyboardLed: u32 {
+    pub flags KeyboardLed: u32 {
         /// Num lock is pressed
         const NUM_LOCK = 1,
         /// Caps lock is pressed
