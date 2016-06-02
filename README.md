@@ -14,6 +14,7 @@ Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.2.
 // For more functional example see example/src/main.rs
 
 extern crate rustwlc;
+use rustwlc::types::*;
 use rustwlc::callback;
 use rustwlc::WlcView;
 
