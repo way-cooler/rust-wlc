@@ -138,6 +138,9 @@ extern "C" {
 
     // Input device was destroyed. (Experimental)
     //fn wlc_set_input_destroyed_cb(cb: extern "C" fn(&LibinputDevice));
+
+    // View properties were updated
+    fn wlc_set_view_properties_updated_cb(view: extern "C" fn());
 }
 
 /// Callback invoked when an output is created.
@@ -515,5 +518,12 @@ pub fn compositor_ready(callback: extern "C" fn()) {
 pub fn compositor_terminate(callback: extern "C" fn()) {
     unsafe {
         wlc_set_compositor_terminate_cb(callback);
+    }
+}
+
+/// Callback invoked when a WlcView has its properties updated
+pub fn view_properties_changed(callback: extern "C" fn()) {
+    unsafe {
+        wlc_set_view_properties_updated_cb(callback);
     }
 }
