@@ -80,6 +80,9 @@ pub mod xkb;
 pub use types::*;
 pub use handle::{WlcOutput, WlcView};
 
+#[cfg(feature="wlc-wayland")]
+pub use wayland::WlcResource;
+
 // Log Handler hack
 static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;
 
