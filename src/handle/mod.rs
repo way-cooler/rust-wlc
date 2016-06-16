@@ -5,7 +5,6 @@
 //! - **Eq, Ord**: compare the underlying `uintptr_t` handle
 //! - **Clone**: View handles can safely be cloned.
 
-extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
 use super::pointer_to_string;
@@ -15,13 +14,17 @@ use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
-pub struct WlcView(libc::uintptr_t);
+pub struct WlcView(uintptr_t);
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
-pub struct WlcOutput(libc::uintptr_t);
+pub struct WlcOutput(uintptr_t);
 
+mod view;
+mod output;
+
+// Applies to both handles
 #[link(name = "wlc")]
 extern "C" {
     fn wlc_get_outputs(memb: *mut libc::size_t) -> *const libc::uintptr_t;
