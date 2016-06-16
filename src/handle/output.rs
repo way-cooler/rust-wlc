@@ -93,7 +93,7 @@ impl WlcOutput {
     ///
     /// # Unsafety
     /// The wlc implementation of this method uses `void*` pointers
-    /// for raw C data. This function will internaly do a conversion
+    /// for raw C data. This function will internaly does a conversion
     /// between the input `T` and a `libc::c_void`.
     ///
     /// This is a highly unsafe conversion with no guarantees. As
@@ -109,7 +109,7 @@ impl WlcOutput {
     ///
     /// # Unsafety
     /// The wlc implementation of this method uses `void*` pointers
-    /// for raw C data. This function will internaly do a conversion
+    /// for raw C data. This function will internaly does a conversion
     /// between the input `T` and a `libc::c_void`.
     ///
     /// This is a highly unsafe conversion with no guarantees. As
@@ -127,7 +127,7 @@ impl WlcOutput {
     /// a no-op; if output is currently rendering,
     /// it will render immediately after.
     pub fn schedule_render(&self) {
-        unsafe { wlc_output_schedule_render(self.0) };
+        unsafe { wlc_output_schedule_render(self.0) }
     }
 
     /// Gets a list of the current outputs.
@@ -139,10 +139,10 @@ impl WlcOutput {
             let mut out_memb: size_t = 0;
             let outputs = wlc_get_outputs(&mut out_memb);
             if outputs.is_null() {
-                return Vec::new();
+                return Vec::new()
             }
             let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize) .. (out_memb as isize) {
+            for index in 0isize .. (out_memb as isize) {
                 result.push(WlcOutput(*(outputs.offset(index))));
             }
             result
@@ -259,5 +259,18 @@ impl WlcOutput {
                 None => wlc_output_focus(0)
             }
         }
+    }
+}
+
+#[cfg(feature = "wlc-wayland")]
+#[link(name = "wlc")]
+extern "C" {
+    fn wlc_handle_from_wl_output_resource(re: *const wl_resource) -> uintptr_t;
+}
+
+#[cfg(feature = "wlc-wayland")]
+impl WlcOutput {
+    pub fn from_wl_output_resource(resource: &wl_resource) -> WlcOutput {
+        unsafe { WlcOutput(wlc_handle_from_wl_output_resource(resource)) }
     }
 }

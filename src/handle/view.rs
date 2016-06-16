@@ -163,7 +163,7 @@ impl WlcView {
     ///
     /// # Unsafety
     /// The wlc implementation of this method uses `void*` pointers
-    /// for raw C data. This function will internaly do a conversion
+    /// for raw C data. This function will internaly does a conversion
     /// between the input `T` and a `libc::c_void`.
     ///
     /// This is a highly unsafe conversion with no guarantees. As
@@ -179,7 +179,7 @@ impl WlcView {
     ///
     /// # Unsafety
     /// The wlc implementation of this method uses `void*` pointers
-    /// for raw C data. This function will internaly do a conversion
+    /// for raw C data. This function will internaly does a conversion
     /// between the input `T` and a `libc::c_void`.
     ///
     /// This is a highly unsafe conversion with no guarantees. As
@@ -374,10 +374,52 @@ extern "C" {
 }
 
 #[cfg(feature = "wlc-wayland")]
+use wayland_sys::{wl_resource, wl_client, wl_interface};
+
+#[cfg(feature = "wlc-wayland")]
 impl WlcView {
-    pub fn from_wl_surface(resource: WlcResource) -> WlcView {
+    /// ## Requires `wlc-wayland` feature
+    ///
+    /// Gets a WlcView from the given Wayland surface resource
+    pub fn from_wl_surface_resource(resource: WlcResource) -> WlcView {
         unsafe {
             WlcView(wlc_handle_from_wl_surface_resource(&resource))
         }
+    }
+
+    /// ## Requires `wlc-wayland` feature
+    ///
+    /// Gets a `WlcView` from the given Wayland surface parameters.
+    ///
+    /// # Unsafety
+    /// The wlc implementation of this method uses `void*` pointers for
+    /// raw C data. This function internally does a conversion between
+    /// the input `T` and `libc::c_void`.
+    ///
+    /// This is a highly unsafe conversion with no guarantees. As such, usage
+    /// of these functions requires an understanding of the wayland APIs that
+    /// the parameters should follow. Please review Wayland and `wayland-sys`
+    /// docs, in addition to wlc's, to understand usage of this function.
+    pub unsafe fn from_wl_surface<I, D>(surface: wl_resource, client: wl_client,
+                                     interface: wl_interface, implementation: I,
+                                version: u32, id: u32, userdata: D) -> WlcView {
+        let impl_potr: *const c_void = interface as *const _ as *const c_void;
+        let data_ptr: *const c_void = userdata  as *const _ as *const c_void;
+        WlcView(wlc_view_from_surface(surface, client, interface, impl_ptr,
+                                      version, id, data_ptr))
+    }
+
+    /// ## Requires `wlc-wayland` feature
+    ///
+    /// Gets a surface `WlcResource` from the given view
+    pub fn get_surface(parent: WlcResource) -> WlcResource {
+        unsafe { WlcResource::from(wlc_view_get_surface(self.0)) }
+    }
+
+    /// ## Require `wlc-wayland` feature
+    ///
+    /// Gets the Wayland role of the view's surface
+    pub fn get_role() -> WlcResource {
+        unsafe { WlcResource::from(wlc_view_get_role(self.0)) }
     }
 }
