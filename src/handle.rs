@@ -172,9 +172,9 @@ impl WlcOutput {
     /// such, usage of these functions requires an understanding of
     /// what data they will have. Please review wlc's usage of these
     /// functions before attempting to use them yourself.
-    pub unsafe fn get_user_data<T>(&self) -> &mut T {
+    pub unsafe fn get_user_data<T>(&self) -> Option<&mut T> {
         let raw_data = wlc_handle_get_user_data(self.0);
-        (raw_data as *mut T).as_mut().unwrap()
+        (raw_data as *mut T).as_mut()
     }
 
     /// Sets user-specified data.
@@ -253,8 +253,8 @@ impl WlcOutput {
     }
 
     /// Gets the output resolution in pixels.
-    pub fn get_resolution(self) -> Size {
-        unsafe { *wlc_output_get_resolution(self.0).as_ref().unwrap() }
+    pub fn get_resolution(self) -> Option<Size> {
+        unsafe { wlc_output_get_resolution(self.0).as_ref().map(|&x| x) }
     }
 
     /// Sets the resolution of the output.
@@ -310,11 +310,11 @@ impl WlcOutput {
         let const_views = views.as_ptr() as *const uintptr_t;
 
         unsafe {
-            let res = match wlc_output_set_views(self.0, const_views, view_len) {
-                true => Ok(()),
-                false => Err("Could not set views on output"),
-            };
-            res
+            if wlc_output_set_views(self.0, const_views, view_len) {
+                Ok(())
+            } else {
+                Err("Could not set views on output")
+            }
         }
     }
 
@@ -323,10 +323,7 @@ impl WlcOutput {
     /// Pass in Option::None for no focus.
     pub fn focus(output: Option<WlcOutput>) {
         unsafe {
-            wlc_output_focus(match output {
-                Some(output) => output.0,
-                None => 0
-            })
+            wlc_output_focus(output.map(|out| out.0).unwrap_or(0))
         }
     }
 }
@@ -431,8 +428,8 @@ impl WlcView {
     /// such, usage of these functions requires an understanding of
     /// what data they will have. Please review wlc's usage of these
     /// functions before attempting to use them yourself.
-    pub unsafe fn get_user_data<T>(&self) -> &mut T {
-        (wlc_handle_get_user_data(self.0) as *mut T).as_mut().unwrap()
+    pub unsafe fn get_user_data<T>(&self) -> Option<&mut T> {
+        (wlc_handle_get_user_data(self.0) as *mut T).as_mut()
     }
 
     /// Sets user-specified data.

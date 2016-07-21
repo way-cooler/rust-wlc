@@ -23,7 +23,7 @@ lazy_static! {
                                  edges: ResizeEdge::empty() });
 }
 
-fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
+fn start_interactive_action(view: WlcView, origin: Point) -> bool {
     {
         let mut comp = COMPOSITOR.write().unwrap();
         if comp.view != None {
@@ -37,11 +37,11 @@ fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
     return true;
 }
 
-fn start_interactive_move(view: &WlcView, origin: &Point) {
+fn start_interactive_move(view: WlcView, origin: Point) {
     start_interactive_action(view, origin);
 }
 
-fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
+fn start_interactive_resize(view: WlcView, edges: ResizeEdge, origin: Point) {
     let geometry = match view.get_geometry() {
         None => { return; }
         Some(g) => g,
@@ -92,7 +92,7 @@ fn stop_interactive_action() {
     comp.edges = ResizeEdge::empty();
 }
 
-fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
+fn get_topmost_view(output: WlcOutput, offset: usize) -> Option<WlcView> {
     let views = output.get_views();
     if views.is_empty() { None }
     else {
@@ -100,8 +100,8 @@ fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
     }
 }
 
-fn render_output(output: &WlcOutput) {
-    let resolution = output.get_resolution();
+fn render_output(output: WlcOutput) {
+    let resolution = output.get_resolution().unwrap();
     let views = output.get_views();
     if views.is_empty() { return; }
 
@@ -122,22 +122,22 @@ fn render_output(output: &WlcOutput) {
 // Handles
 
 extern fn on_output_resolution(output: WlcOutput, _from: &Size, _to: &Size) {
-    render_output(&output);
+    render_output(output);
 }
 
 extern fn on_view_created(view: WlcView) -> bool {
     view.set_mask(view.get_output().get_mask());
     view.bring_to_front();
     view.focus();
-    render_output(&(view).get_output());
+    render_output(view.get_output());
     true
 }
 
 extern fn on_view_destroyed(view: WlcView) {
-    if let Some(top_view) = get_topmost_view(&view.get_output(), 0) {
+    if let Some(top_view) = get_topmost_view(view.get_output(), 0) {
         top_view.focus();
     }
-    render_output(&view.get_output());
+    render_output(view.get_output());
 }
 
 extern fn on_view_focus(view: WlcView, focused: bool) {
@@ -145,11 +145,11 @@ extern fn on_view_focus(view: WlcView, focused: bool) {
 }
 
 extern fn on_view_request_move(view: WlcView, origin: &Point) {
-    start_interactive_move(&view, origin);
+    start_interactive_move(view, *origin);
 }
 
 extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Point) {
-    start_interactive_resize(&view, edges, origin);
+    start_interactive_resize(view, edges, *origin);
 }
 
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
@@ -166,7 +166,7 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
             // Down key
             } else if sym == keysyms::KEY_Down {
                 view.send_to_back();
-                get_topmost_view(&view.get_output(), 0).unwrap().focus();
+                get_topmost_view(view.get_output(), 0).unwrap().focus();
                 return true;
             // Esc Key
             } else if sym == keysyms::KEY_Escape {
@@ -194,10 +194,10 @@ extern fn on_pointer_button(view: WlcView, _time: u32, mods: &KeyboardModifiers,
             if mods.mods.contains(MOD_CTRL) {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
-                    start_interactive_move(&view, point);
+                    start_interactive_move(view, *point);
                 }
                 if button == 0x111 {
-                    start_interactive_resize(&view, ResizeEdge::empty(), point);
+                    start_interactive_resize(view, ResizeEdge::empty(), *point);
                 }
             }
         }
