@@ -10,7 +10,7 @@ authors = ["Snirk Immington <snirk.immington@gmail.com>", "Timidger <apragmaticp
 
 [dependencies]
 libc = "0.2.*"
-bitflags = "0.6.*"
+bitflags = "0.7.*"
 
 [dev-dependencies]
-lazy_static = "0.1.*"
+lazy_static = "0.2.*"

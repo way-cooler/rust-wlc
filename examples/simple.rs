@@ -110,7 +110,7 @@ fn render_output(output: &WlcOutput) {
     let w = resolution.w / 2;
     let h = resolution.h / cmp::max((views.len() + 1) / 2, 1) as u32;
     for (i, view) in views.iter().enumerate() {
-        view.set_geometry(ResizeEdge::empty(), &Geometry {
+        view.set_geometry(ResizeEdge::empty(), Geometry {
             origin: Point { x: if toggle { w as i32 } else { 0 }, y: y },
             size: Size { w: if !toggle && i == views.len() - 1 { resolution.w } else { w }, h: h }
         });
@@ -154,7 +154,7 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
 
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
-    let sym = input::keyboard::get_keysym_for_key(key, &mods.mods);
+    let sym = input::keyboard::get_keysym_for_key(key, mods.mods);
     if state == KeyState::Pressed {
         if mods.mods == MOD_CTRL {
             // Key Q
@@ -265,12 +265,12 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
                         geo.size.h = new_geo.size.h;
                     }
 
-                    view.set_geometry(comp.edges, &geo);
+                    view.set_geometry(comp.edges, geo);
                 }
                 else {
                     geo.origin.x += dx;
                     geo.origin.y += dy;
-                    view.set_geometry(ResizeEdge::empty(), &geo);
+                    view.set_geometry(ResizeEdge::empty(), geo);
                 }
         }
     }

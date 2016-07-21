@@ -12,13 +12,13 @@ use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
 pub struct WlcView(libc::uintptr_t);
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput(libc::uintptr_t);
 
@@ -470,7 +470,7 @@ impl WlcView {
     /// Sets the output that the view renders on.
     ///
     /// This may not be supported by wlc at this time.
-    pub fn set_output(&self, output: &WlcOutput) {
+    pub fn set_output(&self, output: WlcOutput) {
         unsafe { wlc_view_set_output(self.0, output.0) }
     }
 
@@ -487,12 +487,12 @@ impl WlcView {
     }
 
     /// Sends this view underneath another.
-    pub fn send_below(&self, other: &WlcView) {
+    pub fn send_below(&self, other: WlcView) {
         unsafe { wlc_view_send_below(self.0, other.0); }
     }
 
     /// Brings this view above another.
-    pub fn bring_above(&self, other: &WlcView) {
+    pub fn bring_above(&self, other: WlcView) {
         unsafe { wlc_view_bring_above(self.0, other.0); }
     }
 
@@ -515,13 +515,13 @@ impl WlcView {
     }
 
     /// Gets the geometry of the view.
-    pub fn get_geometry(&self) -> Option<&Geometry> {
+    pub fn get_geometry(&self) -> Option<Geometry> {
         unsafe {
             let geometry = wlc_view_get_geometry(self.0);
             if geometry.is_null() {
                 None
             } else {
-                Some(&*geometry)
+                Some(*geometry)
             }
         }
     }
@@ -538,8 +538,8 @@ impl WlcView {
     /// Sets the geometry of the view.
     ///
     /// Set edges if geometry is caused by interactive resize.
-    pub fn set_geometry(&self, edges: ResizeEdge, geometry: &Geometry) {
-        unsafe { wlc_view_set_geometry(self.0, edges.bits(), geometry as *const Geometry); }
+    pub fn set_geometry(&self, edges: ResizeEdge, geometry: Geometry) {
+        unsafe { wlc_view_set_geometry(self.0, edges.bits(), &geometry as *const Geometry); }
     }
 
     /// Gets the type bitfield of the curent view
@@ -631,7 +631,7 @@ mod tests {
         dummy.close(); // works
         let output = dummy.get_output();
         assert!(output == WlcOutput::dummy(0));
-        dummy.set_output(&output);
+        dummy.set_output(output);
         // dummy.focus(); // SEGFAULTS
         // dummy.send_to_back();
         // dummy.send_below(&dummy);
@@ -641,7 +641,7 @@ mod tests {
         dummy.set_mask(mask);
         let geometry = dummy.get_geometry();
         assert!(geometry.is_none(), "Got geometry from dummy");
-        dummy.set_geometry(EDGE_NONE, &Geometry {
+        dummy.set_geometry(EDGE_NONE, Geometry {
             origin: Point { x: 0, y: 0 },
             size: Size { w: 0, h: 0 }
         });

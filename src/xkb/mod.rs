@@ -89,6 +89,7 @@ pub mod keysyms;
 
 use libc::{c_char, size_t};
 use std::ffi::CString;
+use std::mem;
 // Keysym utils functions
 
 // An xkb keycode.
@@ -124,12 +125,12 @@ use std::ffi::CString;
 /// The name of other unnamed keysyms is the hexadecimal representation of
 /// their value, e.g. "0xabcd1234". Keysym names are case-sensitive.
 ///
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Keysym(u32);
 
 /// Represents flags used for `Keysym::from_name`
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum NameFlags {
     /// None, or "Case sensitive"
     None = 0,
@@ -260,8 +261,8 @@ impl Keysym {
     /// ```
     pub fn get_name(&self) -> Option<String> {
         // The xkb documentation specifically recommends 64 as a buffer length
-        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(64);
         unsafe {
+            let mut buffer_vec: [c_char; 64] = mem::uninitialized();
             let buffer: *mut c_char = buffer_vec.as_mut_ptr();
             let length = xkb_keysym_get_name(self.0, buffer, 64);
             match length {
@@ -273,8 +274,8 @@ impl Keysym {
 
     /// Gets the Unicode/UTF8 representation of this keysym.
     pub fn to_utf8(&self) -> Option<String> {
-        let mut buffer_vec: Vec<c_char> = Vec::with_capacity(64);
         unsafe {
+            let mut buffer_vec: [c_char; 64] = mem::uninitialized();
             let buffer: *mut c_char = buffer_vec.as_mut_ptr();
             let result = xkb_keysym_to_utf8(self.0, buffer, 64);
             match result {
