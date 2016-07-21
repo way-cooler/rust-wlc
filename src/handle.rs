@@ -131,7 +131,7 @@ impl WlcOutput {
     /// this function could be called. If this is the case please submit
     /// a bug report.
     pub fn as_view(self) -> WlcView {
-        return WlcView::from(self)
+        WlcView::from(self)
     }
 
     /// Create a dummy WlcOutput for testing purposes.
@@ -150,12 +150,14 @@ impl WlcOutput {
     /// # Example
     /// ```rust
     /// # use rustwlc::WlcOutput;
-    /// let output = WlcOutput::dummy(0u32);
-    /// let output2 = WlcOutput::dummy(1u32);
-    /// assert!(output < output2);
-    /// assert!(output != output2);
+    /// unsafe {
+    ///     let output = WlcOutput::dummy(0u32);
+    ///     let output2 = WlcOutput::dummy(1u32);
+    ///     assert!(output < output2);
+    ///     assert!(output != output2);
+    /// }
     /// ```
-    pub fn dummy(code: u32) -> WlcOutput {
+    pub unsafe fn dummy(code: u32) -> WlcOutput {
         WlcOutput(code as libc::uintptr_t)
     }
 
@@ -172,7 +174,7 @@ impl WlcOutput {
     /// functions before attempting to use them yourself.
     pub unsafe fn get_user_data<T>(&self) -> &mut T {
         let raw_data = wlc_handle_get_user_data(self.0);
-        return &mut *(raw_data as *mut T);
+        (raw_data as *mut T).as_mut().unwrap()
     }
 
     /// Sets user-specified data.
@@ -196,7 +198,7 @@ impl WlcOutput {
     /// If the output was already scheduled, this is
     /// a no-op; if output is currently rendering,
     /// it will render immediately after.
-    pub fn schedule_render(&self) {
+    pub fn schedule_render(self) {
         unsafe { wlc_output_schedule_render(self.0) };
     }
 
@@ -208,12 +210,11 @@ impl WlcOutput {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let outputs = wlc_get_outputs(&mut out_memb);
-            if outputs.is_null() {
-                return Vec::new();
-            }
             let mut result = Vec::with_capacity(out_memb);
-            for index in (0 as isize) .. (out_memb as isize) {
-                result.push(WlcOutput(*(outputs.offset(index))));
+            if !outputs.is_null() {
+                for index in (0 as isize) .. (out_memb as isize) {
+                    result.push(WlcOutput(*outputs.offset(index)));
+                }
             }
             result
         }
@@ -231,10 +232,9 @@ impl WlcOutput {
     ///
     /// Names are usually assigned in the format WLC-n,
     /// where the first output is WLC-1.
-    pub fn get_name(&self) -> String {
-        let name: *const i8;
+    pub fn get_name(self) -> String {
         unsafe {
-            name = wlc_output_get_name(self.0);
+            let name = wlc_output_get_name(self.0);
             pointer_to_string(name)
         }
     }
@@ -243,25 +243,25 @@ impl WlcOutput {
     ///
     /// Returns `true` if the monitor is sleeping,
     /// such as having been set with `set_sleep`.
-    pub fn get_sleep(&self) -> bool {
+    pub fn get_sleep(self) -> bool {
         unsafe { wlc_output_get_sleep(self.0) }
     }
 
     /// Sets the sleep status of the output.
-    pub fn set_sleep(&self, sleep: bool) {
+    pub fn set_sleep(self, sleep: bool) {
         unsafe { wlc_output_set_sleep(self.0, sleep); }
     }
 
     /// Gets the output resolution in pixels.
-    pub fn get_resolution(&self) -> &Size {
-        unsafe { &*wlc_output_get_resolution(self.0) }
+    pub fn get_resolution(self) -> Size {
+        unsafe { *wlc_output_get_resolution(self.0).as_ref().unwrap() }
     }
 
     /// Sets the resolution of the output.
     ///
     /// # Safety
     /// This method will crash the program if use when wlc is not running.
-    pub fn set_resolution(&self, size: Size) {
+    pub fn set_resolution(self, size: Size) {
         unsafe { wlc_output_set_resolution(self.0, &size); }
     }
 
@@ -271,35 +271,33 @@ impl WlcOutput {
     /// For example tiling wms, may want to use this to keep their tiling order separated
     /// from floating order.
     /// This handles `wlc_output_get_views` and `wlc_output_get_mutable_views`.
-    pub fn get_views(&self) -> Vec<WlcView> {
+    pub fn get_views(self) -> Vec<WlcView> {
         unsafe {
             let mut out_memb: libc::size_t = 0;
             let views = wlc_output_get_views(self.0, &mut out_memb);
-            if views.is_null() {
-                return Vec::new();
-            }
             let mut result = Vec::with_capacity(out_memb);
-
-            for index in (0 as isize) .. (out_memb as isize) {
-                  result.push(WlcView(*(views.offset(index))));
+            if !views.is_null() {
+                for index in (0 as isize) .. (out_memb as isize) {
+                      result.push(WlcView(*views.offset(index)));
+                }
             }
-            return result;
+            result
         }
     }
 
     /// Gets the mask of this output
-    pub fn get_mask(&self) -> u32 {
+    pub fn get_mask(self) -> u32 {
         unsafe { wlc_output_get_mask(self.0) }
     }
 
     /// Sets the mask for this output
-    pub fn set_mask(&self, mask: u32) {
+    pub fn set_mask(self, mask: u32) {
         unsafe { wlc_output_set_mask(self.0, mask) }
     }
 
     /// # Deprecated
     /// This function is equivalent to simply calling get_views
-    pub fn get_mutable_views(&self) -> Vec<WlcView> {
+    pub fn get_mutable_views(self) -> Vec<WlcView> {
         self.get_views()
     }
 
@@ -307,27 +305,28 @@ impl WlcOutput {
     ///
     /// Returns success if operation succeeded. An error will be returned
     /// if something went wrong or if wlc isn't running.
-    pub fn set_views(&self, views: &mut Vec<&WlcView>) -> Result<(), &'static str> {
-            let view_len = views.len() as libc::size_t;
-            let view_vals: Vec<uintptr_t> = views.into_iter().map(|v| v.0).collect();
-            let const_views = view_vals.as_ptr();
+    pub fn set_views(self, views: &[WlcView]) -> Result<(), &'static str> {
+        let view_len = views.len() as libc::size_t;
+        let const_views = views.as_ptr() as *const uintptr_t;
+
         unsafe {
-            match wlc_output_set_views(self.0, const_views, view_len) {
+            let res = match wlc_output_set_views(self.0, const_views, view_len) {
                 true => Ok(()),
                 false => Err("Could not set views on output"),
-            }
+            };
+            res
         }
     }
 
     /// Focuses compositor on a specific output.
     ///
     /// Pass in Option::None for no focus.
-    pub fn focus(output: Option<&WlcOutput>) {
+    pub fn focus(output: Option<WlcOutput>) {
         unsafe {
-            match output {
-                Some(output) => wlc_output_focus(output.0),
-                None => wlc_output_focus(0)
-            }
+            wlc_output_focus(match output {
+                Some(output) => output.0,
+                None => 0
+            })
         }
     }
 }
@@ -362,17 +361,19 @@ impl WlcView {
     ///
     /// ```rust
     /// # use rustwlc::WlcView;
-    /// assert!(WlcView::root() == WlcView::dummy(0))
+    /// assert!(WlcView::root() == unsafe { WlcView::dummy(0) })
     /// ```
     /// # Example
     /// ```rust
     /// # use rustwlc::WlcView;
-    /// let view = WlcView::dummy(0u32);
-    /// let view2 = WlcView::dummy(1u32);
-    /// assert!(view < view2);
-    /// assert!(view != view2);
+    /// unsafe {
+    ///     let view = WlcView::dummy(0u32);
+    ///     let view2 = WlcView::dummy(1u32);
+    ///     assert!(view < view2);
+    ///     assert!(view != view2);
+    /// }
     /// ```
-    pub fn dummy(code: u32) -> WlcView {
+    pub unsafe fn dummy(code: u32) -> WlcView {
         WlcView(code as uintptr_t)
     }
 
@@ -398,7 +399,7 @@ impl WlcView {
     /// assert!(view.is_root());
     /// ```
     #[inline]
-    pub fn is_root(&self) -> bool {
+    pub fn is_root(self) -> bool {
         self.0 == 0
     }
 
@@ -415,7 +416,7 @@ impl WlcView {
     /// assert!(!view.is_window());
     /// ```
     #[inline]
-    pub fn is_window(&self) -> bool {
+    pub fn is_window(self) -> bool {
         self.0 != 0
     }
 
@@ -431,8 +432,7 @@ impl WlcView {
     /// what data they will have. Please review wlc's usage of these
     /// functions before attempting to use them yourself.
     pub unsafe fn get_user_data<T>(&self) -> &mut T {
-        let raw_data = wlc_handle_get_user_data(self.0);
-        return &mut *(raw_data as *mut T);
+        (wlc_handle_get_user_data(self.0) as *mut T).as_mut().unwrap()
     }
 
     /// Sets user-specified data.
@@ -457,65 +457,65 @@ impl WlcView {
     ///
     /// # Behavior
     /// This function will not do anything if `view.is_root()`.
-    pub fn close(&self) {
+    pub fn close(self) {
         if self.is_root() { return };
         unsafe { wlc_view_close(self.0); }
     }
 
     /// Gets the WlcOutput this view is currently part of.
-    pub fn get_output(&self) -> WlcOutput {
+    pub fn get_output(self) -> WlcOutput {
         unsafe { WlcOutput(wlc_view_get_output(self.0)) }
     }
 
     /// Sets the output that the view renders on.
     ///
     /// This may not be supported by wlc at this time.
-    pub fn set_output(&self, output: WlcOutput) {
+    pub fn set_output(self, output: WlcOutput) {
         unsafe { wlc_view_set_output(self.0, output.0) }
     }
 
     /// Brings this view to focus.
     ///
     /// Can be called on `WlcView::root()` to lose all focus.
-    pub fn focus(&self) {
+    pub fn focus(self) {
         unsafe { wlc_view_focus(self.0); }
     }
 
     /// Sends the view to the back of the compositor
-    pub fn send_to_back(&self) {
+    pub fn send_to_back(self) {
         unsafe { wlc_view_send_to_back(self.0); }
     }
 
     /// Sends this view underneath another.
-    pub fn send_below(&self, other: WlcView) {
+    pub fn send_below(self, other: WlcView) {
         unsafe { wlc_view_send_below(self.0, other.0); }
     }
 
     /// Brings this view above another.
-    pub fn bring_above(&self, other: WlcView) {
+    pub fn bring_above(self, other: WlcView) {
         unsafe { wlc_view_bring_above(self.0, other.0); }
     }
 
     /// Brings this view to the front of the stack
     /// within its WlcOutput.
-    pub fn bring_to_front(&self) {
+    pub fn bring_to_front(self) {
         unsafe { wlc_view_bring_to_front(self.0); }
     }
 
     // TODO Get masks enum working properly
     /// Gets the current visibilty bitmask for the view.
-    pub fn get_mask(&self) -> u32 {
+    pub fn get_mask(self) -> u32 {
         unsafe { wlc_view_get_mask(self.0) }
     }
 
     // TODO Get masks enum working properly
     /// Sets the visibilty bitmask for the view.
-    pub fn set_mask(&self, mask: u32) {
+    pub fn set_mask(self, mask: u32) {
         unsafe { wlc_view_set_mask(self.0, mask); }
     }
 
     /// Gets the geometry of the view.
-    pub fn get_geometry(&self) -> Option<Geometry> {
+    pub fn get_geometry(self) -> Option<Geometry> {
         unsafe {
             let geometry = wlc_view_get_geometry(self.0);
             if geometry.is_null() {
@@ -527,56 +527,56 @@ impl WlcView {
     }
 
     /// Gets the geometry of the view (that wlc displays).
-    pub fn get_visible_geometry(&self) -> Geometry {
+    pub fn get_visible_geometry(self) -> Geometry {
         let mut geo = Geometry { origin: Point { x: 0, y: 0}, size: Size { w: 0, h: 0 }};
         unsafe {
             wlc_view_get_visible_geometry(self.0, &mut geo);
         }
-        return geo;
+        geo
     }
 
     /// Sets the geometry of the view.
     ///
     /// Set edges if geometry is caused by interactive resize.
-    pub fn set_geometry(&self, edges: ResizeEdge, geometry: Geometry) {
+    pub fn set_geometry(self, edges: ResizeEdge, geometry: Geometry) {
         unsafe { wlc_view_set_geometry(self.0, edges.bits(), &geometry as *const Geometry); }
     }
 
     /// Gets the type bitfield of the curent view
-    pub fn get_type(&self) -> ViewType {
+    pub fn get_type(self) -> ViewType {
         unsafe { wlc_view_get_type(self.0) }
     }
 
     /// Set flag in the type field. Toggle indicates whether it is set.
-    pub fn set_type(&self, view_type: ViewType, toggle: bool) {
+    pub fn set_type(self, view_type: ViewType, toggle: bool) {
         unsafe { wlc_view_set_type(self.0, view_type, toggle); }
     }
 
     // TODO get bitflags enums
     /// Get the current ViewState bitfield.
-    pub fn get_state(&self) -> ViewState {
+    pub fn get_state(self) -> ViewState {
         unsafe { wlc_view_get_state(self.0) }
     }
 
     /// Set ViewState bit. Toggle indicates whether it is set or not.
-    pub fn set_state(&self, state: ViewState, toggle: bool) {
+    pub fn set_state(self, state: ViewState, toggle: bool) {
         unsafe { wlc_view_set_state(self.0, state, toggle); }
     }
 
     /// Gets parent view, returns `WlcView::root()` if this view has no parent.
-    pub fn get_parent(&self) -> WlcView {
+    pub fn get_parent(self) -> WlcView {
         unsafe { WlcView(wlc_view_get_parent(self.0)) }
     }
 
     /// Set the parent of this view.
     ///
     /// Call with `WlcView::root()` to make its parent the root window.
-    pub fn set_parent(&self, parent: &WlcView) {
+    pub fn set_parent(self, parent: &WlcView) {
         unsafe { wlc_view_set_parent(self.0, parent.0); }
     }
 
     /// Get the title of the view
-    pub fn get_title(&self) -> String {
+    pub fn get_title(self) -> String {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_title(self.0);
@@ -589,7 +589,7 @@ impl WlcView {
     }
 
     /// Get class (shell surface only).
-    pub fn get_class(&self) -> String {
+    pub fn get_class(self) -> String {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_class(self.0);
@@ -602,7 +602,7 @@ impl WlcView {
     }
 
     /// Get app id (xdg-surface only).
-    pub fn get_app_id(&self) -> String {
+    pub fn get_app_id(self) -> String {
         let chars: *const i8;
         unsafe {
             chars = wlc_view_get_app_id(self.0);
@@ -621,7 +621,7 @@ mod tests {
 
     #[test]
     fn dummy_views() {
-        let dummy = WlcView::dummy(1);
+        let dummy = unsafe { WlcView::dummy(1) };
         assert!(!dummy.is_root(), "Dummy(1) is root");
         assert!(dummy.is_window(), "Dummy(1) is root");
         let _title = dummy.get_title();
@@ -630,7 +630,7 @@ mod tests {
         // Let's do some stuff with views
         dummy.close(); // works
         let output = dummy.get_output();
-        assert!(output == WlcOutput::dummy(0));
+        assert!(output.0 == 0);
         dummy.set_output(output);
         // dummy.focus(); // SEGFAULTS
         // dummy.send_to_back();
@@ -658,7 +658,7 @@ mod tests {
 
     #[test]
     fn dummy_outputs() {
-        let dummy = WlcOutput::dummy(1);
+        let dummy = unsafe { WlcOutput::dummy(1) };
         //let _current = WlcOutput::focused();
         //let _outputs = WlcOutput::list();
         //dummy.set_resolution(resolution.clone());
@@ -666,11 +666,10 @@ mod tests {
         let _name = dummy.get_name();
         let sleep = dummy.get_sleep();
         dummy.set_sleep(sleep);
-        let _resolution = dummy.get_resolution();
         let views = dummy.get_views();
-        dummy.set_views(&mut views.iter().collect()).unwrap_err();
+        dummy.set_views(&views).unwrap_err();
         let mask = dummy.get_mask();
         dummy.set_mask(mask);
-        WlcOutput::focus(Some(&dummy));
+        WlcOutput::focus(Some(dummy));
     }
 }
