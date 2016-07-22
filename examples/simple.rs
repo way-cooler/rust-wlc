@@ -29,8 +29,8 @@ fn start_interactive_action(view: WlcView, origin: Point) -> bool {
         if comp.view != None {
             return false;
         }
-        comp.grab = origin.clone();
-        comp.view = Some(view.clone());
+        comp.grab = origin;
+        comp.view = Some(view);
     }
 
     view.bring_to_front();
@@ -55,7 +55,7 @@ fn start_interactive_resize(view: WlcView, edges: ResizeEdge, origin: Point) {
 
     {
         let mut comp = COMPOSITOR.write().unwrap();
-        comp.edges = edges.clone();
+        comp.edges = edges;
         if comp.edges.bits() == 0 {
             let flag_x = if origin.x < halfw {
                 RESIZE_LEFT
@@ -88,7 +88,7 @@ fn stop_interactive_action() {
             view.set_state(VIEW_RESIZING, false)
     }
 
-    (*comp).view = None;
+    comp.view = None;
     comp.edges = ResizeEdge::empty();
 }
 
@@ -96,7 +96,7 @@ fn get_topmost_view(output: WlcOutput, offset: usize) -> Option<WlcView> {
     let views = output.get_views();
     if views.is_empty() { None }
     else {
-        Some(views[(views.len() - 1 + offset) % views.len()].clone())
+        Some(views[(views.len() - 1 + offset) % views.len()])
     }
 }
 
@@ -114,8 +114,8 @@ fn render_output(output: WlcOutput) {
             origin: Point { x: if toggle { w as i32 } else { 0 }, y: y },
             size: Size { w: if !toggle && i == views.len() - 1 { resolution.w } else { w }, h: h }
         });
-        toggle = ! toggle;
-        y = if y > 0 || !toggle { h as i32 } else { 0 };
+        y += if toggle { h as i32 } else { 0 };
+        toggle ^= true;
     }
 }
 
@@ -218,10 +218,10 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
         if let Some(ref view) = comp.view {
                 let dx = point.x - comp.grab.x;
                 let dy = point.y - comp.grab.y;
-                let mut geo = view.get_geometry().unwrap().clone();
+                let mut geo = view.get_geometry().unwrap();
                 if comp.edges.bits() != 0 {
                     let min = Size { w: 80u32, h: 40u32};
-                    let mut new_geo = geo.clone();
+                    let mut new_geo = geo;
 
                     if comp.edges.contains(RESIZE_LEFT) {
                         if dx < 0 {
@@ -277,7 +277,7 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
 
     {
         let mut comp = COMPOSITOR.write().unwrap();
-        comp.grab = point.clone();
+        comp.grab = *point;
         return comp.view.is_some();
     }
 }
