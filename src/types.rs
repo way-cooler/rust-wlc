@@ -5,7 +5,7 @@ use std::fmt;
 
 /// Log level to pass into wlc logging
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum LogType {
     /// Info log type
     Info,
@@ -19,7 +19,7 @@ pub enum LogType {
 
 /// Type of backend that a window is being composited in
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum BackendType {
     /// Backend type is unknown
     None,
@@ -149,7 +149,7 @@ bitflags! {
 
 /// Represents a key state in key events
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum KeyState {
     /// Key is being pressed
     Released = 0,
@@ -159,7 +159,7 @@ pub enum KeyState {
 
 /// Represents a button state in button events
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ButtonState {
     /// Button is being pressed
     Released = 0,
@@ -169,7 +169,7 @@ pub enum ButtonState {
 
 /// Which axis of the scroll wheel is being used
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum ScrollAxis {
     /// No axes
     None = 0,
@@ -183,7 +183,7 @@ pub enum ScrollAxis {
 
 /// Touch type in touch interface handler
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TouchType {
     /// Touch down
     Down,
@@ -200,7 +200,7 @@ pub enum TouchType {
 /// State of keyoard modifiers.
 /// i.e. control key, caps lock on
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct KeyboardModifiers {
     /// Which "lock" keys are being pressed
     pub leds: KeyboardLed,
@@ -210,7 +210,7 @@ pub struct KeyboardModifiers {
 
 /// Represents the location of a view.
 #[repr(C)]
-#[derive(Debug, Eq, PartialEq, Clone, Hash)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 pub struct Point {
     /// x coordinate
     pub x: i32,
@@ -226,7 +226,7 @@ impl fmt::Display for Point {
 
 /// Represents the height and width of a view.
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Size {
     /// Width
     pub w: u32,
@@ -242,7 +242,7 @@ impl fmt::Display for Size {
 
 /// Represents the location and size of a view
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Geometry {
     /// The location of the object
     pub origin: Point,

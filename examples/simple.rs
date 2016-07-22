@@ -23,25 +23,25 @@ lazy_static! {
                                  edges: ResizeEdge::empty() });
 }
 
-fn start_interactive_action(view: &WlcView, origin: &Point) -> bool {
+fn start_interactive_action(view: WlcView, origin: Point) -> bool {
     {
         let mut comp = COMPOSITOR.write().unwrap();
         if comp.view != None {
             return false;
         }
-        comp.grab = origin.clone();
-        comp.view = Some(view.clone());
+        comp.grab = origin;
+        comp.view = Some(view);
     }
 
     view.bring_to_front();
     return true;
 }
 
-fn start_interactive_move(view: &WlcView, origin: &Point) {
+fn start_interactive_move(view: WlcView, origin: Point) {
     start_interactive_action(view, origin);
 }
 
-fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
+fn start_interactive_resize(view: WlcView, edges: ResizeEdge, origin: Point) {
     let geometry = match view.get_geometry() {
         None => { return; }
         Some(g) => g,
@@ -55,7 +55,7 @@ fn start_interactive_resize(view: &WlcView, edges: ResizeEdge, origin: &Point) {
 
     {
         let mut comp = COMPOSITOR.write().unwrap();
-        comp.edges = edges.clone();
+        comp.edges = edges;
         if comp.edges.bits() == 0 {
             let flag_x = if origin.x < halfw {
                 RESIZE_LEFT
@@ -88,20 +88,20 @@ fn stop_interactive_action() {
             view.set_state(VIEW_RESIZING, false)
     }
 
-    (*comp).view = None;
+    comp.view = None;
     comp.edges = ResizeEdge::empty();
 }
 
-fn get_topmost_view(output: &WlcOutput, offset: usize) -> Option<WlcView> {
+fn get_topmost_view(output: WlcOutput, offset: usize) -> Option<WlcView> {
     let views = output.get_views();
     if views.is_empty() { None }
     else {
-        Some(views[(views.len() - 1 + offset) % views.len()].clone())
+        Some(views[(views.len() - 1 + offset) % views.len()])
     }
 }
 
-fn render_output(output: &WlcOutput) {
-    let resolution = output.get_resolution();
+fn render_output(output: WlcOutput) {
+    let resolution = output.get_resolution().unwrap();
     let views = output.get_views();
     if views.is_empty() { return; }
 
@@ -110,34 +110,34 @@ fn render_output(output: &WlcOutput) {
     let w = resolution.w / 2;
     let h = resolution.h / cmp::max((views.len() + 1) / 2, 1) as u32;
     for (i, view) in views.iter().enumerate() {
-        view.set_geometry(ResizeEdge::empty(), &Geometry {
+        view.set_geometry(ResizeEdge::empty(), Geometry {
             origin: Point { x: if toggle { w as i32 } else { 0 }, y: y },
             size: Size { w: if !toggle && i == views.len() - 1 { resolution.w } else { w }, h: h }
         });
-        toggle = ! toggle;
-        y = if y > 0 || !toggle { h as i32 } else { 0 };
+        y += if toggle { h as i32 } else { 0 };
+        toggle ^= true;
     }
 }
 
 // Handles
 
 extern fn on_output_resolution(output: WlcOutput, _from: &Size, _to: &Size) {
-    render_output(&output);
+    render_output(output);
 }
 
 extern fn on_view_created(view: WlcView) -> bool {
     view.set_mask(view.get_output().get_mask());
     view.bring_to_front();
     view.focus();
-    render_output(&(view).get_output());
+    render_output(view.get_output());
     true
 }
 
 extern fn on_view_destroyed(view: WlcView) {
-    if let Some(top_view) = get_topmost_view(&view.get_output(), 0) {
+    if let Some(top_view) = get_topmost_view(view.get_output(), 0) {
         top_view.focus();
     }
-    render_output(&view.get_output());
+    render_output(view.get_output());
 }
 
 extern fn on_view_focus(view: WlcView, focused: bool) {
@@ -145,16 +145,16 @@ extern fn on_view_focus(view: WlcView, focused: bool) {
 }
 
 extern fn on_view_request_move(view: WlcView, origin: &Point) {
-    start_interactive_move(&view, origin);
+    start_interactive_move(view, *origin);
 }
 
 extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Point) {
-    start_interactive_resize(&view, edges, origin);
+    start_interactive_resize(view, edges, *origin);
 }
 
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
-    let sym = input::keyboard::get_keysym_for_key(key, &mods.mods);
+    let sym = input::keyboard::get_keysym_for_key(key, mods.mods);
     if state == KeyState::Pressed {
         if mods.mods == MOD_CTRL {
             // Key Q
@@ -166,7 +166,7 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
             // Down key
             } else if sym == keysyms::KEY_Down {
                 view.send_to_back();
-                get_topmost_view(&view.get_output(), 0).unwrap().focus();
+                get_topmost_view(view.get_output(), 0).unwrap().focus();
                 return true;
             // Esc Key
             } else if sym == keysyms::KEY_Escape {
@@ -194,10 +194,10 @@ extern fn on_pointer_button(view: WlcView, _time: u32, mods: &KeyboardModifiers,
             if mods.mods.contains(MOD_CTRL) {
                 // Button left, we need to include linux/input.h somehow
                 if button == 0x110 {
-                    start_interactive_move(&view, point);
+                    start_interactive_move(view, *point);
                 }
                 if button == 0x111 {
-                    start_interactive_resize(&view, ResizeEdge::empty(), point);
+                    start_interactive_resize(view, ResizeEdge::empty(), *point);
                 }
             }
         }
@@ -218,10 +218,10 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
         if let Some(ref view) = comp.view {
                 let dx = point.x - comp.grab.x;
                 let dy = point.y - comp.grab.y;
-                let mut geo = view.get_geometry().unwrap().clone();
+                let mut geo = view.get_geometry().unwrap();
                 if comp.edges.bits() != 0 {
                     let min = Size { w: 80u32, h: 40u32};
-                    let mut new_geo = geo.clone();
+                    let mut new_geo = geo;
 
                     if comp.edges.contains(RESIZE_LEFT) {
                         if dx < 0 {
@@ -265,19 +265,19 @@ extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> boo
                         geo.size.h = new_geo.size.h;
                     }
 
-                    view.set_geometry(comp.edges, &geo);
+                    view.set_geometry(comp.edges, geo);
                 }
                 else {
                     geo.origin.x += dx;
                     geo.origin.y += dy;
-                    view.set_geometry(ResizeEdge::empty(), &geo);
+                    view.set_geometry(ResizeEdge::empty(), geo);
                 }
         }
     }
 
     {
         let mut comp = COMPOSITOR.write().unwrap();
-        comp.grab = point.clone();
+        comp.grab = *point;
         return comp.view.is_some();
     }
 }
