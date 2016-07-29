@@ -13,6 +13,7 @@ use wayland_sys::server::{wl_resource};
 
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
+use super::wayland::WlcResource;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -118,6 +119,16 @@ extern "C" {
 
     #[cfg(feature="wlc-wayland")]
     fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_get_surface(view: uintptr_t) -> uintptr_t;
+}
+
+#[cfg(feature="wlc-wayland")]
+impl Into<WlcResource> for WlcView {
+    fn into(self) -> WlcResource {
+        WlcResource::from(unsafe { wlc_view_get_surface(self.0) } )
+    }
 }
 
 #[cfg(feature="wlc-wayland")]
