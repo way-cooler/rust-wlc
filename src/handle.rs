@@ -9,7 +9,7 @@ extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
 #[cfg(feature="wlc-wayland")]
-use wayland_sys::server::{wl_resource};
+use wayland_sys::server::{wl_resource, wl_client};
 #[cfg(feature="wlc-wayland")]
 use super::wayland::WlcResource;
 
@@ -123,6 +123,12 @@ extern "C" {
 
     #[cfg(feature="wlc-wayland")]
     fn wlc_view_get_surface(view: uintptr_t) -> uintptr_t;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_get_wl_client(view: uintptr_t) -> *mut wl_client;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_get_role(view: uintptr_t) -> *mut wl_resource;
 }
 
 #[cfg(feature="wlc-wayland")]
@@ -645,6 +651,19 @@ impl WlcView {
             }
         }
     }
+
+    /// Get the wl_client associated with this WLC view.
+    #[cfg(feature="wlc-wayland")]
+    pub fn get_client(self) -> *mut wl_client {
+        unsafe { wlc_view_get_wl_client(self.0) }
+    }
+
+    /// Get the wl_role associated with surface that this WLC view refers to.
+    #[cfg(feature="wlc-wayland")]
+    pub fn get_role(self) -> *mut wl_resource {
+        unsafe { wlc_view_get_role(self.0) }
+    }
+
 }
 
 #[cfg(test)]

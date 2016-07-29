@@ -49,8 +49,6 @@ extern "C" {
     fn wlc_view_from_surface(surface: uintptr_t, client: *const wl_client, interface: *const wl_interface,
                              implementation: *const c_void, version: uint32_t, id: uintptr_t, userdata: *mut c_void)
                              -> uintptr_t;
-    fn wlc_view_get_wl_client(view: uintptr_t) -> *mut wl_client;
-    fn wlc_view_get_role(view: uintptr_t) -> *mut wl_resource;
 }
 
 /// Get the wayland display for the current session.
