@@ -9,10 +9,7 @@ extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
 #[cfg(feature="wlc-wayland")]
-use super::wayland::WlcResource;
-
-#[cfg(feature="wlc-wayland")]
-use wayland_sys::server::{wl_client, wl_display, wl_resource};
+use wayland_sys::server::{wl_resource};
 
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
@@ -120,7 +117,14 @@ extern "C" {
     fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
 
     #[cfg(feature="wlc-wayland")]
-    fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> unintptr_t;
+    fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
+}
+
+#[cfg(feature="wlc-wayland")]
+impl Into<WlcView> for wl_resource {
+    fn into(self) -> WlcView {
+        unsafe { WlcView(wlc_handle_from_wl_surface_resource(&self)) }
+    }
 }
 
 impl From<WlcView> for WlcOutput {
@@ -136,25 +140,14 @@ impl From<WlcOutput> for WlcView {
 }
 
 #[cfg(feature="wlc-wayland")]
-impl From<WlcResource> for WlcView {
-    fn from(resource: WlcResource) -> Self {
-        unsafe {
-            WlcView(wlc_handle_from_wl_surface_resource(resource.0))
-        }
+impl Into<WlcOutput> for wl_resource {
+    fn into(self) -> WlcOutput {
+        unsafe { WlcOutput(wlc_handle_from_wl_output_resource(&self)) }
     }
 }
 
-#[cfg(feature="wlc-wayland")]
-impl From<WlcResource> for WlcOutput {
-    fn from(resource: WlcResource) -> Self {
-        unsafe {
-            WlcOutput(wlc_handle_from_wl_output_resource(resource.0))
-        }
-    }
-}
 
 impl WlcOutput {
-
     /// Compatability/debugging function.
     ///
     /// wlc internally stores views and outputs under the same type.
@@ -360,7 +353,6 @@ impl WlcOutput {
 }
 
 impl WlcView {
-
     /// Compatability/debugging function.
     ///
     /// wlc internally stores views and outputs under the same type.

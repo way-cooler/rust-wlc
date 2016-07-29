@@ -12,21 +12,20 @@
 //! protocol and some `wl_surface` info.
 //!
 //! That said, if you already use `wayland-client` or `wayland-sys`, this module
-//! provides compatability.
+//! provides compatibility.
 //!
 //! # Wayland bindings
 //! This crate contains wlc bindings to Wayland objects (defined in [wayland_sys]
 //! (wayland_sys_docs)) and the `WlcResource` struct, which represents
-//! wlc's Wayland resources. 
+//! wlc's Wayland resources.
 //!
 //! [wayland_sys_docs]:http://vberger.github.io/wayland-client-rs/wayland_sys/index.html
 //! [wayland_sys_crate]:https://crates.io/crates/wayland_sys
-use wayland_sys::server::{wl_client, wl_display, wl_resource};
-use wayland_sys::common::wl_interface;
+use wayland_sys::server::{wl_display, wl_resource};
 
-use libc::{uintptr_t, c_void};
+use libc::{uintptr_t, size_t};
 
-use types::Size;
+use types::{Size, Geometry, Point};
 
 /// ## Requires `wlc-wayland` feature
 ///
@@ -37,18 +36,23 @@ pub struct WlcResource(uintptr_t);
 /// Functions defined in wlc-wayland.h
 #[link(name = "wlc")]
 extern "C" {
-    fn wlc_get_wl_display() -> *const wl_display;
+    fn wlc_get_wl_display() -> *mut wl_display;
     fn wlc_resource_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
     fn wlc_surface_get_size(resource: uintptr_t) -> *const Size;
     // resource -> Vec<wlc_resource>
-    fn wlc_surface_get_subsurfaces(parent: uintptr_t, out_size: *mut Size)
+    fn wlc_surface_get_subsurfaces(parent: uintptr_t, out_size: *mut size_t)
                                    -> *const uintptr_t;
     // resource
     fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
+
+    fn wlc_handle_from_wl_surface_resource(resource: *mut wl_resource) -> uintptr_t;
+
+    fn wlc_handle_from_wl_output_resource(resource: *mut wl_resource) -> uintptr_t;
 }
 
-pub fn get_display() -> wl_display {
-    unsafe { wlc_get_wl_display().clone() }
+/// Get the wayland display for the current session.
+pub fn get_display() -> *mut wl_display {
+    unsafe { wlc_get_wl_display() }
 }
 
 impl From<uintptr_t> for WlcResource {
@@ -60,17 +64,16 @@ impl From<uintptr_t> for WlcResource {
     }
 }
 
-impl WlcResource {
-
+impl Into<WlcResource> for wl_resource {
     /// ## Requires `wlc-wayland` feature
     ///
-    /// Creates a new WlcResource from the given Wayland surface
-    pub fn from_wl_surface_resource(resource: wl_resource) {
-        unsafe {
-            WlcResource::from(wlc_resource_from_wl_surface_resource(resource))
-        }
+    /// Creates a new WlResource (wayland resource) from a WlcResource
+    fn into(self) -> WlcResource {
+        unsafe { WlcResource(wlc_resource_from_wl_surface_resource(&self)) }
     }
+}
 
+impl WlcResource {
     /// # Requires `wlc-wayland` feature
     ///
     /// Gets the size of this surface
@@ -84,7 +87,7 @@ impl WlcResource {
     pub fn get_subsurfaces(&self) -> Vec<WlcResource> {
         unsafe {
             let mut out_memb: size_t = 0;
-            let subs = wlc_surface_get_subsurfaces(parent.pointer(), self.0);
+            let subs = wlc_surface_get_subsurfaces(self.0, &mut out_memb as *mut usize);
             if subs.is_null() {
                 return Vec::new()
             }
@@ -100,9 +103,12 @@ impl WlcResource {
     ///
     /// Gets the subsurface geometry of this WlcResource
     pub fn get_subsurface_geometry(&self) -> Geometry {
-        let mut geo = Geometry::zero();
+        let mut geo = Geometry {
+            origin: Point { x: 0, y: 0},
+            size: Size { w: 0, h: 0}
+        };
         unsafe {
-            wlc_get_subsurface_geometry(self.0, geo as *mut Geometry);
+            wlc_get_subsurface_geometry(self.0, &mut geo as *mut Geometry);
         }
         geo
     }
