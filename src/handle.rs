@@ -10,10 +10,11 @@ use libc::{uintptr_t, c_char, c_void};
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource};
+#[cfg(feature="wlc-wayland")]
+use super::wayland::WlcResource;
 
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
-use super::wayland::WlcResource;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
