@@ -5,6 +5,7 @@
 //! - **Eq, Ord**: compare the underlying `uintptr_t` handle
 //! - **Clone**: View handles can safely be cloned.
 
+extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
 use super::pointer_to_string;
@@ -21,8 +22,17 @@ pub struct WlcView(uintptr_t);
 /// Represents a handle to a wlc output.
 pub struct WlcOutput(uintptr_t);
 
-mod view;
-mod output;
+impl From<WlcView> for WlcOutput {
+    fn from(view: WlcView) -> Self {
+        WlcOutput(view.0)
+    }
+}
+
+impl From<WlcOutput> for WlcView {
+    fn from(output: WlcOutput) -> Self {
+        WlcView(output.0)
+    }
+}
 
 // Applies to both handles
 #[link(name = "wlc")]
@@ -111,18 +121,6 @@ extern "C" {
     fn wlc_view_get_class(view: uintptr_t) -> *const c_char;
 
     fn wlc_view_get_app_id(view: uintptr_t) -> *const c_char;
-}
-
-impl From<WlcView> for WlcOutput {
-    fn from(view: WlcView) -> Self {
-        WlcOutput(view.0)
-    }
-}
-
-impl From<WlcOutput> for WlcView {
-    fn from(output: WlcOutput) -> Self {
-        WlcView(output.0)
-    }
 }
 
 impl WlcOutput {
