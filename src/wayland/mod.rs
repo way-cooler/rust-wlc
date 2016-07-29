@@ -21,9 +21,10 @@
 //!
 //! [wayland_sys_docs]:http://vberger.github.io/wayland-client-rs/wayland_sys/index.html
 //! [wayland_sys_crate]:https://crates.io/crates/wayland_sys
-use wayland_sys::server::{wl_display, wl_resource};
+use wayland_sys::server::{wl_display, wl_resource, wl_client};
+use wayland_sys::common::wl_interface;
 
-use libc::{uintptr_t, size_t};
+use libc::{uintptr_t, size_t, c_void, uint32_t};
 
 use types::{Size, Geometry, Point};
 
@@ -45,14 +46,24 @@ extern "C" {
     // resource
     fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
 
-    fn wlc_handle_from_wl_surface_resource(resource: *mut wl_resource) -> uintptr_t;
+    fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
 
-    fn wlc_handle_from_wl_output_resource(resource: *mut wl_resource) -> uintptr_t;
+    fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
+    fn wlc_surface_get_wl_resource(resource: WlcResource) -> *mut wl_resource;
+    fn wlc_view_from_surface(surface: WlcResource, client: *const wl_client, interface: *const wl_interface,
+                             implementation: *const c_void, version: uint32_t, id: uintptr_t, userdata: *mut c_void)
+                             -> uintptr_t;
 }
 
 /// Get the wayland display for the current session.
 pub fn get_display() -> *mut wl_display {
     unsafe { wlc_get_wl_display() }
+}
+
+impl Into<*mut wl_resource> for WlcResource {
+    fn into(self) -> *mut wl_resource {
+        unsafe {wlc_surface_get_wl_resource(self) }
+    }
 }
 
 impl From<uintptr_t> for WlcResource {
