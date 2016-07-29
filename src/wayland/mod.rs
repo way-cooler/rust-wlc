@@ -21,10 +21,9 @@
 //!
 //! [wayland_sys_docs]:http://vberger.github.io/wayland-client-rs/wayland_sys/index.html
 //! [wayland_sys_crate]:https://crates.io/crates/wayland_sys
-use wayland_sys::server::{wl_display, wl_resource, wl_client};
-use wayland_sys::common::wl_interface;
+use wayland_sys::server::{wl_display, wl_resource};
 
-use libc::{uintptr_t, size_t, c_void, uint32_t};
+use libc::{uintptr_t, size_t};
 
 use std::ptr;
 
@@ -34,7 +33,7 @@ use types::{Size, Geometry, Point};
 ///
 /// A wlc resource for Wayland interop
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub struct WlcResource(uintptr_t);
+pub struct WlcResource(pub uintptr_t);
 
 /// Functions defined in wlc-wayland.h
 #[link(name = "wlc")]
@@ -46,9 +45,6 @@ extern "C" {
                                    -> *const uintptr_t;
     fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
     fn wlc_surface_get_wl_resource(resource: uintptr_t) -> *mut wl_resource;
-    fn wlc_view_from_surface(surface: uintptr_t, client: *const wl_client, interface: *const wl_interface,
-                             implementation: *const c_void, version: uint32_t, id: uintptr_t, userdata: *mut c_void)
-                             -> uintptr_t;
 }
 
 /// Get the wayland display for the current session.

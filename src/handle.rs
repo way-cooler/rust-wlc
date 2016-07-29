@@ -9,7 +9,14 @@ extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
 #[cfg(feature="wlc-wayland")]
+use libc::uint32_t;
+
+#[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
+
+#[cfg(feature="wlc-wayland")]
+use wayland_sys::common::wl_interface;
+
 #[cfg(feature="wlc-wayland")]
 use super::wayland::WlcResource;
 
@@ -129,6 +136,11 @@ extern "C" {
 
     #[cfg(feature="wlc-wayland")]
     fn wlc_view_get_role(view: uintptr_t) -> *mut wl_resource;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_from_surface(surface: uintptr_t, client: *const wl_client, interface: *const wl_interface,
+                             implementation: *const c_void, version: uint32_t, id: uint32_t, userdata: *mut c_void)
+                             -> uintptr_t;
 }
 
 #[cfg(feature="wlc-wayland")]
@@ -664,6 +676,32 @@ impl WlcView {
         unsafe { wlc_view_get_role(self.0) }
     }
 
+    #[cfg(feature="wlc-wayland")]
+    /// Turns a wl_surface into a wlc view.
+    ///
+    /// This will trigger the view.created callback.
+    ///
+    /// If you are not implementing a Wayland interface for the role,
+    /// interface can be NULL.
+    pub fn view_from_surface(surface: WlcResource,
+                             client: *mut wl_client,
+                             interface: *const wl_interface,
+                             implementation: *const c_void,
+                             version: uint32_t,
+                             id: uint32_t,
+                             userdata: *mut c_void )
+                             -> Option<Self> {
+        unsafe {
+            let view_handle = wlc_view_from_surface(surface.0, client,
+                                                    interface, implementation,
+                                                     version, id, userdata);
+            if view_handle == 0 {
+                None
+            } else {
+                Some(WlcView(view_handle))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
