@@ -26,6 +26,8 @@ use wayland_sys::common::wl_interface;
 
 use libc::{uintptr_t, size_t, c_void, uint32_t};
 
+use std::ptr;
+
 use types::{Size, Geometry, Point};
 
 /// ## Requires `wlc-wayland` feature
@@ -104,7 +106,7 @@ impl WlcResource {
             }
             let mut result = Vec::with_capacity(out_memb);
             for index in 0isize .. out_memb as isize {
-                result.push(WlcResource::from(*subs.offset(index)))
+                result.push(WlcResource::from(ptr::read(subs.offset(index))))
             }
             return result
         }
