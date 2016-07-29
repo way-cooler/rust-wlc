@@ -40,17 +40,15 @@ extern "C" {
     fn wlc_get_wl_display() -> *mut wl_display;
     fn wlc_resource_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
     fn wlc_surface_get_size(resource: uintptr_t) -> *const Size;
-    // resource -> Vec<wlc_resource>
     fn wlc_surface_get_subsurfaces(parent: uintptr_t, out_size: *mut size_t)
                                    -> *const uintptr_t;
-    // resource
     fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
 
     fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
 
     fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
-    fn wlc_surface_get_wl_resource(resource: WlcResource) -> *mut wl_resource;
-    fn wlc_view_from_surface(surface: WlcResource, client: *const wl_client, interface: *const wl_interface,
+    fn wlc_surface_get_wl_resource(resource: uintptr_t) -> *mut wl_resource;
+    fn wlc_view_from_surface(surface: uintptr_t, client: *const wl_client, interface: *const wl_interface,
                              implementation: *const c_void, version: uint32_t, id: uintptr_t, userdata: *mut c_void)
                              -> uintptr_t;
 }
@@ -62,7 +60,7 @@ pub fn get_display() -> *mut wl_display {
 
 impl Into<*mut wl_resource> for WlcResource {
     fn into(self) -> *mut wl_resource {
-        unsafe {wlc_surface_get_wl_resource(self) }
+        unsafe {wlc_surface_get_wl_resource(self.0) }
     }
 }
 
