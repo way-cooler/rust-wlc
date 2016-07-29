@@ -33,7 +33,7 @@ use types::{Size, Geometry, Point};
 ///
 /// A wlc resource for Wayland interop
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub struct WlcResource(pub uintptr_t);
+pub struct WlcResource(uintptr_t);
 
 /// Functions defined in wlc-wayland.h
 #[link(name = "wlc")]
@@ -80,14 +80,19 @@ impl WlcResource {
     /// # Requires `wlc-wayland` feature
     ///
     /// Gets the size of this surface
-    pub fn get_surface_size(&self) -> Size {
+    pub fn get_surface_size(self) -> Size {
         unsafe { *wlc_surface_get_size(self.0).clone() }
+    }
+
+    /// Gets the inner uintptr_t value that resource uses.
+    pub fn get_raw(self) -> uintptr_t {
+        self.0
     }
 
     /// ## Requires `wlc-wayland` feature
     ///
     /// Gets a list of subsurfaces from the given view
-    pub fn get_subsurfaces(&self) -> Vec<WlcResource> {
+    pub fn get_subsurfaces(self) -> Vec<WlcResource> {
         unsafe {
             let mut out_memb: size_t = 0;
             let subs = wlc_surface_get_subsurfaces(self.0, &mut out_memb as *mut usize);
@@ -105,7 +110,7 @@ impl WlcResource {
     /// # Requires `wlc-wayland` feature
     ///
     /// Gets the subsurface geometry of this WlcResource
-    pub fn get_subsurface_geometry(&self) -> Geometry {
+    pub fn get_subsurface_geometry(self) -> Geometry {
         let mut geo = Geometry {
             origin: Point { x: 0, y: 0},
             size: Size { w: 0, h: 0}

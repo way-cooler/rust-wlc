@@ -692,7 +692,7 @@ impl WlcView {
                              userdata: *mut c_void )
                              -> Option<Self> {
         unsafe {
-            let view_handle = wlc_view_from_surface(surface.0, client,
+            let view_handle = wlc_view_from_surface(surface.get_raw(), client,
                                                     interface, implementation,
                                                      version, id, userdata);
             if view_handle == 0 {
