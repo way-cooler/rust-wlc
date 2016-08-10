@@ -63,17 +63,25 @@ extern crate libc;
 #[macro_use]
 extern crate bitflags;
 
+#[cfg(feature="wlc-wayland")]
+#[macro_use]
+extern crate wayland_sys;
+
 use std::ffi;
 
 pub mod handle;
 pub mod callback;
 pub mod types;
 pub mod input;
+#[cfg(feature="wlc-wayland")]
 pub mod wayland;
 pub mod xkb;
 
 pub use types::*;
 pub use handle::{WlcOutput, WlcView};
+
+#[cfg(feature="wlc-wayland")]
+pub use wayland::WlcResource;
 
 // Log Handler hack
 static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;

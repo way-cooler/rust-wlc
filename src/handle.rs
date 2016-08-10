@@ -8,6 +8,18 @@
 extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
 
+#[cfg(feature="wlc-wayland")]
+use libc::uint32_t;
+
+#[cfg(feature="wlc-wayland")]
+use wayland_sys::server::{wl_resource, wl_client};
+
+#[cfg(feature="wlc-wayland")]
+use wayland_sys::common::wl_interface;
+
+#[cfg(feature="wlc-wayland")]
+use super::wayland::WlcResource;
+
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
@@ -15,13 +27,14 @@ use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
-pub struct WlcView(libc::uintptr_t);
+pub struct WlcView(uintptr_t);
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
-pub struct WlcOutput(libc::uintptr_t);
+pub struct WlcOutput(uintptr_t);
 
+// Applies to both handles
 #[link(name = "wlc")]
 extern "C" {
     fn wlc_get_outputs(memb: *mut libc::size_t) -> *const libc::uintptr_t;
@@ -108,6 +121,40 @@ extern "C" {
     fn wlc_view_get_class(view: uintptr_t) -> *const c_char;
 
     fn wlc_view_get_app_id(view: uintptr_t) -> *const c_char;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_get_surface(view: uintptr_t) -> uintptr_t;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_get_wl_client(view: uintptr_t) -> *mut wl_client;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_get_role(view: uintptr_t) -> *mut wl_resource;
+
+    #[cfg(feature="wlc-wayland")]
+    fn wlc_view_from_surface(surface: uintptr_t, client: *const wl_client, interface: *const wl_interface,
+                             implementation: *const c_void, version: uint32_t, id: uint32_t, userdata: *mut c_void)
+                             -> uintptr_t;
+}
+
+#[cfg(feature="wlc-wayland")]
+impl Into<WlcResource> for WlcView {
+    fn into(self) -> WlcResource {
+        WlcResource::from(unsafe { wlc_view_get_surface(self.0) } )
+    }
+}
+
+#[cfg(feature="wlc-wayland")]
+impl Into<WlcView> for wl_resource {
+    fn into(self) -> WlcView {
+        unsafe { WlcView(wlc_handle_from_wl_surface_resource(&self)) }
+    }
 }
 
 impl From<WlcView> for WlcOutput {
@@ -122,8 +169,15 @@ impl From<WlcOutput> for WlcView {
     }
 }
 
-impl WlcOutput {
+#[cfg(feature="wlc-wayland")]
+impl Into<WlcOutput> for wl_resource {
+    fn into(self) -> WlcOutput {
+        unsafe { WlcOutput(wlc_handle_from_wl_output_resource(&self)) }
+    }
+}
 
+
+impl WlcOutput {
     /// Compatability/debugging function.
     ///
     /// wlc internally stores views and outputs under the same type.
@@ -329,7 +383,6 @@ impl WlcOutput {
 }
 
 impl WlcView {
-
     /// Compatability/debugging function.
     ///
     /// wlc internally stores views and outputs under the same type.
@@ -607,6 +660,45 @@ impl WlcView {
                 String::new()
             } else {
                 pointer_to_string(chars)
+            }
+        }
+    }
+
+    /// Get the wl_client associated with this WLC view.
+    #[cfg(feature="wlc-wayland")]
+    pub fn get_client(self) -> *mut wl_client {
+        unsafe { wlc_view_get_wl_client(self.0) }
+    }
+
+    /// Get the wl_role associated with surface that this WLC view refers to.
+    #[cfg(feature="wlc-wayland")]
+    pub fn get_role(self) -> *mut wl_resource {
+        unsafe { wlc_view_get_role(self.0) }
+    }
+
+    #[cfg(feature="wlc-wayland")]
+    /// Turns a wl_surface into a wlc view.
+    ///
+    /// This will trigger the view.created callback.
+    ///
+    /// If you are not implementing a Wayland interface for the role,
+    /// interface can be NULL.
+    pub fn view_from_surface(surface: WlcResource,
+                             client: *mut wl_client,
+                             interface: *const wl_interface,
+                             implementation: *const c_void,
+                             version: uint32_t,
+                             id: uint32_t,
+                             userdata: *mut c_void )
+                             -> Option<Self> {
+        unsafe {
+            let view_handle = wlc_view_from_surface(surface.get_raw(), client,
+                                                    interface, implementation,
+                                                     version, id, userdata);
+            if view_handle == 0 {
+                None
+            } else {
+                Some(WlcView(view_handle))
             }
         }
     }
