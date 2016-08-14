@@ -6,10 +6,7 @@
 //! - **Clone**: View handles can safely be cloned.
 
 extern crate libc;
-use libc::{uintptr_t, c_char, c_void};
-
-#[cfg(feature="wlc-wayland")]
-use libc::uint32_t;
+use libc::{uintptr_t, c_char, c_void, uint32_t};
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
@@ -56,7 +53,7 @@ extern "C" {
 
     fn wlc_output_get_resolution(output: uintptr_t) -> *const Size;
 
-    fn wlc_output_set_resolution(output: uintptr_t, resolution: *const Size);
+    fn wlc_output_set_resolution(output: uintptr_t, resolution: *const Size, scale: uint32_t);
 
     fn wlc_output_get_mask(output: uintptr_t) -> u32;
 
@@ -315,8 +312,8 @@ impl WlcOutput {
     ///
     /// # Safety
     /// This method will crash the program if use when wlc is not running.
-    pub fn set_resolution(self, size: Size) {
-        unsafe { wlc_output_set_resolution(self.0, &size); }
+    pub fn set_resolution(self, size: Size, scaling: u32) {
+        unsafe { wlc_output_set_resolution(self.0, &size, scaling); }
     }
 
     /// Get views in stack order.
