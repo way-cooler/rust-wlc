@@ -4,6 +4,7 @@
 //! - **Debug**: pointer-prints the underlying `uintptr_t` handle
 //! - **Eq, Ord**: compare the underlying `uintptr_t` handle
 //! - **Clone**: View handles can safely be cloned.
+use std::fmt;
 
 extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
@@ -24,15 +25,37 @@ use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
 pub struct WlcView(uintptr_t);
 
+impl fmt::Debug for WlcView {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut title = self.get_title();
+        let mut class = self.get_class();
+        if title.is_empty() {
+            title = "<no title>".into();
+        }
+        if class.is_empty() {
+            class = "<no class>".into();
+        }
+        write!(f, "WlcView {{ title: {title}, class: {class} }}", title=title, class=class)
+    }
+}
+
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput(uintptr_t);
+
+impl fmt::Debug for WlcOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let name = self.get_name();
+        let views = self.get_views();
+        write!(f, "WlcOutput {{ name: {name}, views: {views:?} }}", name=name, views=views)
+    }
+}
 
 // Applies to both handles
 #[link(name = "wlc")]

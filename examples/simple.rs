@@ -130,6 +130,7 @@ extern fn on_view_created(view: WlcView) -> bool {
     view.bring_to_front();
     view.focus();
     render_output(view.get_output());
+    println!("view: {:?}", view);
     true
 }
 
