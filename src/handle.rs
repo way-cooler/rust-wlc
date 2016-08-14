@@ -57,6 +57,8 @@ extern "C" {
 
     fn wlc_output_get_scale(output: uintptr_t) -> uint32_t;
 
+    fn wlc_output_get_virtual_resolution(output: uintptr_t) -> *const Size;
+
     fn wlc_output_get_mask(output: uintptr_t) -> u32;
 
     fn wlc_output_set_mask(output: uintptr_t, mask: u32);
@@ -305,9 +307,15 @@ impl WlcOutput {
         unsafe { wlc_output_set_sleep(self.0, sleep); }
     }
 
-    /// Gets the output resolution in pixels.
+    /// Gets the output's real resolution. Do not use for coordinate boundary.
     pub fn get_resolution(self) -> Option<Size> {
         unsafe { wlc_output_get_resolution(self.0).as_ref().map(|&x| x) }
+    }
+
+    /// Get the virtual resolution. Helpful for getting resolution on high dpi displays.
+    /// Use this to calculate coordinate boundary.
+    pub fn get_virtual_resolution(self) -> Option<Size> {
+        unsafe { wlc_output_get_virtual_resolution(self.0).as_ref().map(|&x| x) }
     }
 
     /// Sets the resolution of the output.
