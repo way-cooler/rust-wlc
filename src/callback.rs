@@ -140,7 +140,7 @@ extern "C" {
     //fn wlc_set_input_destroyed_cb(cb: extern "C" fn(&LibinputDevice));
 
     // View properties were updated
-    fn wlc_set_view_properties_updated_cb(view: extern "C" fn(handle: WlcView, mask: u32));
+    fn wlc_set_view_properties_updated_cb(cb: extern "C" fn(handle: WlcView, mask: ViewPropertyType));
 }
 
 /// Callback invoked when an output is created.
@@ -521,8 +521,12 @@ pub fn compositor_terminate(callback: extern "C" fn()) {
     }
 }
 
-/// Callback invoked when a WlcView has its properties updated
-pub fn view_properties_changed(callback: extern "C" fn(handle: WlcView, mask: u32)) {
+/// Callback invoked when a WlcView has its properties updated.
+///
+/// # Arguments
+/// * `view`: View handle that is changing its properties
+/// * `mask`: Bitflag of which property is being updated
+pub fn view_properties_changed(callback: extern "C" fn(handle: WlcView, mask: ViewPropertyType)) {
     unsafe {
         wlc_set_view_properties_updated_cb(callback);
     }

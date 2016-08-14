@@ -104,6 +104,19 @@ bitflags! {
 }
 
 bitflags! {
+    /// Which view property is being updated
+    #[repr(C)]
+    pub flags ViewPropertyType: u32 {
+        /// View title is being updated
+        const PROPERTY_TITLE = 0,
+        /// View class is being updated
+        const PROPRETY_CLASS = 1,
+        /// View app id is being updated
+        const PROPERTY_APP_ID = 2,
+    }
+}
+
+bitflags! {
     /// Represents which keyboard meta keys are being pressed.
     #[repr(C)]
     pub flags KeyMod: u32 {
