@@ -101,7 +101,7 @@ fn get_topmost_view(output: WlcOutput, offset: usize) -> Option<WlcView> {
 }
 
 fn render_output(output: WlcOutput) {
-    let resolution = output.get_resolution().unwrap();
+    let resolution = output.get_virtual_resolution().unwrap();
     let views = output.get_views();
     if views.is_empty() { return; }
 
@@ -179,6 +179,15 @@ extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, k
                                 .arg("/usr/bin/weston-terminal || echo a").spawn()
                     .unwrap_or_else(|e| {
                         println!("Error spawning child: {}", e); panic!("spawning child")});
+                return true;
+            } else if sym.raw() >= keysyms::KEY_1.raw() && sym.raw() <= keysyms::KEY_9.raw() {
+                let outputs = WlcOutput::list();
+                let scale = (sym.raw() - keysyms::KEY_1.raw()) + 1;
+                for output in outputs {
+                    output.set_resolution(output.get_resolution()
+                                          .expect("No resolution"), scale);
+                }
+                println!("scale: {}", scale);
                 return true;
             }
         }

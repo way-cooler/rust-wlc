@@ -128,6 +128,13 @@ use std::mem;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Keysym(u32);
 
+impl Keysym {
+    /// Get the raw value of the keysym
+    pub fn raw(self) -> u32 {
+        self.0
+    }
+}
+
 /// Represents flags used for `Keysym::from_name`
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
