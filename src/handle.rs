@@ -40,7 +40,21 @@ impl fmt::Debug for WlcView {
         if class.is_empty() {
             class = "<no class>".into();
         }
-        write!(f, "WlcView {{ title: {title}, class: {class} }}", title=title, class=class)
+        write!(f, "WlcView {{ handle: {handle}, title: {title}, class: {class} }}",
+               handle=self.0, title=title, class=class)
+    }
+}
+
+impl fmt::Display for WlcView {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut name = self.get_title();
+        if name.is_empty() {
+            name = self.get_class();
+            if name.is_empty() {
+                name = format!("WlcView({handle})", handle=self.0);
+            }
+        }
+        write!(f, "WlcOutput {{ name: {name} }}", name=name)
     }
 }
 
@@ -53,7 +67,14 @@ impl fmt::Debug for WlcOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let name = self.get_name();
         let views = self.get_views();
-        write!(f, "WlcOutput {{ name: {name}, views: {views:?} }}", name=name, views=views)
+        write!(f, "WlcOutput {{ handle: {handle}, name: {name}, views: {views:?} }}", handle=self.0, name=name, views=views)
+    }
+}
+
+impl fmt::Display for WlcOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let name = self.get_name();
+        write!(f, "WlcOutput {{ handle: {handle} name: {name} }}", handle=self.0, name=name)
     }
 }
 
