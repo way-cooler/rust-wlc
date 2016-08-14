@@ -55,6 +55,8 @@ extern "C" {
 
     fn wlc_output_set_resolution(output: uintptr_t, resolution: *const Size, scale: uint32_t);
 
+    fn wlc_output_get_scale(output: uintptr_t) -> uint32_t;
+
     fn wlc_output_get_mask(output: uintptr_t) -> u32;
 
     fn wlc_output_set_mask(output: uintptr_t, mask: u32);
@@ -314,6 +316,11 @@ impl WlcOutput {
     /// This method will crash the program if use when wlc is not running.
     pub fn set_resolution(self, size: Size, scaling: u32) {
         unsafe { wlc_output_set_resolution(self.0, &size, scaling); }
+    }
+
+    /// Get the scaling for the output.
+    pub fn get_scale(self) -> u32 {
+        unsafe { wlc_output_get_scale(self.0) as u32}
     }
 
     /// Get views in stack order.
