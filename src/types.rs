@@ -2,6 +2,7 @@
 //! structs defined by wlc.
 
 use std::fmt;
+use std::cmp;
 
 /// Log level to pass into wlc logging
 #[repr(C)]
@@ -113,6 +114,8 @@ bitflags! {
         const PROPRETY_CLASS = 1,
         /// View app id is being updated
         const PROPERTY_APP_ID = 2,
+        /// PID of the view is being updated
+        const PROPERTY_PID = 4
     }
 }
 
@@ -231,6 +234,48 @@ pub struct Point {
     pub y: i32
 }
 
+impl Point {
+    /// The point defined as (0, 0).
+    pub fn origin() -> Point {
+        Point { x: 0, y: 0 }
+    }
+
+    /// Create a new point from the given x and y coordinates.
+    pub fn new(x: i32, y: i32) -> Point {
+        Point { x: x, y: y }
+    }
+
+    /// Creates a new point with an x and y which are the smallest of the two
+    /// points.
+    ///
+    /// # Examples:
+    /// ```rust
+    /// # use rustwlc::Point;
+    /// let a = Point::new(0i32, 12i32);
+    /// let b = Point::new(12i32, 0i32);
+    ///
+    /// assert_eq!(Point::from_min_coords(a, b), Point::new(0, 0));
+    /// ```
+    pub fn from_min_coords(a: Point, b: Point) -> Point {
+        Point::new(cmp::min(a.x, b.x), cmp::min(a.y, b.y))
+    }
+
+    /// Creates a new point with an x and y which are the largest of the two
+    /// points.
+    ///
+    /// # Examples:
+    /// ```rust
+    /// # use rustwlc::Point;
+    /// let a = Point::new(0i32, 12i32);
+    /// let b = Point::new(12i32, 0i32);
+    ///
+    /// assert_eq!(Point::from_max_coords(a, b), Point::new(12i32, 12i32));
+    /// ```
+    pub fn from_max_coords(a: Point, b: Point) -> Point {
+        Point::new(cmp::max(a.x, b.x), cmp::max(a.y, b.y))
+    }
+}
+
 impl fmt::Display for Point {
     fn fmt(&self, format: &mut fmt::Formatter) -> fmt::Result {
         write!(format, "({}, {})", self.x, self.y)
@@ -247,6 +292,48 @@ pub struct Size {
     pub h: u32
 }
 
+impl Size {
+    /// A size with zero width and height.
+    pub fn zero() -> Size {
+        Size { w: 0, h: 0 }
+    }
+
+    /// Create a new Size from the given height and width.
+    pub fn new(w: u32, h: u32) -> Size {
+        Size { w: w, h: h }
+    }
+
+    /// Creates a new size with a height and width of the smallest of the two
+    /// sizes.
+    ///
+    /// # Examples:
+    /// ```rust
+    /// # use rustwlc::Size;
+    /// let a = Size::new(0u32, 12u32);
+    /// let b = Size::new(12u32, 0u32);
+    ///
+    /// assert_eq!(Size::from_min_dimensions(a, b), Size::new(0u32, 0u32));
+    /// ```
+    pub fn from_min_dimensions(a: Size, b: Size) -> Size {
+        Size::new(cmp::min(a.h, b.h), cmp::min(a.w, b.w))
+    }
+
+    /// Creates a new size with a height and width of the smallest of the two
+    /// sizes.
+    ///
+    /// # Examples:
+    /// ```rust
+    /// # use rustwlc::Size;
+    /// let a = Size::new(0u32, 12u32);
+    /// let b = Size::new(12u32, 0u32);
+    ///
+    /// assert_eq!(Size::from_max_dimensions(a, b), Size::new(12u32, 12u32));
+    /// ```
+    pub fn from_max_dimensions(a: Size, b: Size) -> Size {
+        Size::new(cmp::max(a.h, b.h), cmp::max(a.w, b.w))
+    }
+}
+
 impl fmt::Display for Size {
     fn fmt(&self, format: &mut fmt::Formatter) -> fmt::Result {
         write!(format, "{} x {}", self.w, self.h)
@@ -261,6 +348,40 @@ pub struct Geometry {
     pub origin: Point,
     /// The size of the object
     pub size: Size
+}
+
+impl Geometry {
+    /// Creates a geometry with zero size at the origin.
+    pub fn zero() -> Geometry {
+        Geometry { origin: Point::origin(), size: Size::zero() }
+    }
+
+    /// Creates a new geometry with the given size and location.
+    pub fn new(origin: Point, size: Size) -> Geometry {
+        Geometry { origin: origin, size: size }
+    }
+
+    /// Determines if this geometry contains a point.
+    ///
+    /// If the point's coordinates are less than or equal to this geometry's
+    /// dimensions plus its size.
+    pub fn contains_point(self, point: Point) -> bool {
+        point.x <= self.origin.x + self.size.w as i32 &&
+            point.y <= self.origin.y + self.size.h as i32
+    }
+
+    /// Determines if this geometry contains another.
+    ///
+    /// If the other geometry's borders could be fully contained (less than
+    /// or equal to) within self.
+    pub fn contains_geometry(self, other: Geometry) -> bool {
+        self.origin.x <= other.origin.x
+            && self.origin.y <= other.origin.y
+            && self.origin.x + self.size.w as i32
+                >= other.origin.x + other.size.w as i32
+            && self.origin.y + self.size.h as i32
+                >= other.origin.y + other.size.h as i32
+    }
 }
 
 impl fmt::Display for Geometry {

@@ -14,7 +14,7 @@ extern "C" {
     // Pointer functions
     fn wlc_pointer_get_position(out_position: *mut Point);
 
-    fn wlc_pointer_set_position(position: &Point);
+    fn wlc_pointer_set_position(position: *const Point);
 }
 
 pub mod pointer {
@@ -31,14 +31,15 @@ pub mod pointer {
     }
 
     /// Sets the current mouse position. Required on mouse move callback.
-    pub fn set_position(point: &Point) {
-        unsafe { super::wlc_pointer_set_position(point); }
+    pub fn set_position(point: Point) {
+        unsafe { super::wlc_pointer_set_position(&point); }
     }
 }
 
 pub mod keyboard {
 //! Methods for interacting with the keyboard
     use super::super::types::{KeyMod};
+    #[allow(deprecated)]
     use super::super::xkb::Keysym;
 
     /// Get currently held keys.
@@ -49,8 +50,15 @@ pub mod keyboard {
     }
 
     /// Gets a keysym given a key and modifiers.
+    ///
+    /// In order to delay breaking backwards compatibility this method is _not_
+    /// deprecated. Please use `Keysym::raw` on the Keysym returned from this
+    /// function for now. **In version 0.6 this will return a u32**.
+    #[allow(deprecated)]
     pub fn get_keysym_for_key(key: u32, modifiers: KeyMod) -> Keysym {
-        unsafe { Keysym::from(super::wlc_keyboard_get_keysym_for_key(key, &modifiers)) }
+        unsafe {
+            Keysym::from(super::wlc_keyboard_get_keysym_for_key(key, &modifiers))
+        }
     }
 
     /// Gets a UTF32 value for a given key and modifiers.

@@ -75,6 +75,7 @@ pub mod types;
 pub mod input;
 #[cfg(feature="wlc-wayland")]
 pub mod wayland;
+#[deprecated]
 pub mod xkb;
 
 pub use types::*;

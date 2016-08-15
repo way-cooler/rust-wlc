@@ -4,9 +4,10 @@
 //! - **Debug**: pointer-prints the underlying `uintptr_t` handle
 //! - **Eq, Ord**: compare the underlying `uintptr_t` handle
 //! - **Clone**: View handles can safely be cloned.
+use std::fmt::{self, Debug};
 
 extern crate libc;
-use libc::{uintptr_t, c_char, c_void, uint32_t};
+use libc::{uintptr_t, c_char, c_void, uint32_t, pid_t};
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
@@ -21,15 +22,55 @@ use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
 pub struct WlcView(uintptr_t);
 
+impl fmt::Debug for WlcView {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("WlcView")
+            .field("handle", &self.0 as &Debug)
+            .field("title", &self.get_title() as &Debug)
+            .field("class", &self.get_class() as &Debug)
+            .finish()
+    }
+}
+
+impl fmt::Display for WlcView {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut name = self.get_title();
+        if name.is_empty() {
+            name = self.get_class();
+            if name.is_empty() {
+                name = format!("WlcView({handle})", handle=self.0);
+            }
+        }
+        write!(f, "WlcOutput {{ name: {name} }}", name=name)
+    }
+}
+
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput(uintptr_t);
+
+impl fmt::Debug for WlcOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("WlcOutput")
+            .field("handle", &self.0 as &Debug)
+            .field("name", &self.get_name() as &Debug)
+            .field("views", &self.get_views() as &Debug)
+            .finish()
+    }
+}
+
+impl fmt::Display for WlcOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let name = self.get_name();
+        write!(f, "WlcOutput {{ handle: {handle} name: {name} }}", handle=self.0, name=name)
+    }
+}
 
 // Applies to both handles
 #[link(name = "wlc")]
@@ -122,6 +163,8 @@ extern "C" {
     fn wlc_view_get_class(view: uintptr_t) -> *const c_char;
 
     fn wlc_view_get_app_id(view: uintptr_t) -> *const c_char;
+
+    fn wlc_view_get_pid(view: uintptr_t)-> pid_t;
 
     #[cfg(feature="wlc-wayland")]
     fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
@@ -676,7 +719,12 @@ impl WlcView {
         }
     }
 
-    /// Get the wl_client associated with this WLC view.
+    /// Get the pid associated with this `WlcView`.
+    pub fn get_pid(self) -> pid_t {
+        unsafe { wlc_view_get_pid(self.0) }
+    }
+
+    /// Get the wl_client associated with this `WlcView`.
     #[cfg(feature="wlc-wayland")]
     pub fn get_client(self) -> *mut wl_client {
         unsafe { wlc_view_get_wl_client(self.0) }

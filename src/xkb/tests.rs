@@ -1,4 +1,7 @@
-#![cfg(test)] // Module only builds if tests are enabled
+//! # Deprecation
+//! The keysyms module is deprecated.
+//! Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+//! instead. **The xkb module will be removed in version 0.6**.
 
 use super::*;
 
