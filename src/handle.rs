@@ -4,7 +4,7 @@
 //! - **Debug**: pointer-prints the underlying `uintptr_t` handle
 //! - **Eq, Ord**: compare the underlying `uintptr_t` handle
 //! - **Clone**: View handles can safely be cloned.
-use std::fmt;
+use std::fmt::{self, Debug};
 
 extern crate libc;
 use libc::{uintptr_t, c_char, c_void};
@@ -32,16 +32,11 @@ pub struct WlcView(uintptr_t);
 
 impl fmt::Debug for WlcView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut title = self.get_title();
-        let mut class = self.get_class();
-        if title.is_empty() {
-            title = "<no title>".into();
-        }
-        if class.is_empty() {
-            class = "<no class>".into();
-        }
-        write!(f, "WlcView {{ handle: {handle}, title: {title}, class: {class} }}",
-               handle=self.0, title=title, class=class)
+        f.debug_struct("WlcView")
+            .field("handle", &self.0 as &Debug)
+            .field("title", &self.get_title() as &Debug)
+            .field("class", &self.get_class() as &Debug)
+            .finish()
     }
 }
 
@@ -65,9 +60,11 @@ pub struct WlcOutput(uintptr_t);
 
 impl fmt::Debug for WlcOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let name = self.get_name();
-        let views = self.get_views();
-        write!(f, "WlcOutput {{ handle: {handle}, name: {name}, views: {views:?} }}", handle=self.0, name=name, views=views)
+        f.debug_struct("WlcOutput")
+            .field("handle", &self.0 as &Debug)
+            .field("name", &self.get_name() as &Debug)
+            .field("views", &self.get_views() as &Debug)
+            .finish()
     }
 }
 
