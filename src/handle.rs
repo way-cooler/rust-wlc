@@ -6,10 +6,7 @@
 //! - **Clone**: View handles can safely be cloned.
 
 extern crate libc;
-use libc::{uintptr_t, c_char, c_void};
-
-#[cfg(feature="wlc-wayland")]
-use libc::uint32_t;
+use libc::{uintptr_t, c_char, c_void, uint32_t};
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
@@ -56,7 +53,11 @@ extern "C" {
 
     fn wlc_output_get_resolution(output: uintptr_t) -> *const Size;
 
-    fn wlc_output_set_resolution(output: uintptr_t, resolution: *const Size);
+    fn wlc_output_set_resolution(output: uintptr_t, resolution: *const Size, scale: uint32_t);
+
+    fn wlc_output_get_scale(output: uintptr_t) -> uint32_t;
+
+    fn wlc_output_get_virtual_resolution(output: uintptr_t) -> *const Size;
 
     fn wlc_output_get_mask(output: uintptr_t) -> u32;
 
@@ -306,17 +307,28 @@ impl WlcOutput {
         unsafe { wlc_output_set_sleep(self.0, sleep); }
     }
 
-    /// Gets the output resolution in pixels.
+    /// Gets the output's real resolution. Do not use for coordinate boundary.
     pub fn get_resolution(self) -> Option<Size> {
         unsafe { wlc_output_get_resolution(self.0).as_ref().map(|&x| x) }
+    }
+
+    /// Get the virtual resolution. Helpful for getting resolution on high dpi displays.
+    /// Use this to calculate coordinate boundary.
+    pub fn get_virtual_resolution(self) -> Option<Size> {
+        unsafe { wlc_output_get_virtual_resolution(self.0).as_ref().map(|&x| x) }
     }
 
     /// Sets the resolution of the output.
     ///
     /// # Safety
     /// This method will crash the program if use when wlc is not running.
-    pub fn set_resolution(self, size: Size) {
-        unsafe { wlc_output_set_resolution(self.0, &size); }
+    pub fn set_resolution(self, size: Size, scaling: u32) {
+        unsafe { wlc_output_set_resolution(self.0, &size, scaling); }
+    }
+
+    /// Get the scaling for the output.
+    pub fn get_scale(self) -> u32 {
+        unsafe { wlc_output_get_scale(self.0) as u32}
     }
 
     /// Get views in stack order.
