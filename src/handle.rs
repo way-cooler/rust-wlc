@@ -6,7 +6,7 @@
 //! - **Clone**: View handles can safely be cloned.
 
 extern crate libc;
-use libc::{uintptr_t, c_char, c_void, uint32_t};
+use libc::{uintptr_t, c_char, c_void, uint32_t, pid_t};
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
@@ -122,6 +122,8 @@ extern "C" {
     fn wlc_view_get_class(view: uintptr_t) -> *const c_char;
 
     fn wlc_view_get_app_id(view: uintptr_t) -> *const c_char;
+
+    fn wlc_view_get_pid(view: uintptr_t)-> pid_t;
 
     #[cfg(feature="wlc-wayland")]
     fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
@@ -676,7 +678,12 @@ impl WlcView {
         }
     }
 
-    /// Get the wl_client associated with this WLC view.
+    /// Get the pid associated with this `WlcView`.
+    pub fn get_pid(self) -> pid_t {
+        unsafe { wlc_view_get_pid(self.0) }
+    }
+
+    /// Get the wl_client associated with this `WlcView`.
     #[cfg(feature="wlc-wayland")]
     pub fn get_client(self) -> *mut wl_client {
         unsafe { wlc_view_get_wl_client(self.0) }

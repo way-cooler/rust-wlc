@@ -113,6 +113,8 @@ bitflags! {
         const PROPRETY_CLASS = 1,
         /// View app id is being updated
         const PROPERTY_APP_ID = 2,
+        /// PID of the view is being updated
+        const PROPERTY_PID = 4
     }
 }
 
