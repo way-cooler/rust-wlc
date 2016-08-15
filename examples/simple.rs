@@ -221,7 +221,7 @@ extern fn on_pointer_button(view: WlcView, _time: u32, mods: &KeyboardModifiers,
     }
 }
 extern fn on_pointer_motion(_in_view: WlcView, _time: u32, point: &Point) -> bool {
-    rustwlc::input::pointer::set_position(point);
+    rustwlc::input::pointer::set_position(*point);
     {
         let comp = COMPOSITOR.read().unwrap();
         if let Some(ref view) = comp.view {
