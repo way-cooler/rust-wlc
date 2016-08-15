@@ -1,7 +1,10 @@
-//! Some libxkbcommon bindings.
-//!
-//! We do not wrap the full funcionality of xkb, as wlc handles
-//! most of the setup.
+//! Deprecated libxkbcommon bindings.
+//! # Deprecation
+//! The keysyms module is deprecated.
+//! Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+//! instead. **The xkb module will be removed in version 0.6**.
+
+#![allow(deprecated)]
 
 #[cfg(test)]
 mod tests;
@@ -92,12 +95,12 @@ use std::ffi::CString;
 use std::mem;
 // Keysym utils functions
 
-// An xkb keycode.
-// Keycodes are handled by wlc
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// pub struct Keycode(u32);
-
 /// An xkb keysym.
+///
+/// # Deprecation
+/// The keysyms module is deprecated.
+/// Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+/// instead. **The xkb module will be removed in version 0.6**.
 ///
 /// # From xkb
 /// A number used to represent the symbols generated from a key on a keyboard.
@@ -136,6 +139,10 @@ impl Keysym {
 }
 
 /// Represents flags used for `Keysym::from_name`
+/// # Deprecation
+/// The keysyms module is deprecated.
+/// Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+/// instead. **The xkb module will be removed in version 0.6**.
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum NameFlags {
@@ -147,6 +154,11 @@ pub enum NameFlags {
 
 /// Opaque keyboard state object.
 ///
+/// # Deprecation
+/// The keysyms module is deprecated.
+/// Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+/// instead. **The xkb module will be removed in version 0.6**.
+///
 /// State objects contain the active state of a keyboard (or keyboards), such
 /// as the currently effective layout and the active modifiers.  It acts as a
 /// simple state machine, wherein key presses and releases are the input, and
@@ -155,6 +167,11 @@ pub enum NameFlags {
 pub struct XKBState;
 
 /// Opaque compiled keymap object.
+///
+/// # Deprecation
+/// The keysyms module is deprecated.
+/// Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+/// instead. **The xkb module will be removed in version 0.6**.
 ///
 /// The keymap object holds all of the static keyboard information obtained
 /// from compiling XKB files.
@@ -302,11 +319,14 @@ impl Keysym {
 
 /// An error returned from attempting to crete a Keysym.
 ///
+/// # Deprecation
+/// The keysyms module is deprecated.
+/// Please use the [xkbcommon crate](https://crates.io/crates/xkbcommon)
+/// instead. **The xkb module will be removed in version 0.6**.
 /// Returned by `Keysym::from()`, `Keysym::from_name()`
 pub struct KeysymParseError;
 
 impl From<u32> for Keysym {
-
     #[inline]
     fn from(value: u32) -> Self {
         Keysym(value)
