@@ -6,7 +6,7 @@
 //! - **Clone**: View handles can safely be cloned.
 
 extern crate libc;
-use libc::{uintptr_t, c_char, c_void, uint32_t};
+use libc::{uintptr_t, c_char, c_void, uint32_t, pid_t};
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
