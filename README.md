@@ -1,7 +1,7 @@
 # rust-wlc
 
 [![Join the chat at https://gitter.im/Immington-Industries/rust-wlc](https://badges.gitter.im/Immington-Industries/rust-wlc.svg)](https://gitter.im/Immington-Industries/rust-wlc?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Crates.io](https://img.shields.io/badge/crates.io-v05.0-orange.svg)](https://crates.io/crate/rustwlc)
+[![Crates.io](https://img.shields.io/badge/crates.io-v05.1-orange.svg)](https://crates.io/crate/rustwlc)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Immington-Industries/rust-wlc/)
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
