@@ -24,17 +24,15 @@ lazy_static! {
 }
 
 fn start_interactive_action(view: WlcView, origin: Point) -> bool {
-    {
-        let mut comp = COMPOSITOR.write().unwrap();
-        if comp.view != None {
-            return false;
-        }
-        comp.grab = origin;
-        comp.view = Some(view);
+    let mut comp = COMPOSITOR.write().unwrap();
+    if comp.view != None {
+        return false
     }
+    comp.grab = origin;
+    comp.view = Some(view);
 
     view.bring_to_front();
-    return true;
+    return true
 }
 
 fn start_interactive_move(view: WlcView, origin: Point) {
@@ -154,7 +152,7 @@ extern fn on_view_request_resize(view: WlcView, edges: ResizeEdge, origin: &Poin
 
 extern fn on_keyboard_key(view: WlcView, _time: u32, mods: &KeyboardModifiers, key: u32, state: KeyState) -> bool {
     use std::process::Command;
-    let sym = input::keyboard::get_keysym_for_key(key, mods.mods);
+    let sym = input::keyboard::get_keysym_for_key(key, *mods);
     if state == KeyState::Pressed {
         if mods.mods == MOD_CTRL {
             // Key Q
