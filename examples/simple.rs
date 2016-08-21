@@ -29,6 +29,7 @@ fn start_interactive_action(view: WlcView, origin: Point) -> bool {
         return false
     }
     comp.grab = origin;
+    comp.view = Some(view);
 
     view.bring_to_front();
     return true
