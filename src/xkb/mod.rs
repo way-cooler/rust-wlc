@@ -264,8 +264,8 @@ impl Keysym {
     /// ```
     pub fn from_name(name: String, flags: NameFlags) -> Option<Keysym> {
         unsafe {
-            let c_name = CString::new(name).unwrap().as_ptr() as *const c_char;
-            let sym_val: u32 = xkb_keysym_from_name(c_name, flags);
+            let c_name = CString::new(name).unwrap();
+            let sym_val: u32 = xkb_keysym_from_name(c_name.as_ptr() as *const c_char, flags);
             match sym_val {
                 0 => None,
                 _ => Some(Keysym(sym_val))
