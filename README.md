@@ -6,7 +6,8 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
-Requires [wlc](https:://github.com/Cloudef/wlc) v0.0.5.
+Bindings are compatable with [wlc](https:://github.com/Cloudef/wlc) v0.0.5 - v0.0.7. 
+We suggest using 0.0.7 - it has bugfixes and compatibilty with more recent Wayland protocols.
 
 ### Rust Example
 
