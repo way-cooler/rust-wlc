@@ -73,7 +73,7 @@ impl fmt::Display for WlcOutput {
 }
 
 // Applies to both handles
-#[link(name = "wlc")]
+#[link(name = "wlc", kind="static")]
 extern "C" {
     fn wlc_get_outputs(memb: *mut libc::size_t) -> *const libc::uintptr_t;
 

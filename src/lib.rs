@@ -88,7 +88,7 @@ pub use wayland::WlcResource;
 static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;
 
 // External WLC functions
-#[link(name = "wlc")]
+#[link(name = "wlc", kind="static")]
 extern "C" {
     // init2 -> init :(
     fn wlc_init() -> bool;
