@@ -21,21 +21,21 @@ fn main() {
         println!("cargo:rustc-link-lib=dylib=X11");
         println!("cargo:rustc-link-lib=dylib=X11-xcb");
         println!("cargo:rustc-link-lib=dylib=EGL");
-        println!("cargo:rustc-link-search=native=/usr/include"   );
-        println!("cargo:rustc-link-lib=static=chck-atlas"  );
-        println!("cargo:rustc-link-lib=static=chck-pool"   );
-        println!("cargo:rustc-link-lib=static=chck-buffer" );
-        println!("cargo:rustc-link-lib=static=chck-buffer" );
-        println!("cargo:rustc-link-lib=static=chck-dl"     );
-        println!("cargo:rustc-link-lib=static=chck-fs"     );
-        println!("cargo:rustc-link-lib=static=chck-lut"    );
-        println!("cargo:rustc-link-lib=static=chck-pool"   );
-        println!("cargo:rustc-link-lib=static=chck-sjis"   );
-        println!("cargo:rustc-link-lib=static=chck-string" );
-        println!("cargo:rustc-link-lib=static=chck-tqueue" );
+        println!("cargo:rustc-link-search=native=/usr/include");
+        println!("cargo:rustc-link-lib=static=chck-atlas");
+        println!("cargo:rustc-link-lib=static=chck-pool");
+        println!("cargo:rustc-link-lib=static=chck-buffer");
+        println!("cargo:rustc-link-lib=static=chck-buffer");
+        println!("cargo:rustc-link-lib=static=chck-dl");
+        println!("cargo:rustc-link-lib=static=chck-fs");
+        println!("cargo:rustc-link-lib=static=chck-lut");
+        println!("cargo:rustc-link-lib=static=chck-pool");
+        println!("cargo:rustc-link-lib=static=chck-sjis" );
+        println!("cargo:rustc-link-lib=static=chck-string");
+        println!("cargo:rustc-link-lib=static=chck-tqueue");
         println!("cargo:rustc-link-lib=static=chck-unicode");
-        println!("cargo:rustc-link-lib=static=chck-xdg"    );
-        println!("cargo:rustc-link-lib=static=wlc-protos"    );
+        println!("cargo:rustc-link-lib=static=chck-xdg");
+        println!("cargo:rustc-link-lib=static=wlc-protos");
         println!("cargo:include=/home/timidger/include");
     }
 }
