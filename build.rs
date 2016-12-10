@@ -36,6 +36,5 @@ fn main() {
         println!("cargo:rustc-link-lib=static=chck-unicode");
         println!("cargo:rustc-link-lib=static=chck-xdg");
         println!("cargo:rustc-link-lib=static=wlc-protos");
-        println!("cargo:include=/home/timidger/include");
     }
 }
