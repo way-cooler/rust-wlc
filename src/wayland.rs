@@ -36,7 +36,8 @@ use types::{Size, Geometry, Point};
 pub struct WlcResource(uintptr_t);
 
 /// Functions defined in wlc-wayland.h
-#[link(name = "wlc", kind="static")]
+#[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
+#[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 extern "C" {
     fn wlc_get_wl_display() -> *mut wl_display;
     fn wlc_resource_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;

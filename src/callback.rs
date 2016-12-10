@@ -32,7 +32,8 @@
 use super::types::*;
 use super::handle::{WlcOutput, WlcView};
 
-#[link(name = "wlc", kind="static")]
+#[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
+#[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 extern "C" {
     // Output was created. Return false if you want to destroy the output.
     // (e.g. failed to allocate data related to view)

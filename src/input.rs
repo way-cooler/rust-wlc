@@ -4,7 +4,8 @@
 use libc::{size_t, uint32_t};
 use super::types::{KeyboardModifiers, Point};
 
-#[link(name = "wlc", kind="static")]
+#[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
+#[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 extern "C" {
     fn wlc_keyboard_get_current_keys(out_memb: *const size_t) -> *const uint32_t;
 
