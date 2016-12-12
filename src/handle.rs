@@ -72,8 +72,8 @@ impl fmt::Display for WlcOutput {
     }
 }
 
-// Applies to both handles
-#[link(name = "wlc")]
+#[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
+#[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 extern "C" {
     fn wlc_get_outputs(memb: *mut libc::size_t) -> *const libc::uintptr_t;
 
