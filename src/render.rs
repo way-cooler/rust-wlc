@@ -33,16 +33,10 @@ extern "C" {
     /// If the geometry is out of bounds, it will be automatically clamped.
     fn wlc_pixels_write(format: wlc_pixel_format, geometry: *const Geometry, data: *const c_void);
 
+    fn wlc_pixels_read(format: wlc_pixel_format, geometry: *const Geometry, data: *mut c_void);
+
     /// Read pixel data from output's framebuffer.
-    /// If the geometry is out of bounds, it will be automatically clamped.
-    /// Potentially clamped geometry will be stored in out_geometry,
-    /// to indicate width / height of the returned data.
-    fn wlc_pixels_read(format: wlc_pixel_format, geometry: *const Geometry, data: *const c_void);
-
-    fn wlc_surface_render(surface: uintptr_t, geometry: *const Geometry);
-
-    /// Schedules output for rendering next frame. If output was already scheduled this is no-op,
-    /// if output is currently rendering, it will render immediately after.
+    /// If theif output is currently rendering, it will render immediately after.
     fn wlc_output_schedule_render(output: WlcOutput);
 
     /// Adds frame callbacks of the given surface for the next output frame.
