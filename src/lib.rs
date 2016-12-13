@@ -77,6 +77,7 @@ pub mod input;
 pub mod wayland;
 #[deprecated]
 pub mod xkb;
+pub mod render;
 
 pub use types::*;
 pub use handle::{WlcOutput, WlcView};
