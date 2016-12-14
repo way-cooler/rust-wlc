@@ -64,7 +64,7 @@ extern "C" {
 /// # Unsafety
 /// The data is converted to a *mut c_void and then passed to C to read.
 /// The size of it should be the stride of the geometry * height of the geometry.
-pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &mut &[u8]) {
+pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &mut [u8]) {
     // TODO Add check to ensure that the data is the correct size (stride * height)
     unsafe {
         let data = data as *mut _ as *mut c_void;
