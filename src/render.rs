@@ -1,6 +1,7 @@
 //! Contains definitions for wlc render functions (wlc-render.h)
 
 use libc::{c_void, uint32_t, uintptr_t};
+use std::mem;
 use super::types::{Geometry, Size};
 
 const BITS_PER_PIXEL: u32 = 32;
@@ -90,10 +91,14 @@ pub fn read_pixels(format: wlc_pixel_format, mut geometry: Geometry) -> ([u8; 9]
     let data_size = (geometry.size.w * geometry.size.h * 4) as usize;
     // magic response header size
     let header_size = 9;
-    let mut out_buf: Vec<u8> = Vec::with_capacity(header_size + data_size);
-    unsafe {
-        wlc_pixels_read(format, &mut geometry as *mut _, out_buf.as_mut_ptr() as *mut c_void);
-    }
+    let mut in_buf: Vec<u8> = Vec::with_capacity(header_size + data_size);
+    let in_buf_ptr = in_buf.as_mut_ptr();
+    mem::forget(in_buf);
+    let mut out_buf = unsafe {
+        wlc_pixels_read(format, &mut geometry as *mut _, in_buf_ptr as *mut c_void);
+        // TODO read the header for this information!
+        Vec::from_raw_parts(in_buf_ptr, header_size + data_size, header_size + data_size)
+    };
     let mut header_response = [0u8; 9];
     let response: Vec<u8> = out_buf.drain(0..9).collect();
     header_response.copy_from_slice(response.as_slice());

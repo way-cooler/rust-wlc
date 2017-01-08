@@ -2,7 +2,7 @@ use std::env;
 
 fn main() {
     if env::var("CARGO_FEATURE_STATIC_WLC").is_ok() {
-        println!("cargo:rustc-link-search=/usr/local/lib64");
+        println!("cargo:rustc-link-search=/usr/local/lib");
         println!("cargo:rustc-link-lib=dylib=wayland-client");
         println!("cargo:rustc-link-lib=dylib=wayland-server");
         println!("cargo:rustc-link-lib=dylib=systemd");
