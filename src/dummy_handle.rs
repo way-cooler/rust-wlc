@@ -1,12 +1,13 @@
 //! Contains dummy definitions for wlc handle types.
 
-use std::fmt::{self, Debug};
-
 #[cfg(not(feature = "dummy"))]
 pub use super::dummy_handle::*;
 
 extern crate libc;
-use libc::{uintptr_t, c_char, c_void, uint32_t, pid_t};
+use libc::{uint32_t, pid_t};
+
+#[cfg(feature="wlc-wayland")]
+use libc::c_void;
 
 #[cfg(feature="wlc-wayland")]
 use wayland_sys::server::{wl_resource, wl_client};
@@ -17,14 +18,13 @@ use wayland_sys::common::wl_interface;
 #[cfg(feature="wlc-wayland")]
 use super::wayland::WlcResource;
 
-use super::pointer_to_string;
-use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
+use super::types::{Geometry, ResizeEdge, Size, ViewType, ViewState};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// Represents a handle to a wlc view.
 ///
 pub struct WlcView {
-    handle: libc::uint32_t,
+    handle: uint32_t,
     title: String,
     class: String,
     app_id: String,
@@ -41,7 +41,7 @@ pub struct WlcView {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput {
-    handle: libc::uint32_t,
+    handle: uint32_t,
     name: String,
     sleep: bool,
     scaling: u32,
@@ -49,13 +49,6 @@ pub struct WlcOutput {
     resolution: Option<Size>,
     virtual_resolution: Option<Size>,
     views: Vec<WlcView>
-}
-
-#[cfg(feature="wlc-wayland")]
-impl Into<WlcResource> for WlcView {
-    fn into(self) -> WlcResource {
-        WlcResource::from(self.0)
-    }
 }
 
 impl From<WlcView> for WlcOutput {
@@ -150,7 +143,7 @@ impl WlcOutput {
     /// Dummy sets user-specified data.
     ///
     /// Always panics w/ `unimplemented!`
-    pub unsafe fn set_user_data<T>(&self, data: &T) {
+    pub unsafe fn set_user_data<T>(&self, _data: &T) {
         unimplemented!()
     }
 
@@ -250,7 +243,7 @@ impl WlcOutput {
     /// Dummy focuses compositor on a specific output.
     ///
     /// Does nothing.
-    pub fn focus(output: Option<WlcOutput>) {
+    pub fn focus(_output: Option<WlcOutput>) {
         println!("Dummy call to wlc_output_focus");
     }
 }
@@ -370,7 +363,7 @@ impl WlcView {
     /// Dummy sets user-specified data.
     ///
     /// Always panics w/ `unimplemented!`
-    pub unsafe fn set_user_data<T>(&self, data: &T) {
+    pub unsafe fn set_user_data<T>(&self, _data: &T) {
         unimplemented!()
     }
 
@@ -406,14 +399,14 @@ impl WlcView {
     /// Dummy sends this view underneath another.
     ///
     /// Does nothing
-    pub fn send_below(self, other: WlcView) {
+    pub fn send_below(self, _other: WlcView) {
         println!("Dummy call to wlc_view_send_below")
     }
 
     /// Dummy brings this view above another.
     ///
     /// Does nothing
-    pub fn bring_above(self, other: WlcView) {
+    pub fn bring_above(self, _other: WlcView) {
         println!("Dummy call to wlc_view_bring_above")
     }
 
@@ -450,7 +443,7 @@ impl WlcView {
     /// Dummy sets the geometry of the view.
     ///
     /// Ignores `edges`
-    pub fn set_geometry(&mut self, edges: ResizeEdge, geometry: Geometry) {
+    pub fn set_geometry(&mut self, _edges: ResizeEdge, geometry: Geometry) {
         self.geometry = geometry;
     }
 
@@ -492,7 +485,7 @@ impl WlcView {
     /// Dummy set the parent of this view.
     ///
     /// Will always panic
-    pub fn set_parent(self, parent: &WlcView) {
+    pub fn set_parent(self, _parent: &WlcView) {
         unimplemented!()
     }
 
@@ -523,7 +516,7 @@ impl WlcView {
     /// Always return a null pointer
     #[cfg(feature="wlc-wayland")]
     pub fn get_client(self) -> *mut wl_client {
-        c_void as *mut _
+        ::std::ptr::null_mut() as *mut _
     }
 
     /// Dummy get the wl_role associated with surface that this WLC view refers to.
@@ -531,7 +524,7 @@ impl WlcView {
     /// Always return a null pointer
     #[cfg(feature="wlc-wayland")]
     pub fn get_role(self) -> *mut wl_resource {
-        c_void as *mut _
+        ::std::ptr::null_mut() as *mut _
     }
 
     #[cfg(feature="wlc-wayland")]
