@@ -86,6 +86,7 @@ pub use handle::{WlcOutput, WlcView};
 pub use wayland::WlcResource;
 
 // Log Handler hack
+#[allow(non_upper_case_globals)]
 static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;
 
 // External WLC functions
