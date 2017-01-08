@@ -1,23 +1,28 @@
 //! Contains definitions for wlc render functions (wlc-render.h)
 
 use libc::{c_void, uint32_t, uintptr_t};
-use super::handle::{WlcOutput};
 use super::types::{Geometry};
 
 #[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 
 #[repr(C)]
+/// Allowed pixel formats
 pub enum wlc_pixel_format {
+    /// RGBA8888 format
     WLC_RGBA8888
 }
 
 #[repr(C)]
+/// Enabled renderers
 pub enum wlc_renderer {
+    /// Render using GLE
     WLC_RENDERER_GLES2,
+    /// Don't render (headless)
     WLC_NO_RENDERER
 }
 
+#[allow(missing_docs)]
 #[repr(C)]
 pub enum wlc_surface_format {
     SURFACE_RGB,
@@ -35,9 +40,12 @@ extern "C" {
 
     fn wlc_pixels_read(format: wlc_pixel_format, geometry: *const Geometry, data: *mut c_void);
 
+    /** Renders surface. */
+    fn wlc_surface_render(surface: uintptr_t, geometry: *const Geometry);
+
     /// Read pixel data from output's framebuffer.
     /// If theif output is currently rendering, it will render immediately after.
-    fn wlc_output_schedule_render(output: WlcOutput);
+    fn wlc_output_schedule_render(output: uintptr_t);
 
     /// Adds frame callbacks of the given surface for the next output frame.
     /// It applies recursively to all subsurfaces.
@@ -46,7 +54,7 @@ extern "C" {
     fn wlc_surface_flush_frame_callbacks(surface: uintptr_t);
 
     /// Returns currently active renderer on the given output
-    fn wlc_output_get_renderers(output: WlcOutput);
+    fn wlc_output_get_renderers(output: uintptr_t);
 
     /// Fills out_textures[] with the textures of a surface. Returns false if surface is invalid.
     /// Array must have at least 3 elements and should be refreshed at each frame.
