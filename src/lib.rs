@@ -85,7 +85,7 @@ pub use handle::{WlcOutput, WlcView};
 pub use wayland::WlcResource;
 
 // Log Handler hack
-static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;
+static mut RUST_LOGGING_FN: fn(_type: LogType, string: &str) = default_log_callback;
 
 // External WLC functions
 
@@ -221,11 +221,11 @@ pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc:
 pub fn log_set_rust_handler(handler: fn(type_: LogType, text: &str)) {
         // Set global handler function
         unsafe {
-            rust_logging_fn = handler;
+            RUST_LOGGING_FN = handler;
             extern "C" fn c_handler(type_: LogType, text: *const libc::c_char) {
                 unsafe {
                     let string = ffi::CStr::from_ptr(text).to_string_lossy().into_owned();
-                    rust_logging_fn(type_, &string);
+                    RUST_LOGGING_FN(type_, &string);
                 }
             }
             wlc_log_set_handler(c_handler);
