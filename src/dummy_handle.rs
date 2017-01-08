@@ -1,8 +1,5 @@
 //! Contains dummy definitions for wlc handle types.
 
-#[cfg(not(feature = "dummy"))]
-pub use super::dummy_handle::*;
-
 extern crate libc;
 use libc::{uint32_t, pid_t};
 
