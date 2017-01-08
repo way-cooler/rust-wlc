@@ -20,7 +20,7 @@ use super::wayland::WlcResource;
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// Represents a handle to a wlc view.
 ///
 pub struct WlcView {
@@ -38,7 +38,7 @@ pub struct WlcView {
     view_state: ViewState,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput {
     handle: libc::uint32_t,
@@ -60,13 +60,13 @@ impl Into<WlcResource> for WlcView {
 
 impl From<WlcView> for WlcOutput {
     fn from(view: WlcView) -> Self {
-        WlcOutput::dummy(view.handle)
+        unsafe { WlcOutput::dummy(view.handle) }
     }
 }
 
 impl From<WlcOutput> for WlcView {
     fn from(output: WlcOutput) -> Self {
-        WlcView::dummy(output.handle)
+        unsafe { WlcView::dummy(output.handle) }
     }
 }
 
@@ -127,7 +127,7 @@ impl WlcOutput {
     /// ```
     pub unsafe fn dummy(code: u32) -> WlcOutput {
         WlcOutput {
-            handle: code as libc::uintptr_t,
+            handle: code,
             name: "".into(),
             sleep: false,
             scaling: 1,
@@ -190,7 +190,7 @@ impl WlcOutput {
     }
 
     /// Dummy sets the sleep status of the output.
-    pub fn set_sleep(self, sleep: bool) {
+    pub fn set_sleep(&mut self, sleep: bool) {
         self.sleep = sleep
     }
 
@@ -205,7 +205,7 @@ impl WlcOutput {
     }
 
     /// Dummy sets the resolution of the output.
-    pub fn set_resolution(self, size: Size, scaling: u32) {
+    pub fn set_resolution(&mut self, size: Size, scaling: u32) {
         self.scaling = scaling;
         self.resolution = Some(Size {
             w: size.w * scaling,
@@ -229,7 +229,7 @@ impl WlcOutput {
     }
 
     /// Dummy sets the mask for this output
-    pub fn set_mask(self, mask: u32) {
+    pub fn set_mask(&mut self, mask: u32) {
         self.mask = mask
     }
 
@@ -243,8 +243,8 @@ impl WlcOutput {
     /// Dummy set the views of a given output.
     ///
     /// Always succeeds
-    pub fn set_views(self, views: &[WlcView]) -> Result<(), &'static str> {
-        Ok(self.views = views.iter().map(|v| *v).collect())
+    pub fn set_views(&mut self, views: &[WlcView]) -> Result<(), &'static str> {
+        Ok(self.views = views.iter().map(|v| v.clone()).collect())
     }
 
     /// Dummy focuses compositor on a specific output.
@@ -298,7 +298,7 @@ impl WlcView {
     /// ```
     pub unsafe fn dummy(code: u32) -> WlcView {
         WlcView {
-            handle: code as uintptr_t,
+            handle: code,
             title: "".into(),
             class: "".into(),
             app_id: "".into(),
@@ -322,7 +322,9 @@ impl WlcView {
     /// assert!(view.is_root());
     /// ```
     pub fn root() -> WlcView {
-        WlcView::dummy(0)
+        unsafe {
+            WlcView::dummy(0)
+        }
     }
 
     /// Whether this view is the root window (desktop background).
@@ -385,12 +387,12 @@ impl WlcView {
     }
 
     /// Dummy sets the output that the view renders on.
-    pub fn set_output(self, output: WlcOutput) {
+    pub fn set_output(&mut self, output: WlcOutput) {
         self.output = output
     }
 
     /// Dummy brings this view to focus.
-    pub fn focus(self) {
+    pub fn focus(&mut self) {
         self.focus = true
     }
 
@@ -429,7 +431,7 @@ impl WlcView {
     }
 
     /// Dummy sets the visibilty bitmask for the view.
-    pub fn set_mask(self, mask: u32) {
+    pub fn set_mask(&mut self, mask: u32) {
         self.mask = mask
     }
 
@@ -437,7 +439,7 @@ impl WlcView {
     ///
     /// Always returns Some
     pub fn get_geometry(self) -> Option<Geometry> {
-        self.geometry
+        Some(self.geometry)
     }
 
     /// Dummy gets the geometry of the view (that wlc displays).
@@ -448,7 +450,7 @@ impl WlcView {
     /// Dummy sets the geometry of the view.
     ///
     /// Ignores `edges`
-    pub fn set_geometry(self, edges: ResizeEdge, geometry: Geometry) {
+    pub fn set_geometry(&mut self, edges: ResizeEdge, geometry: Geometry) {
         self.geometry = geometry;
     }
 
@@ -458,11 +460,11 @@ impl WlcView {
     }
 
     /// Dummy set flag in the type field. Toggle indicates whether it is set.
-    pub fn set_type(self, view_type: ViewType, toggle: bool) {
+    pub fn set_type(&mut self, view_type: ViewType, toggle: bool) {
         if toggle {
-            self.view_type = self.view_type.insert(view_type)
+            self.view_type.insert(view_type)
         } else {
-            self.view_type = self.view_type.remove(view_type)
+            self.view_type.remove(view_type)
         }
     }
 
@@ -472,22 +474,26 @@ impl WlcView {
     }
 
     /// Dummy set ViewState bit. Toggle indicates whether it is set or not.
-    pub fn set_state(self, state: ViewState, toggle: bool) {
+    pub fn set_state(&mut self, state: ViewState, toggle: bool) {
         if toggle {
-            self.view_state = self.view_state.insert(state)
+            self.view_state.insert(state)
         } else {
-            self.view_state = self.view_state.remove(state)
+            self.view_state.remove(state)
         }
     }
 
     /// Dummy gets parent view, returns `WlcView::root()` if this view has no parent.
+    ///
+    /// Will always panic
     pub fn get_parent(self) -> WlcView {
-        self.parent
+        unimplemented!()
     }
 
     /// Dummy set the parent of this view.
+    ///
+    /// Will always panic
     pub fn set_parent(self, parent: &WlcView) {
-        self.parent = *parent
+        unimplemented!()
     }
 
     /// Dummy get the title of the view
