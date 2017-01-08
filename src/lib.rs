@@ -170,6 +170,7 @@ pub fn init() -> Option<fn() -> ()> {
 /// When wlc went to 0.0.1, they added an argumentless init2
 /// to replace the old init that took a WlcInterface. Now,
 /// init2 has been renamed init and init is removed.
+#[deprecated(since = "0.5.3", note = "please use `init`")]
 pub fn init2() -> Option<fn() -> ()> {
     init()
 }
