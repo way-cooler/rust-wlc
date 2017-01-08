@@ -36,31 +36,31 @@ pub enum wlc_surface_format {
 extern "C" {
     /// Write pixel data with the specific format to output's framebuffer.
     /// If the geometry is out of bounds, it will be automatically clamped.
-    fn wlc_pixels_write(format: wlc_pixel_format, geometry: *const Geometry, data: *const c_void);
+    pub fn wlc_pixels_write(format: wlc_pixel_format, geometry: *const Geometry, data: *const c_void);
 
-    fn wlc_pixels_read(format: wlc_pixel_format, geometry: *const Geometry, data: *mut c_void);
+    pub fn wlc_pixels_read(format: wlc_pixel_format, geometry: *const Geometry, data: *mut c_void);
 
     /** Renders surface. */
-    fn wlc_surface_render(surface: uintptr_t, geometry: *const Geometry);
+    pub fn wlc_surface_render(surface: uintptr_t, geometry: *const Geometry);
 
     /// Read pixel data from output's framebuffer.
     /// If theif output is currently rendering, it will render immediately after.
-    fn wlc_output_schedule_render(output: uintptr_t);
+    pub fn wlc_output_schedule_render(output: uintptr_t) -> wlc_renderer;
 
     /// Adds frame callbacks of the given surface for the next output frame.
     /// It applies recursively to all subsurfaces.
     /// Useful when the compositor creates custom animations which require disabling internal rendering,
     /// but still need to update the surface textures (for ex. video players).
-    fn wlc_surface_flush_frame_callbacks(surface: uintptr_t);
+    pub fn wlc_surface_flush_frame_callbacks(surface: uintptr_t);
 
     /// Returns currently active renderer on the given output
-    fn wlc_output_get_renderers(output: uintptr_t);
+    pub fn wlc_output_get_renderer(output: uintptr_t) -> wlc_renderer;
 
     /// Fills out_textures[] with the textures of a surface. Returns false if surface is invalid.
     /// Array must have at least 3 elements and should be refreshed at each frame.
     /// Note that these are not only OpenGL textures but rather render-specific.
     /// For more info what they are check the renderer's source code */
-    fn wlc_surface_get_textures(surface: uintptr_t,
+    pub fn wlc_surface_get_textures(surface: uintptr_t,
                                 out_textures: *mut uint32_t,
                                 out_format: *mut wlc_surface_format);
 }
