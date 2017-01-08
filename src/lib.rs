@@ -69,6 +69,9 @@ extern crate wayland_sys;
 
 use std::ffi;
 
+#[cfg(feature = "dummy")]
+mod dummy_handle;
+#[cfg(not(feature = "dummy"))]
 pub mod handle;
 pub mod callback;
 pub mod types;
@@ -79,7 +82,10 @@ pub mod wayland;
 pub mod xkb;
 
 pub use types::*;
+#[cfg(not(feature = "dummy"))]
 pub use handle::{WlcOutput, WlcView};
+#[cfg(feature = "dummy")]
+pub use dummy_handle::{WlcOutput, WlcView};
 
 #[cfg(feature="wlc-wayland")]
 pub use wayland::WlcResource;

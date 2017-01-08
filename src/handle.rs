@@ -21,12 +21,14 @@ use super::wayland::WlcResource;
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
 
+#[cfg(not(feature = "dummy"))]
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
 pub struct WlcView(uintptr_t);
 
+#[cfg(not(feature = "dummy"))]
 impl fmt::Debug for WlcView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("WlcView")
@@ -37,6 +39,7 @@ impl fmt::Debug for WlcView {
     }
 }
 
+#[cfg(not(feature = "dummy"))]
 impl fmt::Display for WlcView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut name = self.get_title();
@@ -50,11 +53,13 @@ impl fmt::Display for WlcView {
     }
 }
 
+#[cfg(not(feature = "dummy"))]
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput(uintptr_t);
 
+#[cfg(not(feature = "dummy"))]
 impl fmt::Debug for WlcOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("WlcOutput")
@@ -65,6 +70,7 @@ impl fmt::Debug for WlcOutput {
     }
 }
 
+#[cfg(not(feature = "dummy"))]
 impl fmt::Display for WlcOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let name = self.get_name();
@@ -74,6 +80,7 @@ impl fmt::Display for WlcOutput {
 
 #[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
+#[cfg(not(feature = "dummy"))]
 extern "C" {
     fn wlc_get_outputs(memb: *mut libc::size_t) -> *const libc::uintptr_t;
 
@@ -188,25 +195,29 @@ extern "C" {
 }
 
 #[cfg(feature="wlc-wayland")]
+#[cfg(not(feature = "dummy"))]
 impl Into<WlcResource> for WlcView {
     fn into(self) -> WlcResource {
         WlcResource::from(unsafe { wlc_view_get_surface(self.0) } )
     }
 }
 
-#[cfg(feature="wlc-wayland")]
+#[cfg(feature = "wlc-wayland")]
+#[cfg(not(feature = "dummy"))]
 impl Into<WlcView> for wl_resource {
     fn into(self) -> WlcView {
         unsafe { WlcView(wlc_handle_from_wl_surface_resource(&self)) }
     }
 }
 
+#[cfg(not(feature = "dummy"))]
 impl From<WlcView> for WlcOutput {
     fn from(view: WlcView) -> Self {
         WlcOutput(view.0)
     }
 }
 
+#[cfg(not(feature = "dummy"))]
 impl From<WlcOutput> for WlcView {
     fn from(output: WlcOutput) -> Self {
         WlcView(output.0)
@@ -214,13 +225,14 @@ impl From<WlcOutput> for WlcView {
 }
 
 #[cfg(feature="wlc-wayland")]
+#[cfg(not(feature = "dummy"))]
 impl Into<WlcOutput> for wl_resource {
     fn into(self) -> WlcOutput {
         unsafe { WlcOutput(wlc_handle_from_wl_output_resource(&self)) }
     }
 }
 
-
+#[cfg(not(feature = "dummy"))]
 impl WlcOutput {
     /// Compatability/debugging function.
     ///
@@ -406,6 +418,7 @@ impl WlcOutput {
 
     /// # Deprecated
     /// This function is equivalent to simply calling get_views
+    #[deprecated(since = "0.5.3", note = "please use `get_views`")]
     pub fn get_mutable_views(self) -> Vec<WlcView> {
         self.get_views()
     }
@@ -437,6 +450,7 @@ impl WlcOutput {
     }
 }
 
+#[cfg(not(feature = "dummy"))]
 impl WlcView {
     /// Compatability/debugging function.
     ///

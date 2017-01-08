@@ -30,7 +30,7 @@
 //! ```
 
 use super::types::*;
-use super::handle::{WlcOutput, WlcView};
+use ::{WlcOutput, WlcView};
 
 #[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
