@@ -1,7 +1,9 @@
 //! Contains definitions for wlc render functions (wlc-render.h)
 
 use libc::{c_void, uint32_t, uintptr_t};
-use super::types::{Geometry};
+use super::types::{Geometry, Size};
+
+const BITS_PER_PIXEL: u32 = 32;
 
 #[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
@@ -73,7 +75,10 @@ extern "C" {
 /// The data is converted to a *mut c_void and then passed to C to read.
 /// The size of it should be the stride of the geometry * height of the geometry.
 pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &mut [u8]) {
-    // TODO Add check to ensure that the data is the correct size (stride * height)
+    let Size { w, h } = geometry.size;
+    let stride = calculate_stride(w);
+    assert_eq!((stride * h) as usize, data.len(),
+               "Length of data buffer does not equal stride * height");
     unsafe {
         let data = data as *mut _ as *mut c_void;
         wlc_pixels_write(format, &geometry as *const Geometry, data);
@@ -93,4 +98,12 @@ pub fn read_pixels(format: wlc_pixel_format, mut geometry: Geometry) -> ([u8; 9]
     let response: Vec<u8> = out_buf.drain(0..9).collect();
     header_response.copy_from_slice(response.as_slice());
     (header_response, out_buf)
+}
+
+/// Calculates the stride for ARGB32 encoded buffers
+fn calculate_stride(width: u32) -> u32 {
+    // function stolen from CAIRO_STRIDE_FOR_WIDTH macro in carioint.h
+    // can be found in the most recent version of the cairo source
+    let stride_alignment = ::std::mem::size_of::<u32>() as u32;
+    ((BITS_PER_PIXEL * width + 7 )+ stride_alignment - 1) /  & stride_alignment.overflowing_neg().0 - 1
 }
