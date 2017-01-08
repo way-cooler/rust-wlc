@@ -10,6 +10,7 @@ const BITS_PER_PIXEL: u32 = 32;
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 
 #[repr(C)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 /// Allowed pixel formats
 pub enum wlc_pixel_format {
     /// RGBA8888 format
@@ -17,6 +18,7 @@ pub enum wlc_pixel_format {
 }
 
 #[repr(C)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 /// Enabled renderers
 pub enum wlc_renderer {
     /// Render using GLE
@@ -27,6 +29,7 @@ pub enum wlc_renderer {
 
 #[allow(missing_docs)]
 #[repr(C)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum wlc_surface_format {
     SURFACE_RGB,
     SURFACE_RGBA,
