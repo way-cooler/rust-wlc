@@ -38,30 +38,6 @@ pub struct WlcView {
     view_state: ViewState,
 }
 
-/*impl fmt::Debug for WlcView {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("WlcView")
-            .field("handle", &self.handle as &Debug)
-            .field("title", &self.get_title() as &Debug)
-            .field("class", &self.get_class() as &Debug)
-            .finish()
-    }
-}
-
-impl fmt::Display for WlcView {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut name = self.get_title();
-        if name.is_empty() {
-            name = self.get_class();
-            if name.is_empty() {
-                name = format!("WlcView({handle})", handle=self.0);
-            }
-        }
-        write!(f, "WlcOutput {{ name: {name} }}", name=name)
-    }
-}
-
-*/
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
 pub struct WlcOutput {
@@ -74,31 +50,23 @@ pub struct WlcOutput {
     virtual_resolution: Option<Size>,
     views: Vec<WlcView>
 }
-/*
-
-impl fmt::Debug for WlcOutput {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("WlcOutput")
-            .field("handle", &self.0 as &Debug)
-            .field("name", &self.get_name() as &Debug)
-            .field("views", &self.get_views() as &Debug)
-            .finish()
-    }
-}
-
-impl fmt::Display for WlcOutput {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let name = self.get_name();
-        write!(f, "WlcOutput {{ handle: {handle} name: {name} }}", handle=self.0, name=name)
-    }
-}
-*/
-
 
 #[cfg(feature="wlc-wayland")]
 impl Into<WlcResource> for WlcView {
     fn into(self) -> WlcResource {
         WlcResource::from(self.0)
+    }
+}
+
+impl From<WlcView> for WlcOutput {
+    fn from(view: WlcView) -> Self {
+        WlcOutput::dummy(view.handle)
+    }
+}
+
+impl From<WlcOutput> for WlcView {
+    fn from(output: WlcOutput) -> Self {
+        WlcView::dummy(output.handle)
     }
 }
 
@@ -160,7 +128,7 @@ impl WlcOutput {
     pub unsafe fn dummy(code: u32) -> WlcOutput {
         WlcOutput {
             handle: code as libc::uintptr_t,
-            name: "",
+            name: "".into(),
             sleep: false,
             scaling: 1,
             mask: 0,
@@ -205,8 +173,10 @@ impl WlcOutput {
     }
 
     /// Dummy gets the currently focused output.
+    ///
+    /// Always panics
     pub fn focused() -> WlcOutput {
-        println!("Dummy call to wlc_get_focused_output")
+        unimplemented!()
     }
 
     /// Dummy gets the name of the WlcOutput.
@@ -274,7 +244,7 @@ impl WlcOutput {
     ///
     /// Always succeeds
     pub fn set_views(self, views: &[WlcView]) -> Result<(), &'static str> {
-        Ok(self.views = views.iter().collect())
+        Ok(self.views = views.iter().map(|v| *v).collect())
     }
 
     /// Dummy focuses compositor on a specific output.
@@ -329,9 +299,9 @@ impl WlcView {
     pub unsafe fn dummy(code: u32) -> WlcView {
         WlcView {
             handle: code as uintptr_t,
-            title: "",
-            class: "",
-            app_id: "",
+            title: "".into(),
+            class: "".into(),
+            app_id: "".into(),
             pid: 0 as pid_t,
             output: WlcOutput::dummy(0),
             geometry: Geometry::zero(),
