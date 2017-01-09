@@ -71,30 +71,49 @@ use std::ffi;
 
 #[cfg(feature = "dummy")]
 mod dummy_handle;
+
 #[cfg(not(feature = "dummy"))]
 pub mod handle;
+
 #[cfg(feature = "dummy")]
 pub mod dummy_callback;
+
 #[cfg(not(feature = "dummy"))]
 pub mod callback;
 pub mod types;
+
 #[cfg(feature = "dummy")]
 pub mod dummy_input;
+
 #[cfg(not(feature = "dummy"))]
 pub mod input;
+
 #[cfg(feature="wlc-wayland")]
+#[cfg(feature="dummy")]
+pub mod dummy_wayland;
+
+#[cfg(feature="wlc-wayland")]
+#[cfg(not(feature="dummy"))]
 pub mod wayland;
+
 #[deprecated]
 pub mod xkb;
 
 pub use types::*;
+
 #[cfg(not(feature = "dummy"))]
 pub use handle::{WlcOutput, WlcView};
+
 #[cfg(feature = "dummy")]
 pub use dummy_handle::{WlcOutput, WlcView};
 
 #[cfg(feature="wlc-wayland")]
+#[cfg(not(feature = "dummy"))]
 pub use wayland::WlcResource;
+
+#[cfg(feature="wlc-wayland")]
+#[cfg(feature = "dummy")]
+pub use dummy_wayland::WlcResource;
 
 // Log Handler hack
 #[cfg(not(feature = "dummy"))]

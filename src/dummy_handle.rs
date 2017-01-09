@@ -13,7 +13,7 @@ use wayland_sys::server::{wl_resource, wl_client};
 use wayland_sys::common::wl_interface;
 
 #[cfg(feature="wlc-wayland")]
-use super::wayland::WlcResource;
+use super::dummy_wayland::WlcResource;
 
 use super::types::{Geometry, ResizeEdge, Size, ViewType, ViewState};
 
