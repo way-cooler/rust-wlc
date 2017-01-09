@@ -528,13 +528,13 @@ impl WlcView {
     /// Dummy turns a wl_surface into a wlc view.
     ///
     /// Always returns None
-    pub fn view_from_surface(surface: WlcResource,
-                             client: *mut wl_client,
-                             interface: *const wl_interface,
-                             implementation: *const c_void,
-                             version: uint32_t,
-                             id: uint32_t,
-                             userdata: *mut c_void )
+    pub fn view_from_surface(_surface: WlcResource,
+                             _client: *mut wl_client,
+                             _interface: *const wl_interface,
+                             _implementation: *const c_void,
+                             _version: uint32_t,
+                             _id: uint32_t,
+                             _userdata: *mut c_void )
                              -> Option<Self> {
         None
     }

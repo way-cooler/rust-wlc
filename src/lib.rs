@@ -73,6 +73,9 @@ use std::ffi;
 mod dummy_handle;
 #[cfg(not(feature = "dummy"))]
 pub mod handle;
+#[cfg(feature = "dummy")]
+pub mod dummy_callback;
+#[cfg(not(feature = "dummy"))]
 pub mod callback;
 pub mod types;
 pub mod input;
