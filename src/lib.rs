@@ -78,6 +78,9 @@ pub mod dummy_callback;
 #[cfg(not(feature = "dummy"))]
 pub mod callback;
 pub mod types;
+#[cfg(feature = "dummy")]
+pub mod dummy_input;
+#[cfg(not(feature = "dummy"))]
 pub mod input;
 #[cfg(feature="wlc-wayland")]
 pub mod wayland;
