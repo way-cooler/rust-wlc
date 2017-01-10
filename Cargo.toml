@@ -12,6 +12,7 @@ build = "build.rs"
 [features]
 wlc-wayland = ["wayland-sys"]
 static-wlc = []
+dummy = []
 
 [dependencies]
 libc = "0.2"
