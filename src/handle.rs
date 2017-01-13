@@ -6,6 +6,8 @@
 //! - **Clone**: View handles can safely be cloned.
 use std::fmt::{self, Debug};
 
+// TODO Remove all this dummy flag, this should basically not change
+
 extern crate libc;
 use libc::{uintptr_t, c_char, c_void, uint32_t, pid_t};
 
@@ -192,7 +194,7 @@ impl Into<WlcResource> for WlcView {
     }
 }
 
-#[cfg(feature="wlc-wayland")]
+#[cfg(feature = "wlc-wayland")]
 impl Into<WlcView> for wl_resource {
     fn into(self) -> WlcView {
         unsafe { WlcView(wlc_handle_from_wl_surface_resource(&self)) }
@@ -217,7 +219,6 @@ impl Into<WlcOutput> for wl_resource {
         unsafe { WlcOutput(wlc_handle_from_wl_output_resource(&self)) }
     }
 }
-
 
 impl WlcOutput {
     /// Compatability/debugging function.
@@ -404,6 +405,7 @@ impl WlcOutput {
 
     /// # Deprecated
     /// This function is equivalent to simply calling get_views
+    #[deprecated(since = "0.5.3", note = "please use `get_views`")]
     pub fn get_mutable_views(self) -> Vec<WlcView> {
         self.get_views()
     }

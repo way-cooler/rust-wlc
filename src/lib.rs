@@ -69,30 +69,62 @@ extern crate wayland_sys;
 
 use std::ffi;
 
+#[cfg(feature = "dummy")]
+mod dummy_handle;
+
+#[cfg(not(feature = "dummy"))]
 pub mod handle;
+
+#[cfg(feature = "dummy")]
+pub mod dummy_callback;
+
+#[cfg(not(feature = "dummy"))]
 pub mod callback;
 pub mod types;
+
+#[cfg(feature = "dummy")]
+pub mod dummy_input;
+
+#[cfg(not(feature = "dummy"))]
 pub mod input;
+
 #[cfg(feature="wlc-wayland")]
+#[cfg(feature="dummy")]
+pub mod dummy_wayland;
+
+#[cfg(feature="wlc-wayland")]
+#[cfg(not(feature="dummy"))]
 pub mod wayland;
+
 #[deprecated]
 pub mod xkb;
 pub mod render;
 
 pub use types::*;
+
+#[cfg(not(feature = "dummy"))]
 pub use handle::{WlcOutput, WlcView};
 
+#[cfg(feature = "dummy")]
+pub use dummy_handle::{WlcOutput, WlcView};
+
 #[cfg(feature="wlc-wayland")]
+#[cfg(not(feature = "dummy"))]
 pub use wayland::WlcResource;
 
+#[cfg(feature="wlc-wayland")]
+#[cfg(feature = "dummy")]
+pub use dummy_wayland::WlcResource;
+
 // Log Handler hack
-#[allow(non_upper_case_globals)]
-static mut rust_logging_fn: fn(_type: LogType, string: &str) = default_log_callback;
+#[cfg(not(feature = "dummy"))]
+static mut RUST_LOGGING_FN: fn(_type: LogType, string: &str) = default_log_callback;
 
 // External WLC functions
 
 #[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
+#[cfg(not(feature = "dummy"))]
 extern "C" {
     // init2 -> init :(
     fn wlc_init() -> bool;
@@ -112,8 +144,16 @@ extern "C" {
 /// * None: Unknown backend type
 /// * DRM: "Direct Rendering Manager" - running on tty
 /// * X11: Running inside an X server
+#[cfg(not(feature = "dummy"))]
 pub fn get_backend_type() -> BackendType {
     unsafe { wlc_get_backend_type() }
+}
+
+/// Query backend wlc is using.
+/// For dummy feature, will always return `BackendType::None`.
+#[cfg(feature = "dummy")]
+pub fn get_backend_type() -> BackendType {
+    BackendType::None
 }
 
 /// Initialize wlc's callbacks and logger with a `WlcInterface`.
@@ -158,6 +198,7 @@ pub fn get_backend_type() -> BackendType {
 ///
 /// run_wlc();
 /// ```
+#[cfg(not(feature = "dummy"))]
 pub fn init() -> Option<fn() -> ()> {
     if unsafe { wlc_init() } {
         Some(run_wlc)
@@ -167,11 +208,19 @@ pub fn init() -> Option<fn() -> ()> {
     }
 }
 
+/// For dummy, performs no initilization and returns the dummy version of
+/// `run_wlc` (which just prints a string to stdout).
+#[cfg(feature = "dummy")]
+pub fn init() -> Option<fn() -> ()> {
+    Some(run_wlc)
+}
+
 /// Deprecated alias to init().
 ///
 /// When wlc went to 0.0.1, they added an argumentless init2
 /// to replace the old init that took a WlcInterface. Now,
 /// init2 has been renamed init and init is removed.
+#[deprecated(since = "0.5.3", note = "please use `init`")]
 pub fn init2() -> Option<fn() -> ()> {
     init()
 }
@@ -180,17 +229,30 @@ pub fn init2() -> Option<fn() -> ()> {
 ///
 /// The initialize functions will return this function in an Option.
 /// Only then can it be called to being wlc's main event loop.
+#[cfg(not(feature = "dummy"))]
 fn run_wlc() {
     unsafe {
         wlc_run();
     }
 }
 
+#[cfg(feature = "dummy")]
+fn run_wlc() {
+    println!("Dummy call to wlc_run")
+}
+
 /// Halts execution of wlc.
+#[cfg(not(feature = "dummy"))]
 pub fn terminate() {
     unsafe {
         wlc_terminate();
     }
+}
+
+/// Dummy halt for wlc. Does nothing but print line to stdout.
+#[cfg(feature = "dummy")]
+pub fn terminate() {
+    println!("Dummy call to wlc_terminate")
 }
 
 /// Registers a C callback for wlc logging.
@@ -209,10 +271,17 @@ pub fn terminate() {
 /// from C code.
 ///
 /// In addition, `unsafe` will be required to convert the text into a Rust String.
+#[cfg(not(feature = "dummy"))]
 pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
     unsafe {
         wlc_log_set_handler(handler);
     }
+}
+
+/// Dummy call to wlc_log_set_handler. Does nothing.
+#[cfg(feature = "dummy")]
+pub fn log_set_handler(_handler: extern "C" fn(type_: LogType, text: *const libc::c_char)) {
+    println!("Dummy call to wlc_log_set_handler")
 }
 
 /// Registers a Rust callback for wlc logging.
@@ -220,18 +289,25 @@ pub fn log_set_handler(handler: extern "C" fn(type_: LogType, text: *const libc:
 /// This is a nice convenience function that should be used in place of
 /// `log_set_handler`. That way you can just pass a safe Rust `&str`
 /// and not depend on libc`.
+#[cfg(not(feature = "dummy"))]
 pub fn log_set_rust_handler(handler: fn(type_: LogType, text: &str)) {
         // Set global handler function
         unsafe {
-            rust_logging_fn = handler;
+            RUST_LOGGING_FN = handler;
             extern "C" fn c_handler(type_: LogType, text: *const libc::c_char) {
                 unsafe {
                     let string = ffi::CStr::from_ptr(text).to_string_lossy().into_owned();
-                    rust_logging_fn(type_, &string);
+                    RUST_LOGGING_FN(type_, &string);
                 }
             }
             wlc_log_set_handler(c_handler);
         }
+}
+
+/// Dummy call to wlc_log_set_handler w/ custom function. Does nothing.
+#[cfg(feature = "dummy")]
+pub fn log_set_rust_handler(_handler: fn(type_: LogType, text: &str)) {
+    println!("Dummy call to wlc_log_set_handler w/ custom handler function")
 }
 
 fn default_log_callback(log_type: LogType, text: &str) {

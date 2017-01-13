@@ -1,7 +1,7 @@
 [package]
 name = "rustwlc"
 description = "wlc Wayland library bindings for Rust"
-version = "0.5.2"
+version = "0.5.3"
 repository = "https://github.com/Immington-Industries/rust-wlc/"
 keywords = ["wlc", "Wayland", "compositor", "bindings"]
 readme = "README.md"
@@ -12,6 +12,7 @@ build = "build.rs"
 [features]
 wlc-wayland = ["wayland-sys"]
 static-wlc = []
+dummy = []
 
 [dependencies]
 libc = "0.2"
