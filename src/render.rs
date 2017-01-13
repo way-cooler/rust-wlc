@@ -6,9 +6,6 @@ use super::types::{Geometry, Size};
 
 const BITS_PER_PIXEL: u32 = 32;
 
-#[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
-#[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
-
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 /// Allowed pixel formats
@@ -39,6 +36,8 @@ pub enum wlc_surface_format {
     SURFACE_Y_XUXV,
 }
 
+#[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
+#[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 extern "C" {
     /// Write pixel data with the specific format to output's framebuffer.
     /// If the geometry is out of bounds, it will be automatically clamped.
