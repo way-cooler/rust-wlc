@@ -4,7 +4,8 @@ use libc::{c_void, uint32_t, uintptr_t};
 use std::mem;
 use super::types::{Geometry, Size};
 
-const BITS_PER_PIXEL: u32 = 32;
+/// Number of bits per pixel (RGBA8888)
+pub const BITS_PER_PIXEL: u32 = 32;
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
