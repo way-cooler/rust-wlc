@@ -113,5 +113,5 @@ fn calculate_stride(width: u32) -> u32 {
     // function stolen from CAIRO_STRIDE_FOR_WIDTH macro in carioint.h
     // can be found in the most recent version of the cairo source
     let stride_alignment = ::std::mem::size_of::<u32>() as u32;
-    ((BITS_PER_PIXEL * width + 7 )+ stride_alignment - 1) /  & stride_alignment.overflowing_neg().0
+    ((BITS_PER_PIXEL * width + 7 ) / 8 + (stride_alignment - 1))  & (stride_alignment.overflowing_neg().0)
 }
