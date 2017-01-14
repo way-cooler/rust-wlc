@@ -80,8 +80,8 @@ extern "C" {
 pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &mut [u8]) {
     let Size { w, h } = geometry.size;
     let stride = calculate_stride(w);
-    assert_eq!((stride * h) as usize, data.len(),
-               "Length of data buffer does not equal stride * height");
+    //assert_eq!((stride * h) as usize, data.len(),
+    //           "Length of data buffer does not equal stride * height");
     unsafe {
         let data = data as *mut _ as *mut c_void;
         wlc_pixels_write(format, &geometry as *const Geometry, data);
