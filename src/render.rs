@@ -79,10 +79,6 @@ extern "C" {
 /// The data is converted to a *mut c_void and then passed to C to read.
 /// The size of it should be the stride of the geometry * height of the geometry.
 pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &mut [u8]) {
-    let Size { w, h } = geometry.size;
-    let stride = calculate_stride(w);
-    //assert_eq!((stride * h) as usize, data.len(),
-    //           "Length of data buffer does not equal stride * height");
     unsafe {
         let data = data as *mut _ as *mut c_void;
         wlc_pixels_write(format, &geometry as *const Geometry, data);
@@ -109,7 +105,7 @@ pub fn read_pixels(format: wlc_pixel_format, mut geometry: Geometry) -> ([u8; 9]
 }
 
 /// Calculates the stride for ARGB32 encoded buffers
-fn calculate_stride(width: u32) -> u32 {
+pub fn calculate_stride(width: u32) -> u32 {
     // function stolen from CAIRO_STRIDE_FOR_WIDTH macro in carioint.h
     // can be found in the most recent version of the cairo source
     let stride_alignment = ::std::mem::size_of::<u32>() as u32;
