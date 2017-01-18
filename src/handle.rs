@@ -22,6 +22,7 @@ use super::wayland::WlcResource;
 
 use super::pointer_to_string;
 use super::types::{Geometry, ResizeEdge, Point, Size, ViewType, ViewState};
+use super::render::{wlc_output_get_renderer, wlc_output_schedule_render, wlc_renderer};
 
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -84,9 +85,6 @@ extern "C" {
     fn wlc_output_get_name(output: uintptr_t) -> *const c_char;
 
     fn wlc_handle_get_user_data(handle: uintptr_t) -> *mut c_void;
-
-    // Defined in wlc-render.h
-    fn wlc_output_schedule_render(output: uintptr_t);
 
     fn wlc_handle_set_user_data(handle: uintptr_t, userdata: *const c_void);
 
@@ -435,6 +433,13 @@ impl WlcOutput {
     pub fn focus(output: Option<WlcOutput>) {
         unsafe {
             wlc_output_focus(output.map(|out| out.0).unwrap_or(0))
+        }
+    }
+
+    /// Gets the renderer in use for this `WlcOutput`
+    pub fn get_render(&self) -> wlc_renderer {
+        unsafe {
+            wlc_output_get_renderer(self.0)
         }
     }
 }

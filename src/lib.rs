@@ -98,6 +98,7 @@ pub mod wayland;
 
 #[deprecated]
 pub mod xkb;
+pub mod render;
 
 pub use types::*;
 
