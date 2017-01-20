@@ -2,7 +2,7 @@
 
 use libc::{c_void, uint32_t, uintptr_t};
 use std::mem;
-use super::types::{Geometry, Size};
+use super::types::{Geometry};
 
 /// Number of bits per pixel (RGBA8888)
 pub const BITS_PER_PIXEL: u32 = 32;
@@ -78,9 +78,9 @@ extern "C" {
 /// # Unsafety
 /// The data is converted to a *mut c_void and then passed to C to read.
 /// The size of it should be the stride of the geometry * height of the geometry.
-pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &mut [u8]) {
+pub fn write_pixels(format: wlc_pixel_format, geometry: Geometry, data: &[u8]) {
     unsafe {
-        let data = data as *mut _ as *mut c_void;
+        let data = data as *const _ as *const c_void;
         wlc_pixels_write(format, &geometry as *const Geometry, data);
     }
 }
