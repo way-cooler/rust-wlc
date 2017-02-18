@@ -3,6 +3,9 @@ use std::env;
 fn main() {
     if env::var("CARGO_FEATURE_STATIC_WLC").is_ok() {
         println!("cargo:rustc-link-search=/usr/local/lib");
+        println!("cargo:rustc-link-search=/usr/local/lib64");
+        println!("cargo:rustc-link-search=/lib64");
+        println!("cargo:rustc-link-search=native=/lib64");
         println!("cargo:rustc-link-lib=dylib=wayland-client");
         println!("cargo:rustc-link-lib=dylib=wayland-server");
         println!("cargo:rustc-link-lib=dylib=systemd");
@@ -36,5 +39,6 @@ fn main() {
         println!("cargo:rustc-link-lib=static=chck-unicode");
         println!("cargo:rustc-link-lib=static=chck-xdg");
         println!("cargo:rustc-link-lib=static=wlc-protos");
+        println!("cargo:rustc-link-lib=static=wlc");
     }
 }
