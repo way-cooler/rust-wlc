@@ -59,7 +59,7 @@ If you are looking to use a custom version of wlc (to ensure compatiblity by bui
 So if you wlc install is at `/opt/wlc`, then the full path will probably be `/opt/wlc/target/src`. Notice that we only include the directory that containts the .so, not the .so itself. For more information on using DLLs in Linux, see [this link](http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html#AEN77).
 
 ### Documentation
-At the moment, we have Cargo documentation hosted at [our github.io site](http://immington-industries.github.io). 
+At the moment, we have Cargo documentation hosted at [doc.rs](https://docs.rs/rustwlc/0.5.6/rustwlc). 
 You can also generate it with cargo doc:
 ```shell
 $ git clone "https://github.com/ImmingtonIndustries/rust-wlc.git"
