@@ -99,7 +99,7 @@ fn get_topmost_view(output: WlcOutput, offset: usize) -> Option<WlcView> {
 }
 
 fn render_output(output: WlcOutput) {
-    let resolution = output.get_virtual_resolution().unwrap();
+    let resolution = output.get_resolution().unwrap();
     let views = output.get_views();
     if views.is_empty() { return; }
 
