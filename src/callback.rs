@@ -141,7 +141,28 @@ extern "C" {
     //fn wlc_set_input_destroyed_cb(cb: extern "C" fn(&LibinputDevice));
 
     // View properties were updated
-    fn wlc_set_view_properties_updated_cb(cb: extern "C" fn(handle: WlcView, mask: ViewPropertyType));
+    fn wlc_set_view_properties_updated_cb(cb: extern "C" fn(handle: WlcView,
+                                                            mask: ViewPropertyType));
+
+    /// Get anchor rectangle requested by positioner, as defined in xdg-shell v6.
+    /// Returns NULL if view has no valid positioner.
+    fn wlc_view_positioner_get_anchor_rect(view: WlcView) -> *const Geometry;
+
+    /// Get anchor requested by positioner, as defined in xdg-shell v6.
+    /// Returns default value WLC_BIT_ANCHOR_NONE if view has no valid positioner
+    /// or if positioner has no anchor set.
+    fn wlc_view_positioner_get_anchor(view: WlcView) -> PositionerAnchorBit;
+
+    /// Get anchor requested by positioner, as defined in xdg-shell v6.
+    /// Returns default value WLC_BIT_GRAVITY_NONE if view has no valid positioner
+    /// or if positioner has no gravity set.
+    fn wlc_view_positioner_get_gravity(view: WlcView) -> PositionerGravityBit;
+
+    /// Get constraint adjustment requested by positioner, as defined in xdg-shell v6.
+    /// Returns default value WLC_BIT_CONSTRAINT_ADJUSTMENT_NONE if view has no
+    /// valid positioner or if positioner has no constraint adjustment set.
+    fn wlc_view_positioner_get_constraint_adjustment(view: WlcView)
+                                                     -> PositionerConstraintAdjustmentBits;
 }
 
 /// Callback invoked when an output is created.
@@ -530,5 +551,41 @@ pub fn compositor_terminate(callback: extern "C" fn()) {
 pub fn view_properties_changed(callback: extern "C" fn(handle: WlcView, mask: ViewPropertyType)) {
     unsafe {
         wlc_set_view_properties_updated_cb(callback);
+    }
+}
+
+/// Get anchor requested by positioner, as defined in xdg-shell v6.
+/// Returns default value WLC_BIT_ANCHOR_NONE if view has no valid positioner
+/// or if positioner has no anchor set.
+pub fn positioner_get_anchor_rect(view: WlcView) -> Option<Geometry> {
+    unsafe {
+        let out = wlc_view_positioner_get_anchor_rect(view);
+        if out.is_null() {
+            None
+        } else {
+            Some(*out)
+        }
+    }
+}
+
+/// Get anchor requested by positioner, as defined in xdg-shell v6.
+/// Returns default value WLC_BIT_GRAVITY_NONE if view has no valid positioner
+/// or if positioner has no gravity set.
+pub fn positioner_get_anchor(view: WlcView) -> PositionerAnchorBit {
+    unsafe {
+        wlc_view_positioner_get_anchor(view)
+    }
+}
+
+pub fn positioner_get_gravity(view: WlcView) -> PositionerGravityBit {
+    unsafe {
+        wlc_view_positioner_get_gravity(view)
+    }
+}
+
+pub fn positioner_get_constraint_adjustment(view: WlcView)
+                                            -> PositionerConstraintAdjustmentBits {
+    unsafe {
+        wlc_view_positioner_get_constraint_adjustment(view)
     }
 }

@@ -163,6 +163,42 @@ bitflags! {
     }
 }
 
+bitflags! {
+    #[repr(C)]
+    pub flags PositionerAnchorBit: u32 {
+        const WLC_BIT_ANCHOR_NONE = 0,
+        const WLC_BIT_ANCHOR_TOP = 1<<0,
+        const WLC_BIT_ANCHOR_BOTTOM = 1<<1,
+        const WLC_BIT_ANCHOR_LEFT = 1<<2,
+        const WLC_BIT_ANCHOR_RIGHT = 1<<3
+    }
+}
+
+bitflags! {
+    #[repr(C)]
+    pub flags PositionerGravityBit: u32 {
+        const WLC_BIT_GRAVITY_NONE = 0,
+        const WLC_BIT_GRAVITY_TOP = 1<<0,
+        const WLC_BIT_GRAVITY_BOTTOM = 1<<1,
+        const WLC_BIT_GRAVITY_LEFT = 1<<2,
+        const WLC_BIT_GRAVITY_RIGHT = 1<<3
+
+    }
+}
+
+bitflags! {
+    #[repr(C)]
+    pub flags PositionerConstraintAdjustmentBits: u32 {
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_NONE = 0,
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_SLIDE_X = 1<<0,
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_SLIDE_Y = 1<<1,
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_FLIP_X = 1<<2,
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_FLIP_Y = 1<<3,
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_RESIZE_X = 1<<4,
+        const WLC_BIT_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 1<<5
+    }
+}
+
 /// Represents a key state in key events
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
