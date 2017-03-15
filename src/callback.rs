@@ -148,6 +148,10 @@ extern "C" {
     /// Returns NULL if view has no valid positioner.
     fn wlc_view_positioner_get_anchor_rect(view: WlcView) -> *const Geometry;
 
+    /// Get size requested by positioner, as defined in xdg-shell v6.
+    /// Returns NULL if view has no valid positioner
+    fn wlc_view_positioner_get_size(view: WlcView) -> *const Size;
+
     /// Get anchor requested by positioner, as defined in xdg-shell v6.
     /// Returns default value WLC_BIT_ANCHOR_NONE if view has no valid positioner
     /// or if positioner has no anchor set.
@@ -560,6 +564,18 @@ pub fn view_properties_changed(callback: extern "C" fn(handle: WlcView, mask: Vi
 pub fn positioner_get_anchor_rect(view: WlcView) -> Option<Geometry> {
     unsafe {
         let out = wlc_view_positioner_get_anchor_rect(view);
+        if out.is_null() {
+            None
+        } else {
+            Some(*out)
+        }
+    }
+}
+
+/// Get size requested by positioner, as defined in xdg-shell v6.
+pub fn positioner_get_size(view: WlcView) -> Option<Size> {
+    unsafe {
+        let out = wlc_view_positioner_get_size(view);
         if out.is_null() {
             None
         } else {
