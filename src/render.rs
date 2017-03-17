@@ -44,7 +44,10 @@ extern "C" {
     /// If the geometry is out of bounds, it will be automatically clamped.
     pub fn wlc_pixels_write(format: wlc_pixel_format, geometry: *const Geometry, data: *const c_void);
 
-    pub fn wlc_pixels_read(format: wlc_pixel_format, geometry: *const Geometry, data: *mut c_void);
+    pub fn wlc_pixels_read(format: wlc_pixel_format,
+                           geometry: *const Geometry,
+                           out_geo: *mut Geometry,
+                           data: *mut c_void);
 
     /** Renders surface. */
     pub fn wlc_surface_render(surface: uintptr_t, geometry: *const Geometry);
@@ -94,9 +97,15 @@ pub fn read_pixels(format: wlc_pixel_format, mut geometry: Geometry) -> ([u8; 9]
     let in_buf_ptr = in_buf.as_mut_ptr();
     mem::forget(in_buf);
     let mut out_buf = unsafe {
-        wlc_pixels_read(format, &mut geometry as *mut _, in_buf_ptr as *mut c_void);
+        let mut out_geo = Geometry::zero();
+        wlc_pixels_read(format,
+                        &mut geometry as *mut _,
+                        &mut out_geo as *mut _,
+                        in_buf_ptr as *mut c_void);
         // TODO read the header for this information!
-        Vec::from_raw_parts(in_buf_ptr, header_size + data_size, header_size + data_size)
+        let size = header_size +
+            out_geo.size.w as usize * out_geo.size.h as usize * 4;
+        Vec::from_raw_parts(in_buf_ptr, size, size)
     };
     let mut header_response = [0u8; 9];
     let response: Vec<u8> = out_buf.drain(0..9).collect();
