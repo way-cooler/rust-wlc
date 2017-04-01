@@ -28,7 +28,7 @@ use super::render::{wlc_output_get_renderer, wlc_output_schedule_render, wlc_ren
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc view.
 ///
-pub struct WlcView(uintptr_t);
+pub struct WlcView(pub uintptr_t);
 
 impl fmt::Debug for WlcView {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -56,7 +56,7 @@ impl fmt::Display for WlcView {
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a handle to a wlc output.
-pub struct WlcOutput(uintptr_t);
+pub struct WlcOutput(pub uintptr_t);
 
 impl fmt::Debug for WlcOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -170,7 +170,7 @@ extern "C" {
     fn wlc_handle_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
 
     #[cfg(feature="wlc-wayland")]
-    fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
+    pub fn wlc_handle_from_wl_output_resource(resource: *const wl_resource) -> uintptr_t;
 
     #[cfg(feature="wlc-wayland")]
     fn wlc_view_get_surface(view: uintptr_t) -> uintptr_t;
@@ -229,6 +229,12 @@ impl WlcOutput {
     /// a bug report.
     pub fn as_view(self) -> WlcView {
         WlcView::from(self)
+    }
+
+    /// Determines if this is a null a output (invalid).
+    #[inline]
+    pub fn is_null(self) -> bool {
+        self.0 == 0
     }
 
     /// Create a dummy WlcOutput for testing purposes.

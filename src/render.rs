@@ -72,6 +72,14 @@ extern "C" {
     pub fn wlc_surface_get_textures(surface: uintptr_t,
                                 out_textures: *mut uint32_t,
                                 out_format: *mut wlc_surface_format);
+
+    pub fn wlc_output_set_gamma(output: uintptr_t,
+                                size: u16,
+                                red: *mut u16,
+                                green: *mut u16,
+                                blue: *mut u16);
+
+    pub fn wlc_output_get_gamma_size(output: uintptr_t) -> u16 ;
 }
 
 

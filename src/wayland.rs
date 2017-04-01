@@ -39,13 +39,14 @@ pub struct WlcResource(uintptr_t);
 #[cfg_attr(feature = "static-wlc", link(name = "wlc", kind = "static"))]
 #[cfg_attr(not(feature = "static-wlc"), link(name = "wlc"))]
 extern "C" {
-    fn wlc_get_wl_display() -> *mut wl_display;
-    fn wlc_resource_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
-    fn wlc_surface_get_size(resource: uintptr_t) -> *const Size;
-    fn wlc_surface_get_subsurfaces(parent: uintptr_t, out_size: *mut size_t)
-                                   -> *const uintptr_t;
-    fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
-    fn wlc_surface_get_wl_resource(resource: uintptr_t) -> *mut wl_resource;
+    pub fn wlc_get_wl_display() -> *mut wl_display;
+    pub fn wlc_resource_from_wl_surface_resource(resource: *const wl_resource) -> uintptr_t;
+    pub fn wlc_surface_get_size(resource: uintptr_t) -> *const Size;
+    pub fn wlc_surface_get_subsurfaces(parent: uintptr_t, out_size: *mut size_t)
+                                       -> *const uintptr_t;
+    pub fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
+    pub fn wlc_view_get_surface(view: uintptr_t) -> uintptr_t; // returns wlc_resource
+    pub fn wlc_surface_get_wl_resource(resource: uintptr_t) -> *mut wl_resource;
 }
 
 /// Get the wayland display for the current session.
