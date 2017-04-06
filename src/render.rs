@@ -71,7 +71,7 @@ extern "C" {
     /// For more info what they are check the renderer's source code */
     pub fn wlc_surface_get_textures(surface: uintptr_t,
                                 out_textures: *mut uint32_t,
-                                out_format: *mut wlc_surface_format);
+                                out_format: *mut wlc_surface_format) -> bool;
 
     pub fn wlc_output_set_gamma(output: uintptr_t,
                                 size: u16,
