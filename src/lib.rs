@@ -37,7 +37,7 @@
 //! }
 //!
 //! // Entry point for a compositor
-//! fn compsoitor_main() {
+//! fn compositor_main() {
 //!     callback::view_created(view_created);
 //!     callback::view_focus(view_focus);
 //!
