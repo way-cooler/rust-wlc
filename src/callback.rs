@@ -499,7 +499,7 @@ pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32,
 /// use rustwlc::Point;
 /// use rustwlc::input::pointer;
 ///
-/// extern fn pointer_motion(view: WlcView, time: u32, point: &Point) -> bool {
+/// extern fn pointer_motion(view: WlcView, time: u32, point: Point) -> bool {
 ///     println!("Pointer was moved to {} in {:?} at {}", point, view, time);
 ///     // This is very important.
 ///     pointer::set_position(point);
