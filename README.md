@@ -6,6 +6,8 @@
 
 Rust bindings for [wlc](https://github.com/Cloudef/wlc), the Wayland compositor library.
 
+**It is suggested you use the much better designed [wlc.rs](https://github.com/Drakulix/wlc.rs), this is used primarily for Way Cooler development**
+
 Bindings are compatable with [wlc](https:://github.com/Cloudef/wlc) v0.0.5 - v0.0.8. 
 We suggest using 0.0.7 - it has bugfixes and compatibilty with more recent Wayland protocols.
 
