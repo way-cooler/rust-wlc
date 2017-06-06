@@ -45,7 +45,7 @@ fn main() {
 We're on [crates.io](https://crates.io/crates/rustwlc), so to use the library simply add:
 
 ```toml
-[depdenencies]
+[dependencies]
 rustwlc = "0.5"
 ```
 to your Cargo.toml.
