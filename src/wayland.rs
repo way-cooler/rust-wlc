@@ -21,7 +21,7 @@
 //!
 //! [wayland_sys_docs]:http://vberger.github.io/wayland-client-rs/wayland_sys/index.html
 //! [wayland_sys_crate]:https://crates.io/crates/wayland_sys
-use wayland_sys::server::{wl_display, wl_resource};
+use wayland_sys::server::{wl_display, wl_resource, wl_client};
 
 use libc::{uintptr_t, size_t};
 
@@ -47,6 +47,7 @@ extern "C" {
     pub fn wlc_get_subsurface_geometry(surface: uintptr_t, out_geo: *mut Geometry);
     pub fn wlc_view_get_surface(view: uintptr_t) -> uintptr_t; // returns wlc_resource
     pub fn wlc_surface_get_wl_resource(resource: uintptr_t) -> *mut wl_resource;
+    pub fn wlc_view_get_wl_client(handle: uintptr_t) -> *mut wl_client;
 }
 
 /// Get the wayland display for the current session.
