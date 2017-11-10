@@ -144,7 +144,7 @@ extern "C" {
 
     fn wlc_view_set_geometry(view: uintptr_t, edges: u32, geo: *const Geometry);
 
-    fn wlc_view_get_type(view: uintptr_t) -> ViewType;
+    fn wlc_view_get_type(view: uintptr_t) -> u32;
 
     fn wlc_view_set_type(view: uintptr_t, view_type: ViewType, toggle: bool);
 
@@ -662,7 +662,8 @@ impl WlcView {
 
     /// Gets the type bitfield of the curent view
     pub fn get_type(self) -> ViewType {
-        unsafe { wlc_view_get_type(self.0) }
+        ViewType::from_bits(unsafe { wlc_view_get_type(self.0) })
+            .expect("View Type returned different bits")
     }
 
     /// Set flag in the type field. Toggle indicates whether it is set.
