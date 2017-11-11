@@ -146,11 +146,11 @@ extern "C" {
 
     fn wlc_view_get_type(view: uintptr_t) -> u32;
 
-    fn wlc_view_set_type(view: uintptr_t, view_type: ViewType, toggle: bool);
+    fn wlc_view_set_type(view: uintptr_t, view_type: u32, toggle: bool);
 
-    fn wlc_view_get_state(view: uintptr_t) -> ViewState;
+    fn wlc_view_get_state(view: uintptr_t) -> u32;
 
-    fn wlc_view_set_state(view: uintptr_t, state: ViewState, toggle: bool);
+    fn wlc_view_set_state(view: uintptr_t, state: u32, toggle: bool);
 
     // Parent is Option<View>
     fn wlc_view_get_parent(view: uintptr_t) -> uintptr_t;
@@ -662,24 +662,29 @@ impl WlcView {
 
     /// Gets the type bitfield of the curent view
     pub fn get_type(self) -> ViewType {
-        ViewType::from_bits(unsafe { wlc_view_get_type(self.0) })
-            .expect("View Type returned different bits")
+        unsafe {
+            ViewType::from_bits(wlc_view_get_type(self.0))
+                .expect("View Type returned different bits")
+        }
     }
 
     /// Set flag in the type field. Toggle indicates whether it is set.
     pub fn set_type(self, view_type: ViewType, toggle: bool) {
-        unsafe { wlc_view_set_type(self.0, view_type, toggle); }
+        unsafe { wlc_view_set_type(self.0, view_type.bits(), toggle); }
     }
 
     // TODO get bitflags enums
     /// Get the current ViewState bitfield.
     pub fn get_state(self) -> ViewState {
-        unsafe { wlc_view_get_state(self.0) }
+        unsafe {
+            ViewState::from_bits(wlc_view_get_state(self.0))
+                .expect("View State returned different bits")
+        }
     }
 
     /// Set ViewState bit. Toggle indicates whether it is set or not.
     pub fn set_state(self, state: ViewState, toggle: bool) {
-        unsafe { wlc_view_set_state(self.0, state, toggle); }
+        unsafe { wlc_view_set_state(self.0, state.bits(), toggle); }
     }
 
     /// Gets parent view, returns `WlcView::root()` if this view has no parent.
