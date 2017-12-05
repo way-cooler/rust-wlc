@@ -701,10 +701,10 @@ impl WlcView {
 
     /// Get the title of the view
     pub fn get_title(self) -> String {
-        let chars: *const i8;
+        let chars: *const c_char;
         unsafe {
             chars = wlc_view_get_title(self.0);
-            if chars == 0 as *const i8 {
+            if chars == 0 as *const c_char {
                 String::new()
             } else {
                     pointer_to_string(chars)
@@ -714,10 +714,10 @@ impl WlcView {
 
     /// Get class (shell surface only).
     pub fn get_class(self) -> String {
-        let chars: *const i8;
+        let chars: *const c_char;
         unsafe {
             chars = wlc_view_get_class(self.0);
-            if chars == 0 as *const i8 {
+            if chars == 0 as *const c_char {
                 String::new()
             } else {
                 pointer_to_string(chars)
@@ -727,10 +727,10 @@ impl WlcView {
 
     /// Get app id (xdg-surface only).
     pub fn get_app_id(self) -> String {
-        let chars: *const i8;
+        let chars: *const c_char;
         unsafe {
             chars = wlc_view_get_app_id(self.0);
-            if chars == 0 as *const i8 {
+            if chars == 0 as *const c_char {
                 String::new()
             } else {
                 pointer_to_string(chars)
