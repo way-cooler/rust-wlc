@@ -16,9 +16,15 @@ extern "C" {
                                       modifiers: *const KeyboardModifiers) -> uint32_t;
 
     // Pointer functions
+    #[deprecated(since="0.7.0", note="Use wlc_pointer_get_position_v2 instead")]
     fn wlc_pointer_get_position(out_position: *mut Point);
 
+    fn wlc_pointer_get_position_v2(out_x: &mut f64, out_y: &mut f64);
+
+    #[deprecated(since="0.7.0", note="Use wlc_pointer_set_position_v2 instead")]
     fn wlc_pointer_set_position(position: *const Point);
+
+    fn wlc_pointer_set_position_v2(x: f64, y: f64);
 }
 
 pub mod pointer {
@@ -26,6 +32,8 @@ pub mod pointer {
     use super::super::types::{Point};
 
     /// Gets the current position of the mouse.
+    #[deprecated(since="0.7.0", note="Use get_position_v2()->(f64, f64) instead")]
+    #[allow(deprecated)]
     pub fn get_position() -> Point {
         unsafe {
             let mut point = Point { x: 0, y: 0 };
@@ -34,9 +42,27 @@ pub mod pointer {
         }
     }
 
+    /// Gets the current position of the mouse.
+    pub fn get_position_v2() -> (f64, f64){
+        let (mut x, mut y) = (0.0, 0.0);
+        unsafe{
+            super::wlc_pointer_get_position_v2(&mut x, &mut y);
+        }
+        (x, y)
+    }
+
     /// Sets the current mouse position. Required on mouse move callback.
+    #[deprecated(since="0.7.0", note="Use set_position_v2(x: f64, y: f64) instead")]
+    #[allow(deprecated)]
     pub fn set_position(point: Point) {
         unsafe { super::wlc_pointer_set_position(&point); }
+    }
+
+    /// Sets the current mouse position. Required on mouse move callback.
+    pub fn set_position_v2(x: f64, y: f64){
+        unsafe{
+            super::wlc_pointer_set_position_v2(x,y);
+        }
     }
 }
 

@@ -118,8 +118,12 @@ extern "C" {
     // Motion event was triggered, view handle will be zero if there was no
     // focus. Apply with wlc_pointer_set_position to agree. Return true to
     // prevent sending the event to clients.
+    #[deprecated(since="0.7.0", note="Use wlc_set_pointer_motion_cb_v2 instead")]
     fn wlc_set_pointer_motion_cb(cb: extern "C" fn(WlcView, u32,
                                                    &Point) -> bool);
+
+    fn wlc_set_pointer_motion_cb_v2(cb: extern "C" fn(WlcView, u32,
+                                                  f64, f64) -> bool);
 
     // Touch event was triggered, view handle will be zero if there was no
     // focus. Return true to prevent sending the event to clients.
@@ -507,12 +511,42 @@ pub fn pointer_scroll(callback: extern "C" fn(view: WlcView, time: u32,
 /// }
 /// # fn main() { }
 /// ```
+#[deprecated(since="0.7.0", note="Use pointer_motion_v2 instead")]
+#[allow(deprecated)]
 pub fn pointer_motion(callback: extern "C" fn(view: WlcView, time: u32,
                                               point: &Point) -> bool) {
     unsafe {
         wlc_set_pointer_motion_cb(callback);
     }
 }
+
+/// Callback invoked on pointer motion.
+/// Return `true` to block the motion from the view.
+///
+/// `rustwlc::input::pointer::set_position_v2`
+/// must be invoked to actually move the cursor!
+///
+/// # Example
+/// ```rust
+/// use rustwlc::WlcView;
+/// use rustwlc::Point;
+/// use rustwlc::input::pointer;
+///
+/// extern fn pointer_motion(view: WlcView, time: u32, x: f64, y: f64) -> bool {
+///     println!("Pointer was moved to {} {} in {:?} at {}", x, y, view, time);
+///     // This is very important.
+///     pointer::set_position_v2(x, y);
+///     return false;
+/// }
+/// # fn main() { }
+/// ```
+pub fn pointer_motion_v2(callback: extern "C" fn(view: WlcView, time: u32,
+                                              x: f64, y: f64) -> bool) {
+    unsafe {
+        wlc_set_pointer_motion_cb_v2(callback);
+    }
+}
+
 
 /// Callback invoked on touchscreen touch.
 /// Return `true` to block the touch from the view.
